@@ -1,0 +1,70 @@
+logging:
+  level:
+    com.cognitera.platform: DEBUG
+
+spring:
+  application:
+    name: document-intelligence-platform
+  messages:
+    basename: messages
+    encoding: UTF-8
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/docintel}
+    username: ${DB_USERNAME:docintel}
+    password: ${DB_PASSWORD:docintel}
+  flyway:
+    enabled: false
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 500MB
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+server:
+  error:
+    whitelabel:
+      enabled: false
+    path: /error
+
+platform:
+  auth:
+    issuer: ${AUTH_JWT_ISSUER:document-intelligence-platform}
+    jwt-secret: ${AUTH_JWT_SECRET:change-this-development-secret-change-this-development-secret}
+    access-token-ttl: ${AUTH_ACCESS_TOKEN_TTL:15m}
+    refresh-token-ttl: ${AUTH_REFRESH_TOKEN_TTL:30d}
+  ai:
+    ollama:
+      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+      chat-model: ${OLLAMA_CHAT_MODEL:qwen2.5:14b}
+      embedding-model: ${OLLAMA_EMBEDDING_MODEL:nomic-embed-text}
+      embedding-dimension: ${OLLAMA_EMBEDDING_DIMENSION:768}
+      request-timeout: ${OLLAMA_REQUEST_TIMEOUT:120s}
+
+#   openai:
+#     api-key: ${OPENAI_API_KEY}
+#     base-url: ${OPENAI_BASE_URL:https://api.openai.com/v1}
+#     chat-model: ${OPENAI_CHAT_MODEL:gpt-4o}
+#     embedding-model: ${OPENAI_EMBEDDING_MODEL:text-embedding-3-small}
+  search:
+    qdrant:
+      host: ${QDRANT_HOST:localhost}
+      rest-port: ${QDRANT_REST_PORT:6333}
+      collection: ${QDRANT_COLLECTION:docintel_chunks}
+      vector-dimension: ${QDRANT_VECTOR_DIMENSION:768}
+    embedding:
+      ollama:
+        base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+        model: ${OLLAMA_EMBEDDING_MODEL:nomic-embed-text}
+        dimension: ${OLLAMA_EMBEDDING_DIMENSION:768}

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>New Workspace — Intake</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link th:href="@{/css/platform.css}" rel="stylesheet">
+</head>
+<body>
+<div th:replace="~{fragments/layout :: nav}"></div>
+<main class="app-shell">
+    <div class="mb-3">
+        <span class="badge bg-primary mb-2">Stage 1 of 9</span>
+        <h1 class="h3">New Workspace — Intake</h1>
+        <p class="text-muted">Define the context for this workspace.</p>
+    </div>
+    <form method="post" th:action="@{/workspaces/new}">
+        <div class="card mb-3">
+            <div class="card-header"><strong>Workspace Information</strong></div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Workspace Type</label>
+                        <select class="form-select" name="workspaceType" required>
+                            <option value="">-- Select --</option>
+                            <option th:each="t : ${workspaceTypes}" th:value="${t.name()}" th:text="${t.name().replace('_',' ')}">General</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Domain</label>
+                        <select class="form-select" name="domain" required>
+                            <option value="">-- Select --</option>
+                            <option th:each="d : ${domains}" th:value="${d.name()}" th:text="${d.name().replace('_',' ')}">General</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card mb-3">
+            <div class="card-header"><strong>Workspace Details</strong></div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Workspace Reference (optional)</label>
+                        <input type="text" class="form-control" name="workspaceReference" placeholder="e.g. WS-001">
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <label class="form-label">Additional Notes</label>
+                    <textarea class="form-control" name="additionalNotes" rows="3" placeholder="Any additional context..."></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex justify-content-between">
+            <a th:href="@{/workspaces}" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Create Workspace & Continue</button>
+        </div>
+    </form>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

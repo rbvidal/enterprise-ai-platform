@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Document Intelligence Platform — Architecture & Design Manual</title>
+<style>
+  @page {
+    size: A4;
+    margin: 2.5cm 2cm 2.5cm 2cm;
+    @top-center { content: "Document Intelligence Platform — Architecture & Design Manual"; font-size: 8pt; color: #666; }
+    @bottom-center { content: "Page " counter(page); font-size: 8pt; color: #666; }
+  }
+  body {
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.65;
+    color: #1a1a1a;
+    max-width: 100%;
+  }
+  .cover {
+    text-align: center;
+    padding: 120px 0 80px 0;
+    page-break-after: always;
+  }
+  .cover h1 {
+    font-size: 28pt;
+    font-weight: 700;
+    color: #1a3a5c;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+  }
+  .cover .subtitle {
+    font-size: 14pt;
+    color: #555;
+    margin-bottom: 40px;
+  }
+  .cover .meta {
+    font-size: 10pt;
+    color: #777;
+    margin-top: 60px;
+    line-height: 2;
+  }
+  .cover .divider {
+    width: 120px;
+    height: 3px;
+    background: #2563eb;
+    margin: 30px auto;
+  }
+
+  .toc {
+    page-break-after: always;
+  }
+  .toc h2 {
+    font-size: 18pt;
+    color: #1a3a5c;
+    border-bottom: 2px solid #2563eb;
+    padding-bottom: 6px;
+    margin-bottom: 20px;
+  }
+  .toc ul {
+    list-style: none;
+    padding: 0;
+  }
+  .toc li {
+    padding: 4px 0;
+    border-bottom: 1px dotted #ddd;
+  }
+  .toc li a {
+    color: #1a3a5c;
+    text-decoration: none;
+  }
+  .toc .l1 { font-weight: 700; font-size: 11pt; margin-top: 8px; }
+  .toc .l2 { padding-left: 24px; }
+  .toc .l3 { padding-left: 48px; font-size: 9.5pt; color: #555; }
+
+  h1 { font-size: 20pt; color: #1a3a5c; margin-top: 32px; page-break-before: always; }
+  h1:first-of-type { page-break-before: avoid; }
+  h2 { font-size: 14pt; color: #1a3a5c; margin-top: 28px; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
+  h3 { font-size: 11.5pt; color: #333; margin-top: 20px; }
+
+  p { margin: 8px 0; }
+  ul, ol { margin: 6px 0; padding-left: 20px; }
+  li { margin: 3px 0; }
+
+  code {
+    font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+    font-size: 9pt;
+    background: #f0f4f8;
+    padding: 1px 4px;
+    border-radius: 3px;
+  }
+  pre {
+    background: #1e293b;
+    color: #e2e8f0;
+    padding: 14px 18px;
+    border-radius: 6px;
+    font-size: 9pt;
+    line-height: 1.5;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  pre code { background: none; color: inherit; padding: 0; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 9.5pt;
+  }
+  th {
+    background: #1a3a5c;
+    color: white;
+    padding: 8px 12px;
+    text-align: left;
+    font-weight: 600;
+  }
+  td {
+    padding: 7px 12px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  tr:nth-child(even) td { background: #f8fafc; }
+
+  .callout {
+    border-left: 4px solid #2563eb;
+    background: #eff6ff;
+    padding: 12px 16px;
+    margin: 16px 0;
+    border-radius: 0 6px 6px 0;
+  }
+  .callout strong { color: #1e40af; }
+
+  .diagram-box {
+    background: #f8fafc;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 18px;
+    margin: 16px 0;
+    font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+    font-size: 9pt;
+    line-height: 1.4;
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  .two-col {
+    display: flex;
+    gap: 24px;
+    margin: 12px 0;
+  }
+  .two-col > div { flex: 1; }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 8pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-right: 4px;
+  }
+  .badge-blue { background: #dbeafe; color: #1e40af; }
+  .badge-green { background: #dcfce7; color: #166534; }
+  .badge-amber { background: #fef3c7; color: #92400e; }
+  .badge-red { background: #fee2e2; color: #991b1b; }
+
+  .section-intro {
+    font-size: 11pt;
+    color: #444;
+    font-style: italic;
+    margin-bottom: 16px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- COVER PAGE -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div class="cover">
+  <h1>Document Intelligence Platform</h1>
+  <div class="subtitle">Architecture &amp; Design Manual</div>
+  <div class="divider"></div>
+  <p style="font-size:11pt; color:#444; max-width:500px; margin:0 auto;">
+    A comprehensive guide to the architecture, design decisions, and technology
+    choices behind an enterprise AI-powered document reasoning platform.
+  </p>
+  <div class="meta">
+    Version 1.0 &mdash; June 2026<br>
+    Author: Cognitera Engineering<br>
+    Stack: Spring Boot 3.3 &bull; Ollama &bull; Qdrant &bull; Neo4j &bull; PostgreSQL
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- TABLE OF CONTENTS -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div class="toc">
+  <h2>Table of Contents</h2>
+  <ul>
+    <li class="l1"><a href="#s1">1. Executive Summary</a></li>
+    <li class="l1"><a href="#s2">2. What the Platform Does</a></li>
+    <li class="l2"><a href="#s2.1">2.1 Core Capabilities</a></li>
+    <li class="l2"><a href="#s2.2">2.2 User Journey</a></li>
+    <li class="l2"><a href="#s2.3">2.3 Why This Matters</a></li>
+
+    <li class="l1"><a href="#s3">3. High-Level Architecture</a></li>
+    <li class="l2"><a href="#s3.1">3.1 Architectural Diagram</a></li>
+    <li class="l2"><a href="#s3.2">3.2 Multi-Module Maven Structure</a></li>
+    <li class="l2"><a href="#s3.3">3.3 Module Responsibilities</a></li>
+    <li class="l2"><a href="#s3.4">3.4 Layered Architecture Pattern</a></li>
+
+    <li class="l1"><a href="#s4">4. Technology Stack &amp; Rationale</a></li>
+    <li class="l2"><a href="#s4.1">4.1 Why Spring Boot 3.3</a></li>
+    <li class="l2"><a href="#s4.2">4.2 Why Ollama for LLM Inference</a></li>
+    <li class="l2"><a href="#s4.3">4.3 Why Thymeleaf Over React</a></li>
+    <li class="l2"><a href="#s4.4">4.4 Why PostgreSQL (with pgvector)</a></li>
+    <li class="l2"><a href="#s4.5">4.5 Why Neo4j for the Knowledge Graph</a></li>
+    <li class="l2"><a href="#s4.6">4.6 Why Qdrant for Vector Search</a></li>
+    <li class="l2"><a href="#s4.7">4.7 Why Java 21</a></li>
+
+    <li class="l1"><a href="#s5">5. Search Architecture</a></li>
+    <li class="l2"><a href="#s5.1">5.1 Hybrid Search: Concept</a></li>
+    <li class="l2"><a href="#s5.2">5.2 Keyword Search Path</a></li>
+    <li class="l2"><a href="#s5.3">5.3 Semantic (Vector) Search Path</a></li>
+    <li class="l2"><a href="#s5.4">5.4 Fusion &amp; Reranking Algorithm</a></li>
+    <li class="l2"><a href="#s5.5">5.5 Chunking Strategy</a></li>
+    <li class="l2"><a href="#s5.6">5.6 Query Intent Classification</a></li>
+
+    <li class="l1"><a href="#s6">6. AI &amp; RAG Pipeline</a></li>
+    <li class="l2"><a href="#s6.1">6.1 Retrieval-Augmented Generation Flow</a></li>
+    <li class="l2"><a href="#s6.2">6.2 Prompt Engineering Architecture</a></li>
+    <li class="l2"><a href="#s6.3">6.3 Grounding &amp; Attribution</a></li>
+    <li class="l2"><a href="#s6.4">6.4 Temporal Consistency &amp; Claim Validation</a></li>
+    <li class="l2"><a href="#s6.5">6.5 Confidence Scoring</a></li>
+
+    <li class="l1"><a href="#s7">7. Knowledge Graph (Neo4j)</a></li>
+    <li class="l2"><a href="#s7.1">7.1 Role of the Knowledge Graph</a></li>
+    <li class="l2"><a href="#s7.2">7.2 Graph Data Model</a></li>
+    <li class="l2"><a href="#s7.3">7.3 Integration Pattern</a></li>
+
+    <li class="l1"><a href="#s8">8. Data &amp; Persistence Layer</a></li>
+    <li class="l2"><a href="#s8.1">8.1 PostgreSQL Schema Strategy</a></li>
+    <li class="l2"><a href="#s8.2">8.2 Why We Need a Relational Database</a></li>
+    <li class="l2"><a href="#s8.3">8.3 Document Storage &amp; Versioning</a></li>
+
+    <li class="l1"><a href="#s9">9. Security Architecture</a></li>
+    <li class="l2"><a href="#s9.1">9.1 JWT-Based Authentication</a></li>
+    <li class="l2"><a href="#s9.2">9.2 Authorization Model</a></li>
+    <li class="l2"><a href="#s9.3">9.3 Audit Trail System</a></li>
+
+    <li class="l1"><a href="#s10">10. Internationalization (i18n)</a></li>
+    <li class="l1"><a href="#s11">11. Ingestion Pipeline</a></li>
+    <li class="l1"><a href="#s12">12. Workspace System</a></li>
+    <li class="l1"><a href="#s13">13. Testing Strategy</a></li>
+    <li class="l1"><a href="#s14">14. Deployment &amp; Operations</a></li>
+    <li class="l1"><a href="#s15">15. Why This Architecture Excels</a></li>
+    <li class="l1"><a href="#s16">16. Key Design Decisions Summary</a></li>
+  </ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- 1. EXECUTIVE SUMMARY -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h1 id="s1">1. Executive Summary</h1>
+
+<p class="section-intro">
+  A modern enterprise platform that ingests, indexes, analyzes, and reasons over
+  document collections using a hybrid of classical search, vector similarity,
+  knowledge graphs, and large language models — all running on privately
+  hosted, open-source infrastructure.
+</p>
+
+<p>
+  The <strong>Document Intelligence Platform</strong> is a Spring Boot 3.3
+  application that transforms how organizations interact with their document
+  repositories. It combines <strong>hybrid search</strong> (keyword + semantic
+  vector), a <strong>Neo4j knowledge graph</strong>, and
+  <strong>retrieval-augmented generation (RAG)</strong> via locally hosted
+  Ollama LLMs to let users ask natural-language questions and receive
+  evidence-backed, citation-grounded answers drawn from their own documents.
+</p>
+
+<div class="callout">
+  <strong>Key insight:</strong> This platform is not a chatbot bolted onto a
+  search engine. It is a purpose-built document reasoning system where every
+  AI-generated answer is traceable to specific source passages, validated for
+  temporal consistency, and scored for confidence.
+</div>
+
+<p>The platform serves three primary audiences:</p>
+
+<ol>
+  <li><strong>Knowledge workers</strong> — who need to find and reason over documents across workspaces.</li>
+  <li><strong>Legal/compliance professionals</strong> — who require citation-grounded answers with provenance chains.</li>
+  <li><strong>AI consultants &amp; architects</strong> — who want a reference implementation showcasing modern AI engineering patterns.</li>
+</ol>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- 2. WHAT THE PLATFORM DOES -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h1 id="s2">2. What the Platform Does</h1>
+
+<h2 id="s2.1">2.1 Core Capabilities</h2>
+
+<table>
+  <tr><th>Capability</th><th>Description</th></tr>
+  <tr>
+    <td>Document Ingestion</td>
+    <td>Upload documents (PDF, DOCX, plain text) with automatic text extraction, chunking, and indexing into both keyword and vector stores.</td>
+  </tr>
+  <tr>
+    <td>Hybrid Search</td>
+    <td>Query across all documents using keyword search, semantic vector search, or a fused hybrid mode. Results are reranked and scored.</td>
+  </tr>
+  <tr>
+    <td>AI-Powered Q&amp;A</td>
+    <td>Ask natural-language questions. The platform retrieves relevant document passages, augments the LLM prompt with that context, and produces citation-backed answers.</td>
+  </tr>
+  <tr>
+    <td>Knowledge Graph</td>
+    <td>A Neo4j graph database captures relationships between structured knowledge entries (e.g., legal statutes, regulatory references), enabling graph traversal queries.</td>
+  </tr>
+  <tr>
+    <td>Workspace Management</td>
+    <td>Organize documents into workspaces with multi-phase workflows: Setup → Upload → Ingest → Analysis → Review → Complete.</td>
+  </tr>
+  <tr>
+    <td>Document Versioning</td>
+    <td>Full version history for every document, with the ability to add new versions while preserving all previous ones.</td>
+  </tr>
+  <tr>
+    <td>Audit Trail</td>
+    <td>Every significant action (login, upload, search, AI inference, ingestion) is recorded with correlation IDs for end-to-end traceability.</td>
+  </tr>
+  <tr>
+    <td>Internationalization</td>
+    <td>UI available in English, German, and French with session-based locale switching.</td>
+  </tr>
+  <tr>
+    <td>Semantic Code Indexing</td>
+    <td>A companion module indexes Java source code for semantic code search and AI-assisted code understanding.</td>
+  </tr>
+</table>
+
+<h2 id="s2.2">2.2 User Journey</h2>
+
+<p>A typical user session flows through these steps:</p>
+
+<ol>
+  <li><strong>Authenticate</strong> — Login with JWT-based credentials (access + refresh token).</li>
+  <li><strong>Create a Workspace</strong> — Define a workspace with a name, description, and type (e.g., Legal Review, Research).</li>
+  <li><strong>Upload Documents</strong> — Drag-and-drop PDFs or DOCX files. The platform extracts text, chunks it, generates embeddings, and indexes into PostgreSQL + Qdrant.</li>
+  <li><strong>Search</strong> — Use keyword, semantic, or hybrid search to find relevant passages across all documents.</li>
+  <li><strong>Ask AI Questions</strong> — Pose natural-language questions. The RAG pipeline retrieves relevant chunks, augments the prompt, queries the LLM, and grounds the answer with citations.</li>
+  <li><strong>Review &amp; Export</strong> — Browse AI answers with their source citations. Review workspace analysis results.</li>
+  <li><strong>Audit</strong> — View the complete audit trail of all actions for compliance and traceability.</li>
+</ol>
+
+<h2 id="s2.3">2.3 Why This Matters</h2>
+
+<p>
+  Organizations sit on millions of documents — contracts, regulatory filings,
+  legal opinions, research papers, internal policies. Traditional keyword search
+  finds documents but not answers. RAG-based AI can synthesize answers, but
+  without proper grounding, it hallucinates. This platform bridges the gap:
+  <strong>evidence-backed AI reasoning over your own document corpus, running on
+  infrastructure you control.</strong>
+</p>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- 3. HIGH-LEVEL ARCHITECTURE -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h1 id="s3">3. High-Level Architecture</h1>
+
+<h2 id="s3.1">3.1 Architectural Diagram</h2>
+
+<div class="diagram-box">
+┌─────────────────────────────────────────────────────────────────┐
+│                    BROWSER (Thymeleaf + Bootstrap 5)             │
+│   /dashboard  /workspaces  /documents  /search  /ai  /audit     │
+└──────────────────────────┬──────────────────────────────────────┘
+                           │ HTTP (REST + Form)
+┌──────────────────────────▼──────────────────────────────────────┐
+│              PLATFORM-API (Spring Boot 3.3 / Java 21)           │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌───────────────────┐  │
+│  │Web Controllers││REST Controllers││Security Filter││Exception Handler││
+│  └──────────┘ └──────────┘ └──────────┘ └───────────────────┘  │
+└──┬─────────┬─────────┬──────────┬──────────┬────────────────────┘
+   │         │         │          │          │
+   ▼         ▼         ▼          ▼          ▼
+┌──────┐ ┌──────┐ ┌───────┐ ┌────────┐ ┌──────────┐
+│AUTH  │ │DOC   │ │SEARCH │ │  AI    │ │WORKSPACE │
+│JWT   │ │Ver   │ │Hybrid │ │ RAG    │ │Phase     │
+│BCrypt│ │Ingest│ │Fusion │ │Prompt  │ │Orchestr. │
+└──┬───┘ └──┬───┘ └──┬────┘ └───┬────┘ └────┬─────┘
+   │        │        │          │           │
+   ▼        ▼        ▼          ▼           ▼
+┌──────┐ ┌──────┐ ┌───────┐ ┌────────┐ ┌──────────┐
+│AUDIT │ │KNOWL-│ │NEO4J  │ │DOMAIN  │ │  WEB     │
+│Event │ │EDGE   │ │Graph  │ │Shared  │ │  Pages   │
+│Store │ │Store  │ │Service │ │Models  │ │  i18n    │
+└──────┘ └──────┘ └───────┘ └────────┘ └──────────┘
+   │        │        │          │
+   ▼        ▼        ▼          ▼
+┌──────────────────────────────────────────────────────────────────┐
+│                    INFRASTRUCTURE (Docker)                        │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌────────────────┐   │
+│  │PostgreSQL│  │  Qdrant  │  │  Neo4j   │  │    Ollama      │   │
+│  │(pgvector)│  │(Vector DB)│  │(Graph DB)│  │(LLM + Embed)   │   │
+│  └──────────┘  └──────────┘  └──────────┘  └────────────────┘   │
+└──────────────────────────────────────────────────────────────────┘
+</div>
+
+<h2 id="s3.2">3.2 Multi-Module Maven Structure</h2>
+
+<p>
+  The platform is organized as a <strong>12-module Maven multi-module project</strong>.
+  Each module has a clear, bounded responsibility with its own <code>api/</code>
+  (interfaces), <code>application/</code> (implementations), and
+  <code>infrastructure/</code> (persistence) packages. This enforces the
+  <strong>dependency inversion principle</strong> — modules depend on
+  interfaces, not implementations.
+</p>
+
+<table>
+  <tr><th>Module</th><th>Role</th><th>Key Dependencies</th></tr>
+  <tr>
+    <td><code>platform-domain</code></td>
+    <td>Shared domain models, value objects</td>
+    <td>None (root dependency)</td>
+  </tr>
+  <tr>
+    <td><code>platform-audit</code></td>
+    <td>Audit event definitions, repository, publisher API</td>
+    <td>domain</td>
+  </tr>
+  <tr>
+    <td><code>platform-auth</code></td>
+    <td>JWT authentication, user accounts, session tokens</td>
+    <td>domain, audit</td>
+  </tr>
+  <tr>
+    <td><code>platform-document</code></td>
+    <td>Document CRUD, versioning, ingestion pipeline</td>
+    <td>domain, audit</td>
+  </tr>
+  <tr>
+    <td><code>platform-search</code></td>
+    <td>Hybrid search, chunking, embeddings, Qdrant integration</td>
+    <td>domain, document, audit</td>
+  </tr>
+  <tr>
+    <td><code>platform-ai</code></td>
+    <td>RAG pipeline, prompting, grounding, Ollama chat</td>
+    <td>domain, search, audit</td>
+  </tr>
+  <tr>
+    <td><code>platform-workspace</code></td>
+    <td>Workspace CRUD, phase orchestration, timeline extraction</td>
+    <td>domain, document</td>
+  </tr>
+  <tr>
+    <td><code>platform-knowledge</code></td>
+    <td>Knowledge entry storage, ingestion from external sources</td>
+    <td>domain</td>
+  </tr>
+  <tr>
+    <td><code>platform-neo4j</code></td>
+    <td>Neo4j graph service: nodes, relationships, traversal</td>
+    <td>knowledge</td>
+  </tr>
+  <tr>
+    <td><code>platform-web</code></td>
+    <td>Thymeleaf page controllers, i18n messages, CSS</td>
+    <td>All above modules</td>
+  </tr>
+  <tr>
+    <td><code>platform-api</code></td>
+    <td>REST controllers, DTOs, Spring Boot entry point</td>
+    <td>All above modules</td>
+  </tr>
+  <tr>
+    <td><code>semantic-indexing</code></td>
+    <td>Standalone code indexing app (separate Spring Boot app)</td>
+    <td>Independent</td>
+  </tr>
+</table>
+
+<h2 id="s3.3">3.3 Module Responsibilities in Detail</h2>
+
+<h3>platform-ai — The AI Engine</h3>
+<p>
+  This is the intellectual core of the platform. It implements a
+  <strong>full RAG pipeline</strong> with 20+ service interfaces:
+</p>
+<ul>
+  <li><code>QueryIntentClassifier</code> — Routes queries by intent (factual, analytical, procedural, index inspection).</li>
+  <li><code>RetrievalAugmentationService</code> — Fetches relevant sources, authority references, hierarchy, and timeline.</li>
+  <li><code>ContextAssembler</code> — Assembles the full prompt context from retrieval results.</li>
+  <li><code>PromptBuilder</code> — Constructs the final prompt with retrieved context and instructions.</li>
+  <li><code>ChatCompletionProvider</code> — Interface for LLM inference (Ollama implementation).</li>
+  <li><code>GroundingService</code> — Reattributes sources, computes confidence, produces reasoned answers.</li>
+  <li><code>TemporalConsistencyValidator</code> — Checks that AI claims don't contradict temporal constraints.</li>
+  <li><code>ClaimValidator</code> — Validates that claims are supported by retrieved authority references.</li>
+  <li><code>StructuredAnswerAssembler</code> — Formats final answers with citations, confidence, and metadata.</li>
+</ul>
+
+<h3>platform-search — The Retrieval Engine</h3>
+<p>The search module provides a multi-modal retrieval architecture:</p>
+<ul>
+  <li><code>HybridRetrievalService</code> — Combines keyword + vector results with fusion scoring.</li>
+  <li><code>SentenceAwareChunkingStrategy</code> — Splits documents at sentence boundaries with configurable overlap.</li>
+  <li><code>OllamaEmbeddingProvider</code> — Generates embeddings via Ollama's <code>/api/embeddings</code>.</li>
+  <li><code>QdrantVectorSearchProvider</code> — Indexes and searches vectors in Qdrant.</li>
+  <li><code>JpaKeywordSearchProvider</code> — Full-text keyword search via PostgreSQL.</li>
+  <li><code>OllamaRerankingProvider</code> — Cross-encoder reranking via Ollama.</li>
+</ul>
+
+<h2 id="s3.4">3.4 Layered Architecture Pattern</h2>
+
+<p>Every module follows the same internal layering:</p>
+
+<div class="diagram-box">
+┌────────────────────────────────────────────┐
+│  api/        — Interfaces (contracts)       │
+│  application/— Implementations (services)   │
+│  infrastructure/ — Persistence, external I/O│
+│  model/      — Domain objects, value types  │
+└────────────────────────────────────────────┘
+</div>
+
+<p>
+  This is inspired by <strong>Ports &amp; Adapters (Hexagonal Architecture)</strong>.
+  The <code>api/</code> package defines the ports; <code>application/</code>
+  contains the domain logic; <code>infrastructure/</code> contains the adapters
+  (JPA repositories, Ollama HTTP clients, Qdrant REST clients).
+</p>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- 4. TECHNOLOGY STACK & RATIONALE -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h1 id="s4">4. Technology Stack &amp; Rationale</h1>
+
+<h2 id="s4.1">4.1 Why Spring Boot 3.3</h2>
+
+<p>
+  Spring Boot was chosen as the application framework for several deliberate reasons:
+</p>
+
+<table>
+  <tr><th>Factor</th><th>Rationale</th></tr>
+  <tr>
+    <td>Enterprise Maturity</td>
+    <td>Spring Boot has 15+ years of production hardening. Its dependency injection, transaction management, security, and configuration systems are battle-tested in Fortune 500 deployments.</td>
+  </tr>
+  <tr>
+    <td>Ecosystem Breadth</td>
+    <td>Spring Data JPA, Spring Security, Spring AI, and Spring Web provide integrated, well-documented solutions for every layer of the application — no stitching together disparate libraries.</td>
+  </tr>
+  <tr>
+    <td>Type Safety</td>
+    <td>Java's static typing catches entire categories of bugs at compile time that dynamic languages (Python, JavaScript) defer to runtime. In a system processing legal documents, this matters.</td>
+  </tr>
+  <tr>
+    <td>Virtual Threads (Java 21)</td>
+    <td>Spring Boot 3.3 on Java 21 supports Project Loom virtual threads, enabling high-concurrency I/O operations (embedding generation, LLM calls, vector search) without reactive programming complexity.</td>
+  </tr>
+  <tr>
+    <td>Modularity</td>
+    <td>Maven multi-module builds enforce compile-time boundaries between subsystems. You cannot accidentally create a circular dependency.</td>
+  </tr>
+  <tr>
+    <td>Operations</td>
+    <td>Spring Boot Actuator provides health checks, metrics, and monitoring endpoints that integrate directly with Kubernetes, Prometheus, and Grafana.</td>
+  </tr>
+</table>
+
+<div class="callout">
+  <strong>Contrast:</strong> Python (FastAPI/Flask) would have been faster to prototype but would lack the
+  compile-time safety, transaction management, and enterprise integration
+  capabilities that Spring provides out of the box. For a platform that must be
+  <em>correct</em> (not just fast to build), Java + Spring is the right
+  engineering choice.
+</div>
+
+<h2 id="s4.2">4.2 Why Ollama for LLM Inference</h2>
+
+<p>
+  Ollama is used as the <strong>sole LLM provider</strong> for both chat
+  completions and embedding generation. This is a deliberate architectural
+  decision with significant implications:
+</p>
+
+<table>
+  <tr><th>Factor</th><th>Rationale</th></tr>
+  <tr>
+    <td>Data Sovereignty</td>
+    <td>All inference runs locally. Documents never leave the organization's infrastructure. This is non-negotiable for legal, medical, and government use cases.</td>
+  </tr>
+  <tr>
+    <td>Zero API Costs</td>
+    <td>No OpenAI/Anthropic API bills. The marginal cost of a query is electricity. For organizations processing thousands of documents daily, this saves millions.</td>
+  </tr>
+  <tr>
+    <td>Model Flexibility</td>
+    <td>Swap models without code changes — change <code>OLLAMA_CHAT_MODEL</code> from <code>qwen2.5:14b</code> to <code>llama3.1:70b</code> or any other Ollama-compatible model. No vendor lock-in.</td>
+  </tr>
+  <tr>
+    <td>Provider Abstraction</td>
+    <td>The <code>ChatCompletionProvider</code> interface abstracts the LLM backend. The <code>OllamaChatCompletionProvider</code> is one implementation; switching to an OpenAI-compatible API requires only a new adapter class.</td>
+  </tr>
+  <tr>
+    <td>Offline Capability</td>
+    <td>The platform works in air-gapped environments. No internet connection required for inference.</td>
+  </tr>
+</table>
+
+<h3>Technical Integration</h3>
+
+<p>The Ollama integration is straightforward HTTP-based communication:</p>
+
+<pre><code>// Embedding generation
+POST http://localhost:11434/api/embeddings
+{"model": "nomic-embed-text", "prompt": "chunk text here"}
+
+// Chat completion
+POST http://localhost:11434/api/chat
+{"model": "qwen2.5:14b", "messages": [{"role": "user", "content": "..."}], "stream": false}
+</code></pre>
+
+<p>
+  The <code>OllamaChatCompletionProvider</code> uses Java's built-in
+  <code>java.net.http.HttpClient</code> (no additional dependencies) to
+  communicate with Ollama's REST API. The <code>OllamaEmbeddingProvider</code>
+  uses Spring's <code>RestClient</code> for the same purpose.
+</p>
+
+<h2 id="s4.3">4.3 Why Thymeleaf Over React</h2>
+
+<p>
+  This is one of the most important architectural decisions — and one that
+  often surprises people expecting a modern SPA. The choice is deliberate:
+</p>
+
+<table>
+  <tr><th>Factor</th><th>Thymeleaf (chosen)</th><th>React (rejected)</th></tr>
+  <tr>
+    <td>Complexity Budget</td>
+    <td>Server-side rendering with no JavaScript build step. One process to deploy.</td>
+    <td>Requires a separate frontend build (webpack/vite), Node.js runtime, API versioning, CORS handling.</td>
+  </tr>
+  <tr>
+    <td>Security Model</td>
+    <td>Session-based form login with CSRF tokens handled by Spring Security. Server controls all rendering.</td>
+    <td>JWT stored in browser localStorage — vulnerable to XSS. Requires careful token management.</td>
+  </tr>
+  <tr>
+    <td>SEO &amp; Accessibility</td>
+    <td>Fully rendered HTML on first load. Works without JavaScript.</td>
+    <td>Requires SSR framework (Next.js) for equivalent behavior — adding another build pipeline.</td>
+  </tr>
+  <tr>
+    <td>i18n Integration</td>
+    <td>Spring's MessageSource + Thymeleaf's <code>#{key}</code> syntax. No extra tooling.</td>
+    <td>Requires i18next or similar library, separate translation loading, locale detection logic.</td>
+  </tr>
+  <tr>
+    <td>Team Profile</td>
+    <td>Java developers can maintain the full stack. No frontend specialists required.</td>
+    <td>Requires JavaScript/React expertise on the team.</td>
+  </tr>
+  <tr>
+    <td>Deployment</td>
+    <td>Single JAR file. <code>java -jar platform-api.jar</code>.</td>
+    <td>Separate static hosting or embedded Node server. More moving parts.</td>
+  </tr>
+</table>
+
+<div class="callout">
+  <strong>Design philosophy:</strong> Choose the simplest tool that meets the
+  requirements. This platform's value is in its AI and search capabilities, not
+  its UI framework. Thymeleaf delivers a professional, internationalized,
+  accessible UI with zero JavaScript build tooling. For an enterprise document
+  platform, this is the engineering-correct choice. React would be appropriate
+  if the UI required rich real-time interactivity (collaborative editing,
+  websocket-driven updates, complex client-side state) — but this platform's UI
+  is primarily form-driven and page-based.
+</div>
+
+<h2 id="s4.4">4.4 Why PostgreSQL (with pgvector)</h2>
+
+<p>
+  PostgreSQL serves as the <strong>primary relational database</strong> for all
+  structured data: users, documents, workspaces, chunks, audit events, knowledge
+  entries, ingestion jobs, and timelines. We use the <strong>pgvector</strong>
+  extension (pgvector/pgvector:pg16 Docker image) to enable vector storage
+  alongside relational data.
+</p>
+
+<table>
+  <tr><th>Factor</th><th>Rationale</th></tr>
+  <tr>
+    <td>ACID Transactions</td>
+    <td>Document ingestion spans multiple tables (documents, versions, chunks, metadata). PostgreSQL guarantees atomicity — a failed ingestion leaves no partial state.</td>
+  </tr>
+  <tr>
+    <td>Rich Querying</td>
+    <td>Spring Data JPA Specifications enable dynamic, type-safe query building. Audit queries filter by actor, tenant, event type, and date range — all composable.</td>
+  </tr>
+  <tr>
+    <td>pgvector</td>
+    <td>Enables vector similarity operations directly in SQL. While we primarily use Qdrant for vector search, pgvector provides a fallback and enables hybrid queries that join vector similarity with relational filters.</td>
+  </tr>
+  <tr>
+    <td>Operational Simplicity</td>
+    <td>One database technology for 80% of storage needs. PGAdmin provides a management UI. Backups, replication, and monitoring are well-understood.</td>
+  </tr>
+</table>
+
+<h2 id="s4.5">4.5 Why Neo4j for the Knowledge Graph</h2>
+
+<p>
+  Neo4j serves a <strong>specialized role</strong> distinct from PostgreSQL. It
+  stores structured knowledge entries (e.g., legal statutes, regulatory
+  frameworks, authority hierarchies) as a graph, enabling:
+</p>
+
+<ul>
+  <li><strong>Hierarchy traversal:</strong> Navigate from a broad statute down to its subsections and related clauses via <code>PART_OF_HIERARCHY</code> relationships.</li>
+  <li><strong>Concept-based discovery:</strong> Traverse <code>RELATED_CONCEPT</code> edges to find knowledge entries connected by shared legal or regulatory concepts.</li>
+  <li><strong>Graph-native queries:</strong> Cypher queries like "find all entries up to 3 hops from Entry X via RELATED_CONCEPT relationships" express graph traversals that would be painful in SQL.</li>
+</ul>
+
+<div class="callout">
+  <strong>Why not just use PostgreSQL for this?</strong> Relational databases model
+  hierarchies via recursive CTEs or adjacency lists — they work, but query
+  performance degrades with depth and the queries become hard to read. Neo4j's
+  native graph storage and Cypher query language make
+  "<em>find all related concepts within N hops</em>" a one-line query. The
+  knowledge graph is inherently graph-shaped data; using a graph database is
+  the right tool for the job.
+</div>
+
+<h2 id="s4.6">4.6 Why Qdrant for Vector Search</h2>
+
+<p>
+  Qdrant is a <strong>purpose-built vector database</strong> written in Rust,
+  chosen over alternatives (Pinecone, Weaviate, Milvus, Chroma) for specific
+  reasons:
+</p>
+
+<table>
+  <tr><th>Factor</th><th>Rationale</th></tr>
+  <tr>
+    <td>Self-Hosted</td>
+    <td>Runs as a Docker container alongside the app. No external API dependency. Matches the data sovereignty requirement.</td>
+  </tr>
+  <tr>
+    <td>Performance</td>
+    <td>Rust implementation provides low-latency similarity search even with millions of vectors. HNSW index for approximate nearest neighbor (ANN) search.</td>
+  </tr>
+  <tr>
+    <td>Filtering</td>
+    <td>Payload-based filtering allows narrowing vector search by document metadata (tenant, document type, date range) without post-processing.</td>
+  </tr>
+  <tr>
+    <td>REST API</td>
+    <td>Clean REST API — no gRPC requirement. Integrates with Spring's RestClient using standard JSON serialization.</td>
+  </tr>
+  <tr>
+    <td>No Heavy Dependencies</td>
+    <td>Single binary in a Docker container. No ZooKeeper, no etcd, no external coordination service.</td>
+  </tr>
+</table>
+
+<h2 id="s4.7">4.7 Why Java 21</h2>
+
+<p>
+  Java 21 is the current <strong>Long-Term Support (LTS)</strong> release. Key
+  features leveraged:
+</p>
+<ul>
+  <li><strong>Virtual Threads (Project Loom):</strong> Available for high-concurrency I/O without reactive programming.</li>
+  <li><strong>Record Classes:</strong> Used extensively for DTOs and value objects (see <code>AiResponse</code>, <code>SearchQuery</code>, <code>ReasonedAnswer</code>).</li>
+  <li><strong>Pattern Matching:</strong> Cleaner <code>instanceof</code> expressions and switch expressions.</li>
+  <li><strong>Sealed Classes:</strong> Enable exhaustive type checking for domain models like <code>QueryIntent</code> and <code>SearchMode</code>.</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- 5. SEARCH ARCHITECTURE -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h1 id="s5">5. Search Architecture</h1>
+
+<h2 id="s5.1">5.1 Hybrid Search: Concept</h2>
+
+<p>
+  The platform implements <strong>hybrid search</strong> — the fusion of
+  keyword-based (lexical) search and semantic (vector) search. Neither approach
+  alone is sufficient:
+</p>
+
+<div class="two-col">
+  <div>
+    <strong>Keyword Search (BM25/LIKE)</strong><br>
+    ✓ Exact term matching<br>
+    ✓ Fast for known terminology<br>
+    ✓ Predictable results<br>
+    ✗ Misses synonyms &amp; paraphrases<br>
+    ✗ No semantic understanding<br>
+    ✗ "Car" won't match "automobile"
+  </div>
+  <div>
+    <strong>Semantic Search (Vector)</strong><br>
+    ✓ Understands meaning &amp; intent<br>
+    ✓ Finds conceptually related content<br>
+    ✓ Multilingual capability<br>
+    ✗ Can miss exact matches<br>
+    ✗ Computationally expensive<br>
+    ✗ Embedding model quality matters
+  </div>
+</div>
+
+<p>
+  <strong>Hybrid search combines both</strong>: run keyword and vector search in
+  parallel, merge results with a weighted fusion algorithm, and rerank the
+  combined list. This gives users the precision of keyword search plus the
+  recall of semantic search.
+</p>
+
+<h2 id="s5.2">5.2 Keyword Search Path</h2>
+
+<pre><code>User Query → QueryIntentClassifier → JpaKeywordSearchProvider
+                ↓
+    PostgreSQL LIKE/ILIKE on DocumentChunkEntity.text
+    (with optional LegalQueryExpander for domain-specific synonyms)
+                ↓
+    List&lt;RetrievalCandidate&gt; with keywordScore
+</code></pre>
+
+<h2 id="s5.3">5.3 Semantic (Vector) Search Path</h2>
+
+<pre><code>User Query → OllamaEmbeddingProvider.embed(query) → float[768]
+                ↓
+    QdrantVectorSearchProvider.search(queryVector)
+    POST /collections/{name}/points/search {vector: [...], limit: N, with_payload: true}
+                ↓
+    Qdrant returns top-K points by cosine similarity + payload
+                ↓
+    List&lt;RetrievalCandidate&gt; with vectorScore
+</code></pre>
+
+<h2 id="s5.4">5.4 Fusion &amp; Reranking Algorithm</h2>
+
+<p>
+  The <code>DefaultHybridRetrievalService.merge()</code> method implements a
+  <strong>weighted reciprocal rank fusion</strong> with document-type and
+  intent-aware boosting:
+</p>
+
+<pre><code>rankingScore = (keywordScore * 0.40) + (vectorScore * 0.40)
+             + (confidenceScore * 0.20)
+             * docTypeWeight
+             * authorityBoost</code></pre>
+
+<p>The fusion pipeline has four stages:</p>
+
+<ol>
+  <li><strong>Keyword retrieval</strong> — PostgreSQL full-text / LIKE search</li>
+  <li><strong>Vector retrieval</strong> — Qdrant ANN with embedding similarity</li>
+  <li><strong>Merge &amp; deduplicate</strong> — Combine by chunk ID, keeping the best score per source</li>
+  <li><strong>Rerank (optional)</strong> — Cross-encoder reranker via Ollama for relevance refinement</li>
+</ol>
+
+<h2 id="s5.5">5.5 Chunking Strategy</h2>
+
+<p>
+  The <code>SentenceAwareChunkingStrategy</code> splits documents into
+  semantically coherent chunks:
+</p>
+<ul>
+  <li><strong>Sentence-boundary aware:</strong> Chunks break at sentence endings, not mid-sentence.</li>
+  <li><strong>Configurable chunk size:</strong> Default target size with overlap between consecutive chunks.</li>
+  <li><strong>Overlap:</strong> Each chunk shares N characters with its neighbors to prevent information loss at boundaries.</li>
+  <li><strong>Metadata preservation:</strong> Each chunk carries its document ID, version, position index, document type, and source metadata.</li>
+</ul>
+
+<p>Chunk metadata is stored in both PostgreSQL (<code>DocumentChunkEntity</code>) and as Qdrant payload for filtering during vector search.</p>
+
+<h2 id="s5.6">5.6 Query Intent Classification</h2>
+
+<p>
+  Before executing a search, the <code>QueryIntentClassifier</code> analyzes
+  the user's query and classifies it into one of several intents:
+</p>
+
+<table>
+  <tr><th>Intent</th><th>Example</th><th>Routing</th></tr>
+  <tr><td><code>FACTUAL</code></td><td>"What is the penalty for breach of contract?"</td><td>RAG pipeline with authority grounding</td></tr>
+  <tr><td><code>ANALYTICAL</code></td><td>"Compare the liability provisions across these three contracts."</td><td>RAG with multi-source context assembly</td></tr>
+  <tr><td><code>PROCEDURAL</code></td><td>"How do I file a motion for summary judgment?"</td><td>RAG with timeline extraction</td></tr>
+  <tr><td><code>INDEX_INSPECTION</code></td><td>"What documents are in the index?"</td><td>Routed to IndexInspectionService (bypasses RAG)</td></tr>
+  <tr><td><code>CORPUS_DISCOVERY</code></td><td>"Show me all documents about employment law."</td><td>Routed to IndexInspectionService (bypasses RAG)</td></tr>
+</table>
+
+<p>
+  This intent routing prevents wasting LLM inference on queries that are better
+  answered by direct index inspection, saving both latency and compute.
+</p>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- 6. AI & RAG PIPELINE -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h1 id="s6">6. AI &amp; RAG Pipeline</h1>
+
+<h2 id="s6.1">6.1 Retrieval-Augmented Generation Flow</h2>
+
+<p>
+  The AI pipeline is the platform's most sophisticated subsystem. Each
+  user question flows through an 8-stage pipeline:
+</p>
+
+<div class="diagram-box">
+1. INTENT CLASSIFICATION
+   QueryIntentClassifier.classify(question) → QueryIntent
+   (Route INDEX_INSPECTION/CORPUS_DISCOVERY queries away from RAG)
+
+2. RETRIEVAL
+   RetrievalAugmentationService.retrieve(request)
+   ├── SourceOrchestrationService → HybridRetrievalService
+   ├── AuthorityRetrievalService → Knowledge Graph lookup
+   ├── FindingHierarchyService → Hierarchy extraction
+   └── CommunicationTimelineBuilder → Timeline construction
+
+3. CONTEXT ASSEMBLY
+   ContextAssembler.assemble(request, retrievalContext)
+   → PromptContext with sources, authorities, hierarchy, timeline
+
+4. PROMPT CONSTRUCTION
+   PromptBuilder.build(promptContext)
+   → Full prompt with instructions, context, and guardrails
+
+5. LLM INFERENCE
+   ChatCompletionProvider.complete(prompt, capabilities)
+   → OllamaChatCompletionProvider → Ollama /api/chat
+
+6. POST-INFERENCE VALIDATION
+   ├── TemporalConsistencyValidator.validate()
+   └── ClaimValidator.validate()
+   → Warnings appended if inconsistencies detected
+
+7. GROUNDING
+   GroundingService.ground(rawAnswer, retrievalContext)
+   → ReasonedAnswer with source citations and confidence scores
+
+8. RESPONSE ASSEMBLY
+   → AiResponse with ReasonedAnswer + InferenceMetadata
+</div>
+
+<h2 id="s6.2">6.2 Prompt Engineering Architecture</h2>
+
+<p>
+  The prompt system is designed for <strong>reproducibility and auditability</strong>:
+</p>
+
+<ul>
+  <li><strong>Templated prompts:</strong> The <code>PromptBuilder</code> interface abstracts prompt construction. Each implementation has a <code>templateVersion()</code> that is recorded in audit logs — every AI answer can be traced to the exact prompt template version that produced it.</li>
+  <li><strong>Context injection:</strong> Retrieved source passages, authority references, hierarchy, and timeline are injected into the prompt in a structured format with clear delimiters.</li>
+  <li><strong>Grounding instructions:</strong> The prompt instructs the LLM to cite specific sources and distinguish between statements supported by evidence vs. general knowledge.</li>
+  <li><strong>Guardrails:</strong> Instructions to refuse to speculate, acknowledge uncertainty, and flag temporal inconsistencies.</li>
+</ul>
+
+<h2 id="s6.3">6.3 Grounding &amp; Attribution</h2>
+
+<p>
+  Grounding is the process of linking claims in the AI's answer back to
+  specific source passages. The <code>GroundingService</code>:
+</p>
+
+<ol>
+  <li>Parses the raw LLM output for implicit and explicit citations.</li>
+  <li>Matches claimed sources against the <code>RetrievalContext</code> (the passages that were actually provided in the prompt).</li>
+  <li>Computes a <strong>grounding score</strong> — the fraction of factual claims that can be attributed to retrieved sources.</li>
+  <li>Produces a <code>ReasonedAnswer</code> with <code>SourceCitation</code> objects linking each claim to its evidence.</li>
+</ol>
+
+<div class="callout">
+  <strong>Why grounding matters:</strong> Ungrounded RAG is just a chatbot with a
+  bigger context window. Grounding transforms RAG from "the model said it" to
+  "the evidence supports it." In legal and regulatory contexts, this is the
+  difference between a useful tool and a liability.
+</div>
+
+<h2 id="s6.4">6.4 Temporal Consistency &amp; Claim Validation</h2>
+
+<p>Two post-inference validators act as quality gates:</p>
+
+<ul>
+  <li><strong>TemporalConsistencyValidator:</strong> Checks that the answer doesn't make temporally impossible claims (e.g., referencing a document version that didn't exist at a given date, or claiming an event occurred before its documented start).</li>
+  <li><strong>ClaimValidator:</strong> Cross-references factual claims against authority references from the knowledge graph. If the LLM claims "Regulation X requires Y" but the knowledge graph shows Regulation X says Z, the claim is flagged.</li>
+</ul>
+
+<p>When either validator detects an issue, a warning is appended to the answer rather than blocking it — this is a deliberate UX choice that gives users transparency into the AI's limitations.</p>
+
+<h2 id="s6.5">6.5 Confidence Scoring</h2>
+
+<p>
+  Every AI answer carries a <code>ConfidenceProfile</code> with:
+</p>
+<ul>
+  <li><strong>Overall confidence:</strong> 0.0–1.0 score aggregating grounding, temporal, and claim validation.</li>
+  <li><strong>Source coverage:</strong> What fraction of the retrieved context was actually used.</li>
+  <li><strong>Citation density:</strong> Number of distinct sources cited per factual claim.</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- 7. KNOWLEDGE GRAPH -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h1 id="s7">7. Knowledge Graph (Neo4j)</h1>
+
+<h2 id="s7.1">7.1 Role of the Knowledge Graph</h2>
+
+<p>
+  The Neo4j knowledge graph serves a <strong>distinct purpose from document
+  search</strong>. While the search system retrieves document passages relevant
+  to a query, the knowledge graph models <strong>structured relationships
+  between authoritative knowledge entries</strong> — statutes, regulations,
+  reference frameworks, taxonomies.
+</p>
+
+<p>It enables queries like:</p>
+<ul>
+  <li>"Show me all statutes related to this one via shared legal concepts."</li>
+  <li>"Traverse the regulatory hierarchy from broad provision to specific clause."</li>
+  <li>"What other entries share concepts with Entry 123?"</li>
+</ul>
+
+<h2 id="s7.2">7.2 Graph Data Model</h2>
+
+<div class="diagram-box">
+Nodes:
+  (:KnowledgeEntry {
+    canonicalReference: "CA Civ Code § 1542",
+    domainCode: "CA_CIV",
+    domain: "California Civil Code",
+    entryNumber: "1542",
+    entryTitle: "General Release — Claim Not Known to Exist",
+    hierarchyPath: "CA_CIV > Division 3 > Part 1 > Title 10 > § 1542",
+    indexedAt: datetime()
+  })
+
+Relationships:
+  (child)-[:PART_OF_HIERARCHY {level: "section"}]->(parent)
+  (entry1)-[:RELATED_CONCEPT {concept: "waiver"}]->(entry2)
+  (entry1)-[:RELATED_CONCEPT {concept: "release_of_claims"}]->(entry3)
+</div>
+
+<h2 id="s7.3">7.3 Integration Pattern</h2>
+
+<p>
+  The <code>KnowledgeGraphService</code> wraps the Neo4j Java Driver and
+  provides methods for:
+</p>
+<ul>
+  <li><code>createEntryNode()</code> — Upsert a knowledge entry as a graph node.</li>
+  <li><code>createHierarchyRelationship()</code> — Link entries in parent-child hierarchy.</li>
+  <li><code>createConceptRelationship()</code> — Link entries sharing a concept.</li>
+  <li><code>traverseByConcepts()</code> — Graph traversal with configurable depth.</li>
+</ul>
+
+<p>
+  The service is <strong>resilience-aware</strong>: it verifies Neo4j
+  connectivity at startup and gracefully degrades if Neo4j is unavailable
+  (<code>isAvailable()</code> returns false). All graph operations are
+  no-ops when the database is unreachable, ensuring the platform remains
+  functional without the knowledge graph.
+</p>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- 8. DATA & PERSISTENCE LAYER -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h1 id="s8">8. Data &amp; Persistence Layer</h1>
+
+<h2 id="s8.1">8.1 PostgreSQL Schema Strategy</h2>
+
+<p>
+  The platform uses <strong>Hibernate's <code>ddl-auto: update</code></strong>
+  for development agility, with the understanding that a production deployment
+  would use Flyway migrations (already configured as a dependency) for
+  version-controlled schema evolution.
+</p>
+
+<p>Key entities stored in PostgreSQL:</p>
+<ul>
+  <li><code>UserAccountEntity</code> — User credentials, roles, account status</li>
+  <li><code>RefreshTokenSessionEntity</code> — Active JWT refresh tokens</li>
+  <li><code>DocumentEntity</code> — Document metadata, status, type, timestamps</li>
+  <li><code>DocumentVersionEntity</code> — Version history per document</li>
+  <li><code>DocumentChunkEntity</code> — Text chunks with positions, metadata, keywords</li>
+  <li><code>IngestionJobEntity</code> — Async ingestion job tracking</li>
+  <li><code>WorkspaceEntity</code> — Workspace metadata and status</li>
+  <li><code>WorkspaceDocumentLinkEntity</code> — Many-to-many workspace-document links</li>
+  <li><code>WorkspaceStepEntity</code> — Workspace phase tracking</li>
+  <li><code>TimelineEventEntity</code> — Extracted timeline events from documents</li>
+  <li><code>KnowledgeEntryEntity</code> — Structured knowledge entries</li>
+  <li><code>AuditEvent</code> (via JDBC) — Immutable audit trail</li>
+</ul>
+
+<h2 id="s8.2">8.2 Why We Need a Relational Database</h2>
+
+<p>
+  Vector databases and knowledge graphs are specialized tools — they don't
+  replace a relational database for structured data. PostgreSQL provides:
+</p>
+<ul>
+  <li><strong>Referential integrity:</strong> A document version cannot exist without its parent document. A workspace-document link must reference existing entities. Foreign keys enforce this.</li>
+  <li><strong>Transactional consistency:</strong> Uploading a document involves creating a Document row, a DocumentVersion row, N DocumentChunk rows, and an IngestionJob row. If any step fails, the entire transaction rolls back.</li>
+  <li><strong>Ad-hoc querying:</strong> "Show me all documents uploaded in the last 30 days by users in the Legal group" — this is a 10-second JPA Specification, not something you'd model in a vector database or graph.</li>
+  <li><strong>Aggregation &amp; reporting:</strong> COUNT, SUM, GROUP BY — these are SQL primitives. Neo4j and Qdrant are not designed for aggregate reporting.</li>
+</ul>
+
+<h2 id="s8.3">8.3 Document Storage &amp; Versioning</h2>
+
+<p>
+  Documents are stored on the filesystem (configurable path) with database
+  metadata. The versioning model:
+</p>
+<ul>
+  <li>Every document has an integer <code>version</code> counter.</li>
+  <li>Adding a new version increments the counter and stores the new file alongside previous versions.</li>
+  <li>Each version has its own chunks and embeddings, enabling version-specific search.</li>
+  <li>Old chunks are cleaned up from Qdrant when a document is deleted or replaced.</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- 9. SECURITY ARCHITECTURE -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h1 id="s9">9. Security Architecture</h1>
+
+<h2 id="s9.1">9.1 JWT-Based Authentication</h2>
+
+<p>The platform implements a dual authentication mechanism:</p>
+
+<ul>
+  <li><strong>Form login:</strong> Traditional Thymeleaf form POST to <code>/login</code> with Spring Security's form login filter. Used by the browser UI.</li>
+  <li><strong>JWT resource server:</strong> REST API endpoints accept Bearer tokens issued by the platform's own JWT encoder. Enables programmatic API access.</li>
+</ul>
+
+<p>Token architecture:</p>
+<ul>
+  <li><strong>Access tokens:</strong> Short-lived (15 minutes), HMAC-SHA256 signed, contain subject, roles, and issuer claims.</li>
+  <li><strong>Refresh tokens:</strong> Long-lived (30 days), stored in database with session metadata, can be revoked server-side.</li>
+  <li><strong>Token rotation:</strong> Each refresh issues a new access token and refresh token, invalidating the previous refresh token.</li>
+</ul>
+
+<h2 id="s9.2">9.2 Authorization Model</h2>
+
+<pre><code>PUBLIC ROUTES:     /login, /register, /css/**, /actuator/health
+AUTHENTICATED:     /dashboard, /workspaces, /documents, /search, /ai, /audit
+ADMIN ONLY:        /api/admin/**
+REST API:          /api/auth/** (JWT Bearer token)
+</code></pre>
+
+<p>
+  Role-based access control via the <code>roles</code> JWT claim, mapped to
+  Spring Security <code>ROLE_</code> granted authorities. Method-level security
+  via <code>@EnableMethodSecurity</code> allows fine-grained authorization on
+  service methods.
+</p>
+
+<h2 id="s9.3">9.3 Audit Trail System</h2>
+
+<p>
+  The audit module (<code>platform-audit</code>) provides comprehensive
+  event logging:
+</p>
+<ul>
+  <li><strong>Event types:</strong> AUTH_LOGIN, AUTH_REGISTER, DOCUMENT_UPLOADED, DOCUMENT_VERSION_ADDED, INGESTION_STARTED, INGESTION_COMPLETED, SEARCH_EXECUTED, RETRIEVAL_EXECUTED, MODEL_INFERENCE, PROMPT_EXECUTED, WORKSPACE_CREATED, and many more.</li>
+  <li><strong>Correlation IDs:</strong> Every request gets a unique correlation ID (via <code>CorrelationIdFilter</code>) that flows through all services and appears in audit events — enabling end-to-end traceability.</li>
+  <li><strong>Structured metadata:</strong> Each event carries a <code>Map&lt;String,String&gt;</code> of typed metadata (e.g., model name, prompt version, retrieval source count).</li>
+  <li><strong>Immutable storage:</strong> Audit events are append-only via JDBC. No updates, no deletes.</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- 10. INTERNATIONALIZATION -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h1 id="s10">10. Internationalization (i18n)</h1>
+
+<p>
+  The platform supports <strong>three languages</strong> (English, German,
+  French) using Spring's <code>MessageSource</code> and Thymeleaf's
+  <code>#{key}</code> syntax:
+</p>
+
+<ul>
+  <li><strong>Message files:</strong> <code>messages.properties</code>, <code>messages_de.properties</code>, <code>messages_fr.properties</code> with 100+ translated keys covering navigation, forms, error messages, and AI interaction labels.</li>
+  <li><strong>Session-based locale:</strong> <code>SessionLocaleResolver</code> stores the user's language preference. The <code>LocaleChangeInterceptor</code> switches locale via the <code>?lang=</code> query parameter.</li>
+  <li><strong>Language switcher:</strong> A dropdown in the navigation bar renders flag icons with links to the current page in each language.</li>
+  <li><strong>Dual-module i18n:</strong> Both <code>platform-api</code> and <code>platform-web</code> maintain their own message bundles, allowing independent deployment of the REST API and web frontend.</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- 11. INGESTION PIPELINE -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h1 id="s11">11. Ingestion Pipeline</h1>
+
+<p>
+  Document ingestion is the process that transforms uploaded files into
+  searchable, AI-ready chunks:
+</p>
+
+<div class="diagram-box">
+File Upload (PDF/DOCX/TXT)
+    │
+    ▼
+TextExtractionService.extract(file)
+    ├── DocxTextExtractor (Apache POI)
+    └── (PDF via Tika/Apache PDFBox)
+    │
+    ▼
+SentenceAwareChunkingStrategy.chunk(text, docId, docType)
+    → List&lt;DocumentChunk&gt; (each with position, metadata)
+    │
+    ▼
+OllamaEmbeddingProvider.embedBatch(chunkTexts)
+    → List&lt;float[768]&gt; (batch embedding generation)
+    │
+    ▼
+┌──────────────────┬──────────────────────┐
+│ PostgreSQL        │ Qdrant               │
+│ PersistentChunkRepo│ QdrantVectorSearch  │
+│ .saveAll(chunks)  │ .indexBatch(chunks)  │
+└──────────────────┴──────────────────────┘
+    │
+    ▼
+DocumentIngestionJob.status = COMPLETED ✓
+</div>
+
+<p>Key design decisions in the ingestion pipeline:</p>
+<ul>
+  <li><strong>Async processing:</strong> Ingestion runs in a background worker (<code>DocumentIngestionWorker</code>) so file upload returns immediately. Users monitor progress via the Jobs page.</li>
+  <li><strong>Batch embedding:</strong> Embeddings are generated in batches for efficiency, not one chunk at a time.</li>
+  <li><strong>Dual indexing:</strong> Every chunk is indexed in both PostgreSQL (for keyword search + persistence) and Qdrant (for vector search). This ensures both search paths have complete coverage.</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- 12. WORKSPACE SYSTEM -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h1 id="s12">12. Workspace System</h1>
+
+<p>
+  Workspaces provide <strong>organizational context</strong> for document
+  analysis. A workspace groups related documents and guides users through a
+  structured workflow:
+</p>
+
+<table>
+  <tr><th>Phase</th><th>Description</th><th>Actions</th></tr>
+  <tr><td>SETUP</td><td>Define workspace purpose, type, and initial configuration</td><td>Create workspace, set metadata</td></tr>
+  <tr><td>UPLOAD</td><td>Add documents to the workspace</td><td>Upload files, attach existing documents</td></tr>
+  <tr><td>INGEST</td><td>Process and index documents</td><td>Trigger ingestion, monitor jobs</td></tr>
+  <tr><td>ANALYSIS</td><td>AI-powered analysis of workspace documents</td><td>Run AI queries scoped to workspace</td></tr>
+  <tr><td>REVIEW</td><td>Review findings, validate results</td><td>Browse AI answers, check citations</td></tr>
+  <tr><td>COMPLETE</td><td>Workspace archived, results finalized</td><td>Export results, mark complete</td></tr>
+</table>
+
+<p>
+  The <code>WorkspaceOrchestrator</code> manages phase transitions through a
+  pluggable handler system — each phase has a registered <code>PhaseHandler</code>
+  implementation, making it easy to add custom phases for specific use cases.
+</p>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- 13. TESTING STRATEGY -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h1 id="s13">13. Testing Strategy</h1>
+
+<p>The platform maintains <strong>88 passing tests</strong> across multiple layers:</p>
+
+<table>
+  <tr><th>Test Type</th><th>Examples</th><th>Coverage</th></tr>
+  <tr>
+    <td>Integration Tests</td>
+    <td><code>PlatformIntegrationTest</code>, <code>AuthIntegrationTest</code></td>
+    <td>Full Spring context with test database</td>
+  </tr>
+  <tr>
+    <td>Workflow Tests</td>
+    <td><code>UploadWorkflowTest</code>, <code>WorkspaceWorkflowTest</code></td>
+    <td>End-to-end user workflows</td>
+  </tr>
+  <tr>
+    <td>Navigation Tests</td>
+    <td><code>NavigationMenuTest</code>, <code>PageAccessTest</code></td>
+    <td>Page rendering, access control, menu structure</td>
+  </tr>
+  <tr>
+    <td>I18n Tests</td>
+    <td><code>I18nIntegrationTest</code></td>
+    <td>Multi-language message resolution</td>
+  </tr>
+  <tr>
+    <td>UI Layout Tests</td>
+    <td><code>DashboardLayoutTest</code></td>
+    <td>Thymeleaf template rendering validation</td>
+  </tr>
+  <tr>
+    <td>Unit Tests</td>
+    <td>(via Spring Boot Test slices)</td>
+    <td>Service logic isolation</td>
+  </tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- 14. DEPLOYMENT & OPERATIONS -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h1 id="s14">14. Deployment &amp; Operations</h1>
+
+<p>
+  The platform is designed for <strong>Docker-based deployment</strong> with
+  four infrastructure services:
+</p>
+
+<pre><code># Bring up all infrastructure
+docker compose up -d
+
+# Services:
+#  PostgreSQL  → localhost:5433 (pgvector/pgvector:pg16)
+#  Qdrant      → localhost:6333 (REST), localhost:6334 (gRPC)
+#  Neo4j       → localhost:7474 (Browser), localhost:7687 (Bolt)
+#  PGAdmin     → localhost:5050 (optional management UI)
+
+# Start Ollama separately (GPU-accelerated)
+ollama serve
+ollama pull qwen2.5:14b
+ollama pull nomic-embed-text
+
+# Run the application
+./mvnw -pl platform-api spring-boot:run
+</code></pre>
+
+<p>Configuration is externalized via environment variables:</p>
+
+<pre><code>DB_URL, DB_USERNAME, DB_PASSWORD
+NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD
+QDRANT_HOST, QDRANT_REST_PORT, QDRANT_COLLECTION
+OLLAMA_BASE_URL, OLLAMA_EMBEDDING_MODEL, OLLAMA_CHAT_MODEL
+AUTH_JWT_SECRET, AUTH_ACCESS_TOKEN_TTL, AUTH_REFRESH_TOKEN_TTL
+</code></pre>
+
+<p>
+  This design supports deployment to any environment — local development,
+  on-premises servers, or Kubernetes — by changing environment variables
+  without modifying application code.
+</p>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- 15. WHY THIS ARCHITECTURE EXCELS -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h1 id="s15">15. Why This Architecture Excels</h1>
+
+<p>This architecture embodies several principles that distinguish production AI systems from prototypes:</p>
+
+<h3>1. Data Sovereignty by Default</h3>
+<p>
+  Every component — the LLM (Ollama), vector database (Qdrant), graph database
+  (Neo4j), and relational database (PostgreSQL) — runs on the organization's
+  own infrastructure. No data leaves the premises. This is not a feature; it's
+  an architectural constraint that drove every technology choice.
+</p>
+
+<h3>2. Graceful Degradation</h3>
+<p>
+  Every external service dependency is optional. If Neo4j is down, graph
+  features are disabled but the platform works. If Qdrant is down, keyword
+  search still works. If Ollama is unavailable, the platform clearly reports
+  the issue rather than crashing. This resilience is built into each service
+  adapter.
+</p>
+
+<h3>3. Provider Abstraction</h3>
+<p>
+  The <code>ChatCompletionProvider</code>, <code>EmbeddingProvider</code>,
+  <code>VectorSearchProvider</code>, and <code>KeywordSearchProvider</code>
+  interfaces mean the platform can switch LLM providers, embedding models,
+  or vector databases without changing business logic. This is the
+  <strong>Dependency Inversion Principle</strong> applied to AI infrastructure.
+</p>
+
+<h3>4. Auditability as a First-Class Concern</h3>
+<p>
+  Every AI answer records the prompt template version, retrieval sources, model
+  used, and inference metadata. Every search records the mode, intent, and
+  result counts. This is not an afterthought — it's built into the service
+  interfaces and published through the audit system.
+</p>
+
+<h3>5. Intent-Driven Query Routing</h3>
+<p>
+  The dual <code>QueryIntentClassifier</code> (one in platform-search, one in
+  platform-ai) ensures queries are handled by the most appropriate subsystem.
+  Simple index queries don't waste LLM tokens. Complex analytical queries get
+  the full RAG pipeline. This is cost-aware architecture.
+</p>
+
+<h3>6. Correctness Over Velocity</h3>
+<p>
+  Java + Spring Boot + static typing + ACID transactions were chosen over faster-to-prototype alternatives because the domain (legal/compliance document
+  analysis) demands correctness. An AI that hallucinates a statute citation is
+  worse than no AI at all. The grounding, validation, and audit systems are
+  safeguards against this failure mode.
+</p>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- 16. KEY DESIGN DECISIONS SUMMARY -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h1 id="s16">16. Key Design Decisions Summary</h1>
+
+<table>
+  <tr><th>Decision</th><th>Chosen</th><th>Rejected Alternatives</th><th>Primary Reason</th></tr>
+  <tr>
+    <td>Application Framework</td>
+    <td><span class="badge badge-green">Spring Boot 3.3</span></td>
+    <td>FastAPI, Express, Django</td>
+    <td>Type safety, transaction management, enterprise ecosystem</td>
+  </tr>
+  <tr>
+    <td>LLM Runtime</td>
+    <td><span class="badge badge-green">Ollama (local)</span></td>
+    <td>OpenAI API, Anthropic API, vLLM</td>
+    <td>Data sovereignty, zero API cost, model flexibility</td>
+  </tr>
+  <tr>
+    <td>UI Framework</td>
+    <td><span class="badge badge-green">Thymeleaf + Bootstrap</span></td>
+    <td>React, Angular, Vue, HTMX</td>
+    <td>SSR, no JS build step, Spring Security integration, i18n</td>
+  </tr>
+  <tr>
+    <td>Vector Database</td>
+    <td><span class="badge badge-green">Qdrant</span></td>
+    <td>Pinecone, Weaviate, Milvus, Chroma</td>
+    <td>Self-hosted, Rust performance, clean REST API</td>
+  </tr>
+  <tr>
+    <td>Graph Database</td>
+    <td><span class="badge badge-green">Neo4j 5</span></td>
+    <td>PostgreSQL CTEs, Amazon Neptune, ArangoDB</td>
+    <td>Native graph traversal, Cypher expressiveness, APOC plugins</td>
+  </tr>
+  <tr>
+    <td>Relational Database</td>
+    <td><span class="badge badge-green">PostgreSQL + pgvector</span></td>
+    <td>MySQL, MongoDB, CockroachDB</td>
+    <td>ACID, pgvector extension, Spring Data JPA maturity</td>
+  </tr>
+  <tr>
+    <td>Search Strategy</td>
+    <td><span class="badge badge-green">Hybrid (keyword + vector)</span></td>
+    <td>Keyword-only, vector-only</td>
+    <td>Best of both: precision + recall, with intent-aware fusion</td>
+  </tr>
+  <tr>
+    <td>AI Pipeline</td>
+    <td><span class="badge badge-green">RAG + Grounding + Validation</span></td>
+    <td>Pure LLM, fine-tuned model, agent loop</td>
+    <td>Evidence-backed, auditable, hallucination-resistant</td>
+  </tr>
+  <tr>
+    <td>Language</td>
+    <td><span class="badge badge-green">Java 21 LTS</span></td>
+    <td>Python, TypeScript, Go, Kotlin</td>
+    <td>Static typing, virtual threads, enterprise library ecosystem</td>
+  </tr>
+  <tr>
+    <td>Architecture Style</td>
+    <td><span class="badge badge-green">Modular Monolith</span></td>
+    <td>Microservices, serverless</td>
+    <td>Deployment simplicity, transactional integrity, low operational overhead</td>
+  </tr>
+</table>
+
+<div class="callout" style="margin-top:32px;">
+  <strong>Parting thought for the AI consultant interview:</strong> This
+  platform demonstrates that production AI is not about picking the trendiest
+  framework or the biggest model. It's about making deliberate, justified
+  architectural choices that prioritize correctness, data sovereignty,
+  auditability, and resilience. Every component has a clear reason for being
+  there. Every abstraction maps to a real requirement. That's the difference
+  between a prototype and a platform.
+</div>
+
+</body>
+</html>

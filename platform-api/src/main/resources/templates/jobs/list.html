@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="#{jobs.title}">Ingestion Jobs</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link th:href="@{/css/platform.css}" rel="stylesheet">
+</head>
+<body>
+<div th:replace="~{fragments/layout :: nav}"></div>
+<main class="app-shell">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3" th:text="#{jobs.title}">Ingestion Jobs</h1>
+        <a th:href="@{/documents/upload}" class="btn btn-primary btn-sm" th:text="#{jobs.newDocument}">New document</a>
+    </div>
+    <div class="alert alert-info py-2" th:text="#{jobs.info}">
+        Jobs are created when documents are uploaded. Each job processes one document version.
+    </div>
+    <form class="row g-2 mb-3" method="get">
+        <div class="col-md-3">
+            <select name="status" class="form-select">
+                <option value="" th:text="#{jobs.anyStatus}">Any status</option>
+                <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}"
+                        th:selected="${currentStatus != null && currentStatus.name() == s.name()}"></option>
+            </select>
+        </div>
+        <div class="col-md-2"><button class="btn btn-secondary w-100" type="submit" th:text="#{jobs.filter}">Filter</button></div>
+    </form>
+    <div class="bg-white border rounded" style="max-height: 600px; overflow: auto;">
+        <table class="table table-sm table-striped mb-0">
+            <thead class="sticky-top bg-white" style="z-index:1;">
+            <tr>
+                <th style="width:60px;" th:text="#{jobs.table.seq}">#</th>
+                <th th:text="#{jobs.table.status}">Status</th>
+                <th th:text="#{jobs.table.document}">Document</th>
+                <th th:text="#{jobs.table.requestedBy}">Requested by</th>
+                <th th:text="#{jobs.table.ingestionDate}">Ingestion date</th>
+            </tr>
+            </thead>
+            <tbody id="ingestionJobsBody">
+            <tr th:each="job : ${jobs.jobs()}"
+                th:attr="data-job-id=${job.id()},data-created-at=${job.createdAt()},data-status=${job.status()},data-failure=${job.failureReason()}">
+                <td class="fw-bold text-muted" th:text="${job.sequenceNumber()}"></td>
+                <td>
+                    <span th:if="${job.status().name() == 'COMPLETED'}" class="text-success fw-semibold">OK</span>
+                    <span th:if="${job.status().name() == 'FAILED'}" class="text-danger fw-semibold">FAIL</span>
+                    <span th:if="${job.status().name() == 'PENDING'}" class="text-secondary fw-semibold">PENDING</span>
+                    <span th:if="${job.status().name() == 'RUNNING'}" class="text-primary fw-semibold">RUNNING</span>
+                    <span th:if="${job.status().name() == 'CANCELLED'}" class="text-secondary fw-semibold">CANCELLED</span>
+                    <div th:if="${job.status().name() == 'FAILED'}" class="small text-danger" th:text="${job.failureReason()}"></div>
+                </td>
+                <td class="trace" th:text="${job.documentId()}"></td>
+                <td th:text="${job.requestedBy()}"></td>
+                <td class="js-locale-date" th:text="${job.createdAt()}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <nav class="mt-3" th:if="${jobs.totalPages() > 1}">
+        <ul class="pagination pagination-sm justify-content-center">
+            <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                <a class="page-link" th:href="@{/jobs(status=${currentStatus},page=${currentPage - 1})}" th:text="#{common.previous}">Previous</a>
+            </li>
+            <li class="page-item disabled"><span class="page-link" th:text="#{common.page} + ' ' + ${currentPage + 1} + ' ' + #{common.of} + ' ' + ${jobs.totalPages()}">Page 1 of 1</span></li>
+            <li class="page-item" th:classappend="${currentPage + 1 >= jobs.totalPages()} ? 'disabled'">
+                <a class="page-link" th:href="@{/jobs(status=${currentStatus},page=${currentPage + 1})}" th:text="#{common.next}">Next</a>
+            </li>
+        </ul>
+    </nav>
+</main>
+<script>
+    const formatLocaleDate = (iso) => {
+        try {
+            const date = new Date(iso);
+            return new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(date);
+        } catch {
+            return iso;
+        }
+    };
+
+    document.querySelectorAll('.js-locale-date').forEach((cell) => {
+        const iso = cell.textContent.trim();
+        cell.textContent = formatLocaleDate(iso);
+    });
+
+    const renderJobRow = (job) => {
+        const tr = document.createElement('tr');
+        tr.dataset.jobId = job.id;
+        tr.dataset.createdAt = job.createdAt;
+        tr.dataset.status = job.status;
+        tr.dataset.failure = job.failureReason || '';
+
+        const seqTd = document.createElement('td');
+        seqTd.className = 'fw-bold text-muted';
+        seqTd.textContent = job.sequenceNumber;
+
+        const statusTd = document.createElement('td');
+        const status = job.status;
+        if (status === 'COMPLETED') {
+            statusTd.innerHTML = '<span class="text-success fw-semibold">OK</span>';
+        } else if (status === 'FAILED') {
+            statusTd.innerHTML = '<span class="text-danger fw-semibold">FAIL</span>';
+            const reason = document.createElement('div');
+            reason.className = 'small text-danger';
+            reason.textContent = job.failureReason || '';
+            statusTd.appendChild(reason);
+        } else if (status === 'RUNNING') {
+            statusTd.innerHTML = '<span class="text-primary fw-semibold">RUNNING</span>';
+        } else if (status === 'PENDING') {
+            statusTd.innerHTML = '<span class="text-secondary fw-semibold">PENDING</span>';
+        } else {
+            statusTd.innerHTML = `<span class="text-secondary fw-semibold">${status}</span>`;
+        }
+
+        const docTd = document.createElement('td');
+        docTd.className = 'trace';
+        docTd.textContent = job.documentId;
+
+        const reqTd = document.createElement('td');
+        reqTd.textContent = job.requestedBy;
+
+        const dateTd = document.createElement('td');
+        dateTd.textContent = formatLocaleDate(job.createdAt);
+
+        tr.appendChild(seqTd);
+        tr.appendChild(statusTd);
+        tr.appendChild(docTd);
+        tr.appendChild(reqTd);
+        tr.appendChild(dateTd);
+        return tr;
+    };
+
+    const refreshIngestionJobs = async () => {
+        const url = '/api/document-ingestion-jobs?size=50';
+        const res = await fetch(url, { credentials: 'same-origin' });
+        if (!res.ok) return;
+        const data = await res.json();
+        const body = document.getElementById('ingestionJobsBody');
+        body.replaceChildren(...data.jobs.map(renderJobRow));
+    };
+
+    setInterval(() => refreshIngestionJobs().catch(() => {}), 4000);
+</script>
+</body>
+</html>

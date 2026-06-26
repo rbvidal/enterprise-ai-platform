@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="'Workspace ' + ${workspace.name()} + ' — Workspace'">Workspace</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link th:href="@{/css/platform.css}" rel="stylesheet">
+    <style>
+        .workspace-section { margin-bottom: 1.5rem; }
+        .doc-item { border-left: 3px solid #0d6efd; }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/layout :: nav}"></div>
+<main class="app-shell">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h1 class="h3 mb-0" th:text="${workspace.name() != null ? workspace.name() : workspace.id()}">WORKSPACE</h1>
+            <span class="badge" th:classappend="${workspace.status().name() == 'ACTIVE'} ? 'bg-success' : 'bg-warning text-dark'"
+                  th:text="${workspace.status()}">DRAFT</span>
+            <span class="badge bg-info ms-1" th:text="${workspace.phase() != null ? workspace.phase().name().replace('_',' ') : '-'}">STAGE</span>
+        </div>
+        <a th:href="@{/workspaces/{id}/wizard(id=${workspace.id()})}" class="btn btn-outline-primary btn-sm">Open Wizard</a>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-12 workspace-section">
+            <div class="card"><div class="card-header"><strong>Workspace Summary</strong></div>
+                <div class="card-body">
+                    <div class="row g-2">
+                        <div class="col-md-3"><small class="text-muted">Type:</small> <strong th:text="${workspace.workspaceType()}">General</strong></div>
+                        <div class="col-md-3"><small class="text-muted">Domain:</small> <strong th:text="${workspace.description()}">General</strong></div>
+                        <div class="col-md-3"><small class="text-muted">Status:</small> <strong th:text="${workspace.status()}">Draft</strong></div>
+                        <div class="col-md-3"><small class="text-muted">Created:</small> <strong th:text="${#temporals.format(workspace.createdAt(), 'dd.MM.yyyy')}">01.01.2024</strong></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card workspace-section">
+                <div class="card-header d-flex justify-content-between">
+                    <strong>Documents</strong>
+                    <span class="badge bg-primary" th:text="${documentCount}">0</span>
+                </div>
+                <div class="card-body">
+                    <div th:each="doc : ${documents}" class="list-group-item doc-item mb-1">
+                        <strong th:text="${doc.documentName() != null ? doc.documentName() : doc.documentId()}">doc.pdf</strong>
+                        <small class="text-muted d-block" th:text="${doc.documentCategory() != null ? doc.documentCategory() : 'general'}">general</small>
+                    </div>
+                    <p th:if="${#lists.isEmpty(documents)}" class="text-muted small mb-0">No documents linked yet.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card workspace-section">
+                <div class="card-header"><strong>Timeline</strong></div>
+                <div class="card-body">
+                    <div th:if="${!timeline.empty}">
+                        <div th:each="event : ${timeline}" style="position:relative;padding-left:16px;border-left:2px solid #dee2e6;margin-bottom:0.75rem;">
+                            <div style="position:absolute;left:-5px;top:4px;width:9px;height:9px;border-radius:50%;background:#0d6efd;"></div>
+                            <strong th:text="${event.title()}" style="font-size:0.9rem;">Event</strong>
+                            <small class="text-muted d-block" th:text="${event.eventDate()}">2024-01-01</small>
+                        </div>
+                    </div>
+                    <p th:if="${timeline.empty}" class="text-muted small mb-0">No timeline events recorded.</p>
+                </div>
+            </div>
+            <div class="card workspace-section">
+                <div class="card-header"><strong>Strategy / Next Actions</strong></div>
+                <div class="card-body">
+                    <ul class="mb-0 small">
+                        <li>Review documents</li>
+                        <li>Confirm timeline accuracy</li>
+                        <li>Analyze indexed document chunks</li>
+                        <li>Draft strategy</li>
+                        <li>Track milestones</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card workspace-section">
+                <div class="card-header"><strong>Status</strong></div>
+                <div class="card-body">
+                    <p class="mb-1 small"><strong>Current Stage:</strong> <span th:text="${workspace.phase() != null ? workspace.phase().name().replace('_',' ') : '-'}">INTAKE</span></p>
+                    <p class="mb-1 small"><strong>Status:</strong> <span th:text="${workspace.status()}">DRAFT</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

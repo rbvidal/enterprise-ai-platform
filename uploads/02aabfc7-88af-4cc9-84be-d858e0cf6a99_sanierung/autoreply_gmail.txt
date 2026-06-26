@@ -1,0 +1,50 @@
+function autoReplyToBlacklist() {
+  const BLACKLIST = ["johngoldbersgi@proton.me", "k12-info@googlegroups.com", "wichmann.daria@gmail.com", 
+                    "rosenow_2000@yahoo.com", "kontakt@pamoller.com", "alexanderjabs@gmx.de", 
+                    "maeckentosh@gmail.com", "danielsan42@yahoo.com", "j.kreher@k12.berlin"];
+  
+  const AUTO_REPLY_TEXT = `
+  
+Dear Sender,
+
+Your email has been automatically blocked because your address was identified in a group communication related to Kastanienallee 12.
+
+Due to serious and well-founded suspicions of support for the suppression of free speech within this group—as well as sympathy for radical left-wing and socialist ideologies—all communications from its members have been restricted.
+
+Note: This response does not automatically imply your personal affiliation with these views. However, if you wish to resume contact, please send a handwritten letter to my address stating clearly that:
+
+- You unequivocally support freedom of speech,
+- You reject socialism in all its forms,
+- You endorse free-market, laissez-faire capitalism.
+- You agree with libertarian principles and the philosophical traditions of individual liberty as articulated by Friedrich Hayek, Ludwig von Mises, Ayn Rand and Milton Friedman, 
+- You recognize the dangers of collectivism and the moral superiority of individual rights and private property.
+
+Upon receipt, the block will be lifted.
+
+This action is not a repression of your freedom of speech right but an exercise of my right to refuse unsolicited communication. Your email has been deleted without being read or archived, including in spam.
+
+Thank you for your understanding.
+
+  const LABEL_NAME = "AutoReplied";
+
+  // Create label if missing
+  let label = GmailApp.getUserLabelByName(LABEL_NAME);
+  if (!label) {
+    label = GmailApp.createLabel(LABEL_NAME);
+  }
+
+  // Check unread emails from blacklisted senders
+  const threads = GmailApp.search("is:unread AND from:(" + BLACKLIST.join(" OR ") + ")");
+  
+  threads.forEach(thread => {
+    if (!thread.getLabels().some(l => l.getName() === LABEL_NAME)) {
+      GmailApp.sendEmail(
+        thread.getMessages()[0].getFrom(),
+        "Auto-reply: Message blocked",
+        AUTO_REPLY_TEXT
+      );
+      thread.addLabel(label);
+      // thread.moveToTrash(); // Uncomment if you want to automatically trash these emails
+    }
+  });
+}

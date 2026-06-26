@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="#{upload.title}">Upload Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link th:href="@{/css/platform.css}" rel="stylesheet">
+</head>
+<body>
+<div th:replace="~{fragments/layout :: nav}"></div>
+<main class="app-shell">
+    <h1 class="h3 mb-3" th:text="#{upload.title}">Document Ingestion</h1>
+
+    <!-- Single file upload -->
+    <form th:action="@{/documents/upload}" th:object="${form}" method="post" enctype="multipart/form-data" class="metric mb-4" id="ingestionForm">
+        <h2 class="h5 mb-3">Single Document</h2>
+        <input th:field="*{category}" type="hidden" id="category">
+
+        <div class="border rounded p-4 mb-4 bg-light" id="dropZone">
+            <div class="d-flex flex-column flex-md-row justify-content-between gap-3 align-items-md-center">
+                <div>
+                    <h2 class="h5 mb-1" th:text="#{upload.selectDocument}">Select document</h2>
+                    <p class="text-secondary mb-0" th:text="#{upload.dropFile}">Drop a file here or browse from your computer.</p>
+                </div>
+                <div>
+                    <input name="documentFile" type="file" class="d-none" id="documentFile">
+                    <button type="button" class="btn btn-secondary" id="browseFile" th:text="#{upload.browse}">Browse file</button>
+                </div>
+            </div>
+            <div class="mt-3 d-none" id="selectedFileState">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="fw-semibold" id="selectedFileName"></span>
+                    <span class="text-secondary small" id="selectedFileSize"></span>
+                </div>
+                <div class="progress mt-2" role="progressbar" aria-label="Upload readiness">
+                    <div class="progress-bar" id="uploadProgress" style="width: 0%"></div>
+                </div>
+                <div class="small text-secondary mt-1" id="uploadState" th:text="#{upload.waiting}">Waiting for file selection</div>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-6"><label class="form-label" th:text="#{upload.documentTitle}">Document title</label><input th:field="*{title}" class="form-control" id="title"></div>
+            <div class="col-md-3"><label class="form-label" th:text="#{upload.fileFormat}">File format</label><select th:field="*{type}" class="form-select" id="type"><option th:each="t : ${types}" th:value="${t}" th:text="${t}"></option></select></div>
+            <div class="col-md-3"><label class="form-label" th:text="#{upload.documentDate}">Document date</label><input th:field="*{documentDate}" type="date" class="form-control" id="documentDate"></div>
+            <div class="col-md-6"><label class="form-label" th:text="#{upload.domain}">Domain</label><input th:field="*{domain}" class="form-control" id="domain" th:placeholder="#{upload.domainPlaceholder}"></div>
+            <div class="col-md-6"><label class="form-label" th:text="#{upload.tags}">Tags</label><input th:field="*{tags}" class="form-control" id="tags" th:placeholder="#{upload.tagsPlaceholder}"></div>
+        </div>
+
+        <button class="btn btn-primary mt-3" type="submit" id="submitIngestion" disabled th:text="#{upload.submit}">Upload and start ingestion</button>
+    </form>
+
+    <!-- Batch directory upload -->
+    <div class="metric">
+        <h2 class="h5 mb-3">Batch Upload — Ingest a Folder</h2>
+        <div class="border rounded p-4 mb-3 bg-light">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Select a folder</label>
+                    <input type="file" id="folderPicker" webkitdirectory multiple class="form-control" style="max-width:400px;">
+                    <div class="form-text">All files in the folder and its subfolders will be ingested. The folder name is used as a tag.</div>
+                </div>
+                <div class="col-md-6 d-flex align-items-end">
+                    <button type="button" class="btn btn-primary" id="batchUploadBtn" disabled
+                            onclick="uploadFolder()">Upload All Files in Folder</button>
+                </div>
+            </div>
+        </div>
+        <div class="d-none" id="batchProgress">
+            <div class="d-flex justify-content-between mb-1">
+                <span class="fw-semibold" id="batchStatus">Uploading...</span>
+                <span class="small" id="batchCount"></span>
+            </div>
+            <div class="progress mb-2" role="progressbar">
+                <div class="progress-bar" id="batchProgressBar" style="width: 0%"></div>
+            </div>
+            <div id="batchErrors" class="small text-danger"></div>
+            <div id="batchDone" class="small text-success d-none">
+                Upload complete. <a th:href="@{/documents}">View documents</a> or <a th:href="@{/jobs}">check jobs</a>.
+            </div>
+        </div>
+    </div>
+</main>
+<script>
+    const fileInput = document.getElementById('documentFile');
+    const browseFile = document.getElementById('browseFile');
+    const dropZone = document.getElementById('dropZone');
+    const selectedFileState = document.getElementById('selectedFileState');
+    const selectedFileName = document.getElementById('selectedFileName');
+    const selectedFileSize = document.getElementById('selectedFileSize');
+    const uploadProgress = document.getElementById('uploadProgress');
+    const uploadState = document.getElementById('uploadState');
+    const submitIngestion = document.getElementById('submitIngestion');
+    const titleInput = document.getElementById('title');
+    const typeSelect = document.getElementById('type');
+
+    const formatBytes = (bytes) => {
+        if (!bytes) return '0 bytes';
+        const units = ['bytes', 'KB', 'MB', 'GB'];
+        const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+        return `${(bytes / Math.pow(1024, index)).toFixed(index === 0 ? 0 : 1)} ${units[index]}`;
+    };
+
+    const inferType = (fileName) => {
+        const lower = fileName.toLowerCase();
+        if (lower.endsWith('.docx')) return 'DOCX';
+        if (lower.endsWith('.txt')) return 'TXT';
+        if (lower.endsWith('.html') || lower.endsWith('.htm')) return 'HTML';
+        return 'PDF';
+    };
+
+    const showSelectedFile = (file) => {
+        if (!file) {
+            selectedFileState.classList.add('d-none');
+            submitIngestion.disabled = true;
+            return;
+        }
+        selectedFileState.classList.remove('d-none');
+        selectedFileName.textContent = file.name;
+        selectedFileSize.textContent = formatBytes(file.size);
+        uploadProgress.style.width = '60%';
+        if (!titleInput.value.trim()) {
+            titleInput.value = file.name.replace(/\.[^.]+$/, '');
+        }
+        typeSelect.value = inferType(file.name);
+
+        const formData = new FormData();
+        formData.append('file', file);
+        fetch('/api/ingestion/preview-metadata', { method: 'POST', body: formData })
+            .then(r => r.json())
+            .then(data => {
+                if (data.extracted && data.suggestion) {
+                    applySuggestion(data.suggestion);
+                    uploadState.textContent = 'AI metadata extracted. Review suggestions and submit.';
+                    uploadProgress.style.width = '100%';
+                } else {
+                    uploadState.textContent = 'File ready. Complete metadata and create the ingestion record.';
+                    uploadProgress.style.width = '100%';
+                }
+                submitIngestion.disabled = false;
+            })
+            .catch(() => {
+                uploadState.textContent = 'File ready. AI analysis unavailable. Complete metadata manually.';
+                uploadProgress.style.width = '100%';
+                submitIngestion.disabled = false;
+            });
+    };
+
+    const applySuggestion = (s) => {
+        if (s.suggestedTitle && !document.getElementById('title').value.trim()) {
+            document.getElementById('title').value = s.suggestedTitle;
+        }
+        if (s.documentType) {
+            const typeMap = { 'PDF': 'PDF', 'DOCX': 'DOCX', 'TXT': 'TXT', 'HTML': 'HTML' };
+            if (typeMap[s.documentType]) document.getElementById('type').value = typeMap[s.documentType];
+        }
+        if (s.tags && s.tags.length > 0) {
+            const existing = document.getElementById('tags').value.trim();
+            const suggested = s.tags.join(', ');
+            document.getElementById('tags').value = existing ? existing + ', ' + suggested : suggested;
+        }
+        if (s.domain) {
+            const el = document.getElementById('domain');
+            if (el && !el.value.trim()) el.value = s.domain;
+        }
+        if (s.date) {
+            const el = document.getElementById('documentDate');
+            if (el && !el.value) el.value = s.date.substring(0, 10);
+        }
+    };
+
+    browseFile.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', () => showSelectedFile(fileInput.files[0]));
+
+    dropZone.addEventListener('dragover', (event) => {
+        event.preventDefault();
+        dropZone.classList.add('border-primary');
+    });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-primary'));
+    dropZone.addEventListener('drop', (event) => {
+        event.preventDefault();
+        dropZone.classList.remove('border-primary');
+        if (event.dataTransfer.files.length > 0) {
+            fileInput.files = event.dataTransfer.files;
+            showSelectedFile(fileInput.files[0]);
+        }
+    });
+
+    // --- Batch upload ---
+    const folderPicker = document.getElementById('folderPicker');
+    const batchUploadBtn = document.getElementById('batchUploadBtn');
+    const batchProgress = document.getElementById('batchProgress');
+    const batchStatus = document.getElementById('batchStatus');
+    const batchCount = document.getElementById('batchCount');
+    const batchProgressBar = document.getElementById('batchProgressBar');
+    const batchErrors = document.getElementById('batchErrors');
+    const batchDone = document.getElementById('batchDone');
+
+    folderPicker.addEventListener('change', () => {
+        const files = folderPicker.files;
+        if (files.length > 0) {
+            batchUploadBtn.disabled = false;
+            const tag = files[0].webkitRelativePath.split('/')[0];
+            batchUploadBtn.textContent = 'Upload ' + files.length + ' files (tag: ' + tag + ')';
+        } else {
+            batchUploadBtn.disabled = true;
+        }
+    });
+
+    async function uploadFolder() {
+        const files = folderPicker.files;
+        if (files.length === 0) return;
+
+        const tag = files[0].webkitRelativePath.split('/')[0];
+        batchProgress.classList.remove('d-none');
+        batchUploadBtn.disabled = true;
+        batchErrors.innerHTML = '';
+        batchDone.classList.add('d-none');
+
+        let uploaded = 0;
+        let errors = 0;
+        const errorList = [];
+
+        for (let i = 0; i < files.length; i++) {
+            const f = files[i];
+            batchStatus.textContent = 'Uploading ' + (i + 1) + ' of ' + files.length + ': ' + f.name;
+            batchProgressBar.style.width = Math.round((i / files.length) * 100) + '%';
+
+            const fd = new FormData();
+            fd.append('files', f);
+            fd.append('tag', tag);
+
+            try {
+                const r = await fetch('/documents/batch', { method: 'POST', body: fd });
+                if (!r.ok) {
+                    errors++;
+                    errorList.push(f.name + ': HTTP ' + r.status);
+                } else {
+                    const text = await r.text();
+                    if (text) {
+                        try {
+                            const data = JSON.parse(text);
+                            uploaded += (data.uploaded || 0);
+                        } catch (e) {
+                            uploaded++;
+                        }
+                    } else {
+                        uploaded++;
+                    }
+                }
+            } catch (e) {
+                errors++;
+                errorList.push(f.name + ': ' + e.message);
+            }
+        }
+
+        batchProgressBar.style.width = '100%';
+        batchStatus.textContent = 'Done.';
+        batchCount.textContent = uploaded + ' uploaded, ' + errors + ' errors';
+        if (errorList.length > 0) {
+            batchErrors.innerHTML = errorList.map(e => '&bull; ' + e).join('<br>');
+        }
+        batchDone.classList.remove('d-none');
+        batchUploadBtn.disabled = false;
+    }
+</script>
+</body>
+</html>

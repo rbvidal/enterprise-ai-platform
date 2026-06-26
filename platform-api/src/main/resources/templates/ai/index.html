@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="#{ai.title}">AI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link th:href="@{/css/platform.css}" rel="stylesheet">
+    <style>
+        .citation-link { color: #0d6efd; cursor: pointer; text-decoration: none; border-bottom: 1px dotted #0d6efd; position: relative; font-weight: normal; }
+        .citation-link:hover { color: #0a58ca; border-bottom-color: #0a58ca; }
+        .citation-hover-popup { display: none; position: fixed; z-index: 9999; background: #fff; border: 1px solid #adb5bd; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.15); padding: 12px 16px; max-width: 420px; font-size: 13px; line-height: 1.5; pointer-events: none; }
+        .citation-hover-popup .popup-title { font-weight: 600; color: #212529; margin-bottom: 4px; }
+        .citation-hover-popup .popup-excerpt { color: #495057; font-style: italic; max-height: 100px; overflow: hidden; }
+        .citation-hover-popup .popup-meta { font-size: 11px; color: #868e96; margin-top: 4px; }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/layout :: nav}"></div>
+<main class="app-shell">
+    <h1 class="h3 mb-3" th:text="#{ai.title}">Grounded AI Orchestration</h1>
+
+    <div class="metric mb-4">
+        <h2 class="h5">Provider Status</h2>
+        <div id="providerStatus" class="small">
+            <span class="text-secondary">Loading provider status...</span>
+        </div>
+    </div>
+
+    <form th:action="@{/ai}" method="post" class="metric mb-4">
+        <input type="hidden" name="model" id="modelHidden" th:value="${model}">
+        <div class="row g-3 mb-3">
+            <div class="col-md-4">
+                <label class="form-label">Workspace Context</label>
+                <select class="form-select" name="workspaceId">
+                    <option value="">No Workspace (Global)</option>
+                </select>
+                <div class="form-text">Active workspace for contextual scoping. Leave empty for global search.</div>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Reasoning Mode</label>
+                <select class="form-select" name="scope">
+                    <option value="ALL_DOCUMENTS" th:selected="${scope == 'ALL_DOCUMENTS'}">All Documents (Global)</option>
+                </select>
+                <div class="form-text">Retrieval strategy. All documents are searched globally.</div>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" th:text="#{ai.model}">Model</label>
+                <select class="form-select" id="modelSelect">
+                    <option value="" th:text="#{ai.modelPlaceholder}">Select a model or type manually</option>
+                </select>
+                <div class="form-text" id="modelHint">Models are loaded from your local Ollama instance.</div>
+                <button type="button" class="btn btn-outline-secondary btn-sm mt-1" id="refreshModels">Refresh models</button>
+            </div>
+        </div>
+        <label class="form-label" th:text="#{ai.question}">Question</label>
+        <textarea name="question" class="form-control" rows="3" th:text="${question}">Enter your question here...</textarea>
+        <button class="btn btn-primary mt-3" type="submit" th:text="#{ai.submit}">Run retrieval-aware answer</button>
+    </form>
+    <section th:if="${formattedAnswer != null}" class="metric">
+        <h2 class="h5" th:text="#{ai.answer}">Answer</h2>
+        <div th:utext="${formattedAnswer}"></div>
+    </section>
+</main>
+<script>
+const modelSelect = document.getElementById('modelSelect');
+const modelHidden = document.getElementById('modelHidden');
+const modelHint = document.getElementById('modelHint');
+const KEY = 'platform.ai.model';
+
+function syncModel(value) {
+    modelHidden.value = value;
+    localStorage.setItem(KEY, value);
+}
+
+const saved = localStorage.getItem(KEY);
+if (saved) {
+    modelHidden.value = saved;
+    modelSelect.innerHTML = '<option value="">Select a model or type manually</option>' +
+        '<option value="' + saved + '" selected>' + saved + '</option>';
+}
+
+function loadModels() {
+    modelHint.textContent = 'Loading models from Ollama...';
+    fetch('/api/providers/models')
+        .then(r => r.json())
+        .then(data => {
+            const current = modelHidden.value;
+            const seenNames = new Set();
+            modelSelect.innerHTML = '<option value="">Select or type model name</option>';
+            if (data.models && data.models.length > 0) {
+                data.models.forEach(m => {
+                    const name = (typeof m.name === 'string') ? m.name : String(m.name || m);
+                    if (!name || seenNames.has(name)) return;
+                    seenNames.add(name);
+                    const opt = document.createElement('option');
+                    opt.value = name;
+                    opt.textContent = name;
+                    if (name === current) opt.selected = true;
+                    modelSelect.appendChild(opt);
+                });
+                if (current && !seenNames.has(current)) {
+                    const opt = document.createElement('option');
+                    opt.value = current;
+                    opt.textContent = current + ' (saved)';
+                    opt.selected = true;
+                    modelSelect.appendChild(opt);
+                }
+                const baseInfo = data.baseUrl ? ' from ' + data.baseUrl : '';
+                modelHint.textContent = data.models.length + ' model(s) available' + baseInfo + '.';
+            } else if (data.available === false) {
+                if (current) {
+                    const opt = document.createElement('option');
+                    opt.value = current;
+                    opt.textContent = current + ' (offline)';
+                    opt.selected = true;
+                    modelSelect.appendChild(opt);
+                }
+                const errInfo = data.error ? ' Error: ' + data.error : '';
+                const urlInfo = data.baseUrl ? ' (tried ' + data.baseUrl + ')' : '';
+                modelHint.textContent = 'Ollama unreachable' + urlInfo + '.' + errInfo;
+            } else {
+                if (current) {
+                    const opt = document.createElement('option');
+                    opt.value = current;
+                    opt.textContent = current + ' (saved)';
+                    opt.selected = true;
+                    modelSelect.appendChild(opt);
+                }
+                modelHint.textContent = 'No models found. Type model name manually or check Ollama.';
+            }
+        })
+        .catch(err => {
+            if (modelHidden.value) {
+                modelSelect.innerHTML = '<option value="">Select or type model name</option>' +
+                    '<option value="' + modelHidden.value + '" selected>' + modelHidden.value + ' (offline)</option>';
+            }
+            modelHint.textContent = 'Provider API error: ' + (err.message || 'network failure');
+        });
+}
+
+function loadProviderStatus() {
+    fetch('/api/providers/status')
+        .then(r => r.json())
+        .then(s => {
+            const emb = s.embeddingProvider;
+            const vec = s.vectorSearchProvider;
+            document.getElementById('providerStatus').innerHTML =
+                '<span>Embedding: <strong>' + (emb.available ? emb.type + ' (' + emb.dimension + 'd)' : 'unavailable') + '</strong></span>' +
+                ' &middot; ' +
+                '<span>Vector search: <strong>' + (vec.available ? vec.backend + ' (' + vec.type + ')' : 'unavailable') + '</strong></span>' +
+                ' &middot; ' +
+                '<span>Semantic ready: <strong>' + (s.semanticSearchReady ? 'yes' : 'no') + '</strong></span>';
+        })
+        .catch(() => {
+            document.getElementById('providerStatus').innerHTML = '<span class="text-warning">Provider status unavailable</span>';
+        });
+}
+
+document.getElementById('refreshModels').addEventListener('click', loadModels);
+modelSelect.addEventListener('change', () => syncModel(modelSelect.value));
+
+loadModels();
+loadProviderStatus();
+
+const hoverPopup = document.createElement('div');
+hoverPopup.className = 'citation-hover-popup';
+hoverPopup.id = 'citationHoverPopup';
+document.body.appendChild(hoverPopup);
+let hoverTimer;
+
+document.addEventListener('mouseover', e => {
+    const link = e.target.closest('.citation-link');
+    if (!link) return;
+    const chunkId = link.getAttribute('data-chunk-id');
+    if (!chunkId) return;
+    clearTimeout(hoverTimer);
+    hoverTimer = setTimeout(() => {
+        fetch('/api/search/chunks/' + chunkId)
+            .then(r => r.json())
+            .then(chunk => {
+                const excerpt = chunk.text ? (chunk.text.length > 300 ? chunk.text.substring(0, 300) + '...' : chunk.text) : '';
+                hoverPopup.innerHTML =
+                    '<div class="popup-title">' + (chunk.title || 'Document') + '</div>' +
+                    '<div class="popup-excerpt">' + excerpt + '</div>' +
+                    '<div class="popup-meta">chunk ' + (chunk.position ? chunk.position.chunkIndex : '-') + '</div>';
+                hoverPopup.style.display = 'block';
+                hoverPopup.style.left = Math.min(e.clientX + 12, window.innerWidth - 430) + 'px';
+                hoverPopup.style.top = (e.clientY + 16) + 'px';
+            })
+            .catch(() => { hoverPopup.style.display = 'none'; });
+    }, 250);
+});
+
+document.addEventListener('mouseout', e => {
+    if (e.target.closest('.citation-link')) {
+        clearTimeout(hoverTimer);
+        hoverPopup.style.display = 'none';
+    }
+});
+
+document.addEventListener('click', e => {
+    const link = e.target.closest('.citation-link');
+    if (!link) return;
+    const docId = link.getAttribute('data-doc-id');
+    const chunkId = link.getAttribute('data-chunk-id');
+    if (docId) {
+        window.open('/documents/' + docId + (chunkId ? '?chunk=' + chunkId : ''), '_blank');
+    }
+});
+</script>
+</body>
+</html>

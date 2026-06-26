@@ -1,0 +1,29 @@
+body {
+    background: #f6f7f9;
+}
+
+.app-shell {
+    max-width: 1180px;
+    margin: 0 auto;
+}
+
+.metric {
+    border: 1px solid #d9dee7;
+    background: #fff;
+    border-radius: 6px;
+    padding: 14px;
+}
+
+.metric strong {
+    display: block;
+    font-size: 1.6rem;
+}
+
+.trace {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: .84rem;
+}
+
+.table td, .table th {
+    vertical-align: top;
+}

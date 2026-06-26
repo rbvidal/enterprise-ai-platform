@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${doc != null ? doc.metadata().title() : 'Document Viewer'}">Document Viewer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link th:href="@{/css/platform.css}" rel="stylesheet">
+    <style>
+        .doc-viewer { max-width: 900px; margin: 0 auto; }
+        .doc-content { white-space: pre-wrap; font-family: 'Segoe UI', Georgia, serif; font-size: 15px; line-height: 1.7; background: #fff; border: 1px solid #dee2e6; border-radius: 6px; padding: 2rem; max-height: 70vh; overflow-y: auto; }
+        .chunk-anchor { border-left: 3px solid transparent; padding-left: 8px; margin: -2px 0; display: block; transition: background 0.3s, border-color 0.3s; cursor: default; }
+        .chunk-anchor.active { background: #fff9db; border-left-color: #f0b400; }
+        .chunk-anchor:hover { background: #f8f9fa; }
+        .chunk-index { display: inline-block; font-size: 10px; color: #adb5bd; margin-right: 4px; user-select: none; }
+        .citation-hover-popup { display: none; position: absolute; z-index: 9999; background: #fff; border: 1px solid #adb5bd; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.15); padding: 12px 16px; max-width: 420px; font-size: 13px; line-height: 1.5; }
+        .citation-hover-popup .popup-title { font-weight: 600; color: #212529; margin-bottom: 4px; }
+        .citation-hover-popup .popup-excerpt { color: #495057; font-style: italic; max-height: 120px; overflow: hidden; }
+        .citation-hover-popup .popup-meta { font-size: 11px; color: #868e96; margin-top: 4px; }
+        .citation-link { color: #0d6efd; cursor: pointer; text-decoration: underline; text-decoration-style: dotted; position: relative; }
+        .citation-link:hover { color: #0a58ca; }
+        .doc-meta-bar { display: flex; gap: 1rem; flex-wrap: wrap; font-size: 13px; color: #6c757d; margin-bottom: 1rem; }
+        .doc-meta-bar span { white-space: nowrap; }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/layout :: nav}"></div>
+<main class="app-shell doc-viewer" th:if="${doc == null}">
+    <div class="alert alert-danger">
+        <p th:text="${error != null ? error : 'Document not found.'}">Document not found.</p>
+        <a th:href="@{/documents}" class="btn btn-outline-secondary btn-sm mt-2">Back to documents</a>
+    </div>
+</main>
+<main class="app-shell doc-viewer" th:if="${doc != null}">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h1 class="h4 mb-1" th:text="${doc.metadata().title()}">Document</h1>
+            <div class="doc-meta-bar">
+                <span>Type: <strong th:text="${doc.metadata().type()}"></strong></span>
+                <span>Version: <strong th:text="${doc.currentVersion()}"></strong></span>
+                <span>Status: <strong th:text="${doc.status()}"></strong></span>
+                <span th:if="${doc.metadata().category()}">Category: <strong th:text="${doc.metadata().category()}"></strong></span>
+            </div>
+        </div>
+        <a th:href="@{/documents}" class="btn btn-outline-secondary btn-sm">Back to documents</a>
+    </div>
+
+    <div id="loadingState" class="text-center py-5 text-secondary">Loading document content...</div>
+    <div id="docContent" class="doc-content d-none"></div>
+    <div id="errorState" class="d-none alert alert-danger">Failed to load document content.</div>
+</main>
+
+<div id="citationHover" class="citation-hover-popup"></div>
+
+<script th:inline="javascript" th:if="${doc != null}">
+const docId = /*[[${doc.id()}]]*/ '';
+const highlightChunkId = /*[[${highlightChunkId}]]*/ '';
+
+function buildAnchoredText(text, chunks) {
+    if (!chunks || chunks.length === 0) {
+        const span = document.createElement('span');
+        span.textContent = text;
+        return [span];
+    }
+    const sorted = [...chunks].sort((a, b) => a.startOffset - b.startOffset);
+    const elements = [];
+    let cursor = 0;
+    sorted.forEach((chunk, i) => {
+        if (chunk.startOffset != null && chunk.endOffset != null && chunk.startOffset < text.length) {
+            if (chunk.startOffset > cursor) {
+                const before = document.createElement('span');
+                before.textContent = text.substring(cursor, chunk.startOffset);
+                elements.push(before);
+            }
+            const anchor = document.createElement('span');
+            anchor.className = 'chunk-anchor';
+            anchor.id = 'chunk-' + chunk.chunkId;
+            anchor.setAttribute('data-chunk-id', chunk.chunkId);
+            anchor.setAttribute('data-chunk-index', chunk.chunkIndex);
+            const end = Math.min(chunk.endOffset, text.length);
+            anchor.textContent = text.substring(chunk.startOffset, end);
+            if (chunk.chunkId === highlightChunkId) {
+                anchor.classList.add('active');
+            }
+            elements.push(anchor);
+            cursor = end;
+        }
+    });
+    if (cursor < text.length) {
+        const after = document.createElement('span');
+        after.textContent = text.substring(cursor);
+        elements.push(after);
+    }
+    return elements;
+}
+
+function loadDocument() {
+    fetch('/api/documents/' + docId + '/content')
+        .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(data => {
+            document.getElementById('loadingState').classList.add('d-none');
+            const container = document.getElementById('docContent');
+            container.classList.remove('d-none');
+            container.innerHTML = '';
+            const elements = buildAnchoredText(data.text, data.chunks || []);
+            elements.forEach(el => container.appendChild(el));
+            if (highlightChunkId) {
+                const target = document.getElementById('chunk-' + highlightChunkId);
+                if (target) {
+                    setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 200);
+                }
+            }
+        })
+        .catch(err => {
+            document.getElementById('loadingState').classList.add('d-none');
+            document.getElementById('errorState').classList.remove('d-none');
+            document.getElementById('errorState').textContent = 'Failed to load document: ' + err.message;
+        });
+}
+
+const hoverPopup = document.getElementById('citationHover');
+let hoverTimer;
+
+document.addEventListener('mouseover', e => {
+    const link = e.target.closest('.citation-link');
+    if (!link) return;
+    const chunkId = link.getAttribute('data-chunk-id');
+    if (!chunkId) return;
+    clearTimeout(hoverTimer);
+    hoverTimer = setTimeout(() => {
+        fetch('/api/search/chunks/' + chunkId)
+            .then(r => r.json())
+            .then(chunk => {
+                const excerpt = chunk.text ? (chunk.text.length > 300 ? chunk.text.substring(0, 300) + '...' : chunk.text) : '';
+                hoverPopup.innerHTML =
+                    '<div class="popup-title">' + (chunk.title || 'Document') + '</div>' +
+                    '<div class="popup-excerpt">' + excerpt + '</div>' +
+                    '<div class="popup-meta">chunk ' + (chunk.position ? chunk.position.chunkIndex : '-') + ' &middot; click to open in viewer</div>';
+                hoverPopup.style.display = 'block';
+                positionPopup(e);
+            })
+            .catch(() => { hoverPopup.style.display = 'none'; });
+    }, 300);
+});
+
+document.addEventListener('mousemove', e => {
+    if (hoverPopup.style.display === 'block' && e.target.closest('.citation-link')) {
+        positionPopup(e);
+    }
+});
+
+document.addEventListener('mouseout', e => {
+    if (e.target.closest('.citation-link')) {
+        clearTimeout(hoverTimer);
+        hoverPopup.style.display = 'none';
+    }
+});
+
+function positionPopup(e) {
+    const popup = hoverPopup;
+    const left = Math.min(e.clientX + 12, window.innerWidth - popup.offsetWidth - 20);
+    const top = e.clientY + 16;
+    popup.style.left = left + 'px';
+    popup.style.top = top + 'px';
+}
+
+document.addEventListener('click', e => {
+    const link = e.target.closest('.citation-link');
+    if (!link) return;
+    const docId = link.getAttribute('data-doc-id');
+    const chunkId = link.getAttribute('data-chunk-id');
+    if (docId) {
+        window.open('/documents/' + docId + (chunkId ? '?chunk=' + chunkId : ''), '_blank');
+    }
+});
+
+loadDocument();
+</script>
+</body>
+</html>

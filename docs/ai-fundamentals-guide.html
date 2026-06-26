@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI & LLM Fundamentals — A Consultant's Guide</title>
+<style>
+  @page {
+    size: A4;
+    margin: 2.5cm 2cm 2.5cm 2cm;
+    @top-center { content: "AI & LLM Fundamentals — A Consultant's Guide"; font-size: 8pt; color: #666; }
+    @bottom-center { content: "Page " counter(page); font-size: 8pt; color: #666; }
+  }
+  body {
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.65;
+    color: #1a1a1a;
+    max-width: 100%;
+  }
+  .cover {
+    text-align: center;
+    padding: 120px 0 80px 0;
+    page-break-after: always;
+  }
+  .cover h1 {
+    font-size: 28pt;
+    font-weight: 700;
+    color: #1a3a5c;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+  }
+  .cover .subtitle {
+    font-size: 14pt;
+    color: #555;
+    margin-bottom: 40px;
+  }
+  .cover .meta {
+    font-size: 10pt;
+    color: #777;
+    margin-top: 60px;
+    line-height: 2;
+  }
+  .cover .divider {
+    width: 120px;
+    height: 3px;
+    background: #7c3aed;
+    margin: 30px auto;
+  }
+
+  .toc { page-break-after: always; }
+  .toc h2 {
+    font-size: 18pt;
+    color: #1a3a5c;
+    border-bottom: 2px solid #7c3aed;
+    padding-bottom: 6px;
+    margin-bottom: 20px;
+  }
+  .toc ul { list-style: none; padding: 0; }
+  .toc li { padding: 4px 0; border-bottom: 1px dotted #ddd; }
+  .toc li a { color: #1a3a5c; text-decoration: none; }
+  .toc .l1 { font-weight: 700; font-size: 11pt; margin-top: 8px; }
+  .toc .l2 { padding-left: 24px; }
+  .toc .l3 { padding-left: 48px; font-size: 9.5pt; color: #555; }
+
+  h1 { font-size: 20pt; color: #1a3a5c; margin-top: 32px; page-break-before: always; }
+  h1:first-of-type { page-break-before: avoid; }
+  h2 { font-size: 14pt; color: #1a3a5c; margin-top: 28px; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
+  h3 { font-size: 11.5pt; color: #333; margin-top: 20px; }
+
+  p { margin: 8px 0; }
+  ul, ol { margin: 6px 0; padding-left: 20px; }
+  li { margin: 3px 0; }
+
+  code {
+    font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+    font-size: 9pt;
+    background: #f0f4f8;
+    padding: 1px 4px;
+    border-radius: 3px;
+  }
+  pre {
+    background: #1e293b;
+    color: #e2e8f0;
+    padding: 14px 18px;
+    border-radius: 6px;
+    font-size: 9pt;
+    line-height: 1.5;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  pre code { background: none; color: inherit; padding: 0; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 9.5pt;
+  }
+  th {
+    background: #1a3a5c;
+    color: white;
+    padding: 8px 12px;
+    text-align: left;
+    font-weight: 600;
+  }
+  td {
+    padding: 7px 12px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  tr:nth-child(even) td { background: #f8fafc; }
+
+  .callout {
+    border-left: 4px solid #7c3aed;
+    background: #f5f3ff;
+    padding: 12px 16px;
+    margin: 16px 0;
+    border-radius: 0 6px 6px 0;
+  }
+  .callout strong { color: #6d28d9; }
+
+  .callout-blue {
+    border-left: 4px solid #2563eb;
+    background: #eff6ff;
+    padding: 12px 16px;
+    margin: 16px 0;
+    border-radius: 0 6px 6px 0;
+  }
+  .callout-blue strong { color: #1e40af; }
+
+  .callout-amber {
+    border-left: 4px solid #d97706;
+    background: #fffbeb;
+    padding: 12px 16px;
+    margin: 16px 0;
+    border-radius: 0 6px 6px 0;
+  }
+  .callout-amber strong { color: #92400e; }
+
+  .diagram-box {
+    background: #f8fafc;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 18px;
+    margin: 16px 0;
+    font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+    font-size: 8.5pt;
+    line-height: 1.4;
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  .two-col {
+    display: flex;
+    gap: 24px;
+    margin: 12px 0;
+  }
+  .two-col > div { flex: 1; }
+
+  .section-intro {
+    font-size: 11pt;
+    color: #444;
+    font-style: italic;
+    margin-bottom: 16px;
+  }
+
+  .term {
+    font-weight: 700;
+    color: #1a3a5c;
+  }
+
+  .highlight-box {
+    background: linear-gradient(135deg, #f5f3ff 0%, #eff6ff 100%);
+    border: 1px solid #c4b5fd;
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 20px 0;
+  }
+  .highlight-box h3 { margin-top: 0; color: #6d28d9; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- COVER PAGE -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div class="cover">
+  <h1>AI &amp; LLM Fundamentals</h1>
+  <div class="subtitle">A Consultant's Guide to Modern Artificial Intelligence</div>
+  <div class="divider"></div>
+  <p style="font-size:11pt; color:#444; max-width:500px; margin:0 auto;">
+    Everything you need to speak confidently about AI, LLMs, RAG, embeddings,
+    and modern AI architecture — from first principles to production patterns.
+  </p>
+  <div class="meta">
+    Version 1.0 &mdash; June 2026<br>
+    Prepared for: Technical conversations, client meetings, and interviews
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- TABLE OF CONTENTS -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div class="toc">
+  <h2>Table of Contents</h2>
+  <ul>
+    <li class="l1"><a href="#s1">1. What is Artificial Intelligence?</a></li>
+    <li class="l2"><a href="#s1.1">1.1 AI vs. ML vs. DL vs. Generative AI</a></li>
+    <li class="l2"><a href="#s1.2">1.2 The AI Spectrum: Narrow AI to AGI</a></li>
+    <li class="l2"><a href="#s1.3">1.3 The Current AI Landscape (2026)</a></li>
+
+    <li class="l1"><a href="#s2">2. Machine Learning Fundamentals</a></li>
+    <li class="l2"><a href="#s2.1">2.1 Supervised vs. Unsupervised vs. Reinforcement Learning</a></li>
+    <li class="l2"><a href="#s2.2">2.2 Neural Networks: The Building Block</a></li>
+    <li class="l2"><a href="#s2.3">2.3 Training, Validation, and Testing</a></li>
+    <li class="l2"><a href="#s2.4">2.4 Key Metrics: Accuracy, Precision, Recall, F1</a></li>
+
+    <li class="l1"><a href="#s3">3. Large Language Models (LLMs)</a></li>
+    <li class="l2"><a href="#s3.1">3.1 What is an LLM?</a></li>
+    <li class="l2"><a href="#s3.2">3.2 The Transformer Architecture</a></li>
+    <li class="l2"><a href="#s3.3">3.3 How LLMs Are Trained</a></li>
+    <li class="l2"><a href="#s3.4">3.4 Tokens, Context Windows, and Parameters</a></li>
+    <li class="l2"><a href="#s3.5">3.5 Major LLM Families (2026)</a></li>
+
+    <li class="l1"><a href="#s4">4. Embeddings &amp; Vector Representations</a></li>
+    <li class="l2"><a href="#s4.1">4.1 What Are Embeddings?</a></li>
+    <li class="l2"><a href="#s4.2">4.2 How Embeddings Are Generated</a></li>
+    <li class="l2"><a href="#s4.3">4.3 Cosine Similarity &amp; Vector Search</a></li>
+    <li class="l2"><a href="#s4.4">4.4 Popular Embedding Models</a></li>
+
+    <li class="l1"><a href="#s5">5. Retrieval-Augmented Generation (RAG)</a></li>
+    <li class="l2"><a href="#s5.1">5.1 Why RAG? The Hallucination Problem</a></li>
+    <li class="l2"><a href="#s5.2">5.2 The RAG Architecture</a></li>
+    <li class="l2"><a href="#s5.3">5.3 Advanced RAG Patterns</a></li>
+    <li class="l2"><a href="#s5.4">5.4 RAG vs. Fine-Tuning vs. Long Context</a></li>
+
+    <li class="l1"><a href="#s6">6. Prompt Engineering</a></li>
+    <li class="l2"><a href="#s6.1">6.1 What is Prompt Engineering?</a></li>
+    <li class="l2"><a href="#s6.2">6.2 Core Techniques</a></li>
+    <li class="l2"><a href="#s6.3">6.3 Prompt Templates &amp; Versioning</a></li>
+
+    <li class="l1"><a href="#s7">7. AI System Architecture Patterns</a></li>
+    <li class="l2"><a href="#s7.1">7.1 The Modular Monolith Pattern</a></li>
+    <li class="l2"><a href="#s7.2">7.2 Provider Abstraction</a></li>
+    <li class="l2"><a href="#s7.3">7.3 Grounding &amp; Citation</a></li>
+    <li class="l2"><a href="#s7.4">7.4 Guardrails &amp; Validation</a></li>
+
+    <li class="l1"><a href="#s8">8. Running LLMs Locally</a></li>
+    <li class="l2"><a href="#s8.1">8.1 Why Local Inference?</a></li>
+    <li class="l2"><a href="#s8.2">8.2 Ollama, vLLM, llama.cpp</a></li>
+    <li class="l2"><a href="#s8.3">8.3 Hardware Considerations</a></li>
+
+    <li class="l1"><a href="#s9">9. AI Ethics, Safety &amp; Governance</a></li>
+    <li class="l2"><a href="#s9.1">9.1 Hallucination &amp; Factual Accuracy</a></li>
+    <li class="l2"><a href="#s9.2">9.2 Bias, Fairness, and Representation</a></li>
+    <li class="l2"><a href="#s9.3">9.3 Data Privacy &amp; Sovereignty</a></li>
+    <li class="l2"><a href="#s9.4">9.4 The EU AI Act &amp; Regulatory Landscape</a></li>
+
+    <li class="l1"><a href="#s10">10. Key Terminology Cheat Sheet</a></li>
+    <li class="l1"><a href="#s11">11. Conversation-Ready Talking Points</a></li>
+    <li class="l1"><a href="#s12">12. Recommended Learning Path</a></li>
+  </ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- 1. WHAT IS ARTIFICIAL INTELLIGENCE? -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h1 id="s1">1. What is Artificial Intelligence?</h1>
+
+<p class="section-intro">
+  AI is not magic. It's mathematics, data, and engineering — applied at scale.
+</p>
+
+<h2 id="s1.1">1.1 AI vs. ML vs. DL vs. Generative AI</h2>
+
+<p>These terms form a nested hierarchy. Understanding the distinction is essential for any technical conversation:</p>
+
+<table>
+  <tr><th>Term</th><th>Definition</th><th>Example</th></tr>
+  <tr>
+    <td><strong>Artificial Intelligence (AI)</strong></td>
+    <td>The broadest field — any system that performs tasks requiring human-like intelligence.</td>
+    <td>A chess program, a spam filter, a self-driving car</td>
+  </tr>
+  <tr>
+    <td><strong>Machine Learning (ML)</strong></td>
+    <td>A subset of AI where systems learn patterns from data rather than following explicit rules.</td>
+    <td>Email spam classifier trained on labeled examples</td>
+  </tr>
+  <tr>
+    <td><strong>Deep Learning (DL)</strong></td>
+    <td>A subset of ML using multi-layered neural networks to learn hierarchical representations.</td>
+    <td>Image recognition with CNNs, language translation with transformers</td>
+  </tr>
+  <tr>
+    <td><strong>Generative AI</strong></td>
+    <td>A subset of DL that generates new content (text, images, code, audio) rather than just classifying or predicting.</td>
+    <td>ChatGPT, DALL-E, GitHub Copilot, Midjourney</td>
+  </tr>
+</table>
+
+<div class="diagram-box">
+                    ┌──────────────────────────────────────┐
+                    │     ARTIFICIAL INTELLIGENCE (AI)      │
+                    │  ┌────────────────────────────────┐   │
+                    │  │     MACHINE LEARNING (ML)       │   │
+                    │  │  ┌──────────────────────────┐   │   │
+                    │  │  │    DEEP LEARNING (DL)     │   │   │
+                    │  │  │  ┌────────────────────┐   │   │   │
+                    │  │  │  │  GENERATIVE AI     │   │   │   │
+                    │  │  │  │  (LLMs, Diffusion) │   │   │   │
+                    │  │  │  └────────────────────┘   │   │   │
+                    │  │  └──────────────────────────┘   │   │
+                    │  └────────────────────────────────┘   │
+                    └──────────────────────────────────────┘
+</div>
+
+<h2 id="s1.2">1.2 The AI Spectrum: Narrow AI to AGI</h2>
+
+<ul>
+  <li><span class="term">Narrow AI (ANI):</span> Excels at one specific task. Everything we have today — ChatGPT, AlphaFold, self-driving cars — is narrow AI. "Narrow" doesn't mean limited; GPT-4 is narrow AI because it only does language.</li>
+  <li><span class="term">General AI (AGI):</span> A hypothetical system matching human-level performance across any intellectual task. Does not exist. Estimates range from 10 to 100+ years away.</li>
+  <li><span class="term">Superintelligence (ASI):</span> Exceeds human capability in virtually all domains. Purely theoretical.</li>
+</ul>
+
+<div class="callout-blue">
+  <strong>Interview tip:</strong> When someone says "AGI is coming next year," ask them to define AGI precisely. You'll find no consensus definition exists. This is a sign of AI literacy.
+</div>
+
+<h2 id="s1.3">1.3 The Current AI Landscape (2026)</h2>
+
+<p>Key trends shaping the industry right now:</p>
+
+<ul>
+  <li><strong>Model commoditization:</strong> Frontier models (GPT-4 class) are converging in capability. The moat is shifting from model quality to data, tooling, and application architecture.</li>
+  <li><strong>Local/private inference:</strong> Models like Llama 3.x, Qwen 2.5, Mistral, and DeepSeek run on consumer hardware. Enterprises increasingly demand on-premises AI.</li>
+  <li><strong>Multimodal models:</strong> Models that process text, images, audio, and video natively — not just text with vision bolted on.</li>
+  <li><strong>Agentic AI:</strong> Systems that plan, use tools, and execute multi-step tasks autonomously. Still unreliable for high-stakes decisions.</li>
+  <li><strong>Regulation arriving:</strong> EU AI Act is in effect. Other jurisdictions are following. "Move fast and break things" is being replaced by compliance frameworks.</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- 2. MACHINE LEARNING FUNDAMENTALS -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h1 id="s2">2. Machine Learning Fundamentals</h1>
+
+<h2 id="s2.1">2.1 Supervised vs. Unsupervised vs. Reinforcement Learning</h2>
+
+<table>
+  <tr><th>Type</th><th>How It Works</th><th>Example</th><th>Data Required</th></tr>
+  <tr>
+    <td><strong>Supervised Learning</strong></td>
+    <td>Learn a mapping from inputs to outputs using labeled examples.</td>
+    <td>Classify emails as spam/not-spam from a dataset of labeled emails.</td>
+    <td>Labeled pairs: (input, correct_output)</td>
+  </tr>
+  <tr>
+    <td><strong>Unsupervised Learning</strong></td>
+    <td>Find patterns in data without labels.</td>
+    <td>Group customers into segments based on purchasing behavior.</td>
+    <td>Unlabeled data only</td>
+  </tr>
+  <tr>
+    <td><strong>Reinforcement Learning</strong></td>
+    <td>Learn by taking actions in an environment to maximize a reward signal.</td>
+    <td>Train an agent to play Go (AlphaGo).</td>
+    <td>Environment with rewards</td>
+  </tr>
+  <tr>
+    <td><strong>Self-Supervised Learning</strong></td>
+    <td>The model creates its own labels from the data structure (key to modern LLMs).</td>
+    <td>Mask words in a sentence and train the model to predict them (BERT, GPT pretraining).</td>
+    <td>Unlabeled text — the "label" is the next word</td>
+  </tr>
+</table>
+
+<h2 id="s2.2">2.2 Neural Networks: The Building Block</h2>
+
+<p>A neural network is a function approximator inspired (loosely) by biological neurons:</p>
+
+<div class="diagram-box">
+Input Layer        Hidden Layer(s)        Output Layer
+   x₁ ──────●
+            ├────── ● ──────● ──────
+   x₂ ──────●              ├──────●────── ŷ (prediction)
+            ├────── ● ──────●
+   x₃ ──────●
+
+Each arrow = weight (w)
+Each node = activation function applied to weighted sum: σ(Σ wᵢxᵢ + b)
+Training = adjusting all weights to minimize prediction error
+</div>
+
+<p>Key concepts:</p>
+<ul>
+  <li><strong>Weights (w):</strong> The learnable parameters. A modern LLM has billions.</li>
+  <li><strong>Activation function (σ):</strong> Introduces non-linearity. Without it, stacking layers is equivalent to a single linear transform. Common: ReLU, GELU, SiLU.</li>
+  <li><strong>Loss function:</strong> Measures how wrong the prediction is. Training minimizes this.</li>
+  <li><strong>Backpropagation:</strong> The algorithm that computes how much each weight contributed to the error, enabling weight updates via gradient descent.</li>
+</ul>
+
+<h2 id="s2.3">2.3 Training, Validation, and Testing</h2>
+
+<ul>
+  <li><strong>Training set (typically 70-80%):</strong> Data the model learns from. Weights are updated based on this data.</li>
+  <li><strong>Validation set (typically 10-15%):</strong> Used to tune hyperparameters and detect overfitting. Not used for weight updates directly.</li>
+  <li><strong>Test set (typically 10-15%):</strong> Held out until the very end. Used exactly once to report final performance. Using it more than once invalidates its purpose.</li>
+</ul>
+
+<div class="callout-amber">
+  <strong>Common pitfall:</strong> Data leakage — when information from the test set leaks into training (e.g., normalizing using statistics from the entire dataset before splitting). This produces unrealistically optimistic results.
+</div>
+
+<h2 id="s2.4">2.4 Key Metrics: Accuracy, Precision, Recall, F1</h2>
+
+<table>
+  <tr><th>Metric</th><th>Formula</th><th>When to Use</th></tr>
+  <tr>
+    <td><strong>Accuracy</strong></td>
+    <td>(TP + TN) / Total</td>
+    <td>Balanced classes. Misleading for imbalanced data (e.g., 99% not-fraud).</td>
+  </tr>
+  <tr>
+    <td><strong>Precision</strong></td>
+    <td>TP / (TP + FP)</td>
+    <td>When false positives are costly. "Of what we flagged, how many were correct?"</td>
+  </tr>
+  <tr>
+    <td><strong>Recall</strong></td>
+    <td>TP / (TP + FN)</td>
+    <td>When false negatives are costly. "Of all actual positives, how many did we find?"</td>
+  </tr>
+  <tr>
+    <td><strong>F1 Score</strong></td>
+    <td>2 × (P × R) / (P + R)</td>
+    <td>Harmonic mean of precision and recall. Balances both concerns.</td>
+  </tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- 3. LARGE LANGUAGE MODELS -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h1 id="s3">3. Large Language Models (LLMs)</h1>
+
+<h2 id="s3.1">3.1 What is an LLM?</h2>
+
+<p>
+  A <strong>Large Language Model</strong> is a neural network trained on vast
+  amounts of text to predict the next token in a sequence. This deceptively
+  simple objective — "predict the next word" — produces models that can
+  translate, summarize, reason, code, and converse.
+</p>
+
+<div class="callout">
+  <strong>The core insight of LLMs:</strong> If you train a sufficiently large
+  model on sufficiently diverse text to predict the next token well enough, the
+  model must develop internal representations of grammar, facts, reasoning
+  patterns, and world knowledge — because that's what it takes to predict the
+  next token accurately across billions of diverse contexts.
+</div>
+
+<h2 id="s3.2">3.2 The Transformer Architecture</h2>
+
+<p>
+  Introduced in the 2017 paper <em>"Attention Is All You Need"</em> (Vaswani et al.),
+  the Transformer is the architecture behind virtually all modern LLMs:
+</p>
+
+<div class="diagram-box">
+                    THE TRANSFORMER (simplified)
+
+Input: "The cat sat on the"
+   │
+   ▼
+┌──────────────────────────────────────────────┐
+│ 1. TOKENIZATION + EMBEDDING                   │
+│    Text → Tokens → Vectors (dimensionality d) │
+│    "The"→[0.12, -0.34, ..., 0.78]  (768-dim) │
+├──────────────────────────────────────────────┤
+│ 2. POSITIONAL ENCODING                        │
+│    Add position information to each vector    │
+├──────────────────────────────────────────────┤
+│ 3. N× TRANSFORMER BLOCKS                      │
+│    ┌─────────────────────────────────────┐    │
+│    │ MULTI-HEAD SELF-ATTENTION            │    │
+│    │ "Which other tokens are relevant?"   │    │
+│    │ Each token attends to all others     │    │
+│    │ Computes: softmax(Q·Kᵀ/√d)·V        │    │
+│    ├─────────────────────────────────────┤    │
+│    │ FEED-FORWARD NETWORK                │    │
+│    │ Per-token non-linear transformation │    │
+│    ├─────────────────────────────────────┤    │
+│    │ LAYER NORM + RESIDUAL CONNECTIONS   │    │
+│    └─────────────────────────────────────┘    │
+│    (Repeated N times: 12-120 layers)          │
+├──────────────────────────────────────────────┤
+│ 4. OUTPUT PROJECTION + SOFTMAX                │
+│    → Probability distribution over vocabulary │
+│    → Sample/pick next token: "mat"            │
+└──────────────────────────────────────────────┘
+</div>
+
+<p><strong>The attention mechanism</strong> is the key innovation:</p>
+<ul>
+  <li>Each token "attends to" every other token in the sequence.</li>
+  <li>Attention scores determine how much each token influences the representation of every other token.</li>
+  <li><strong>Multi-head attention</strong> runs multiple attention operations in parallel, allowing the model to attend to different aspects of the input simultaneously (syntax, semantics, reference, etc.).</li>
+  <li>The formula: <code>Attention(Q,K,V) = softmax(QKᵀ/√dₖ)V</code> — where Q (query), K (key), and V (value) are learned projections of the input.</li>
+</ul>
+
+<h2 id="s3.3">3.3 How LLMs Are Trained</h2>
+
+<p>Modern LLM training typically has three phases:</p>
+
+<table>
+  <tr><th>Phase</th><th>What Happens</th><th>Data Scale</th><th>Compute</th></tr>
+  <tr>
+    <td><strong>1. Pretraining</strong></td>
+    <td>Train on trillions of tokens from the internet, books, and code. Next-token prediction objective. This is where the model learns language, facts, and reasoning.</td>
+    <td>1–15 trillion tokens</td>
+    <td>Thousands of GPUs for weeks/months. Costs $10M–$100M+</td>
+  </tr>
+  <tr>
+    <td><strong>2. Instruction Tuning (SFT)</strong></td>
+    <td>Fine-tune on high-quality instruction-response pairs. Teaches the model to follow instructions rather than just complete text.</td>
+    <td>10K–1M examples</td>
+    <td>Dozens of GPUs for hours/days</td>
+  </tr>
+  <tr>
+    <td><strong>3. RLHF / DPO</strong></td>
+    <td>Align the model with human preferences. RLHF uses a reward model trained on human comparisons. DPO (Direct Preference Optimization) does this more efficiently without a separate reward model.</td>
+    <td>10K–100K preference pairs</td>
+    <td>Similar to SFT</td>
+  </tr>
+</table>
+
+<div class="callout-blue">
+  <strong>Why this matters for consultants:</strong> When a client says "can we train an LLM on our data?", they usually mean fine-tuning (phase 2), not pretraining (phase 1). Pretraining from scratch is economically infeasible for almost everyone. Clarify this distinction early.
+</div>
+
+<h2 id="s3.4">3.4 Tokens, Context Windows, and Parameters</h2>
+
+<table>
+  <tr><th>Concept</th><th>What It Is</th><th>Why It Matters</th></tr>
+  <tr>
+    <td><strong>Token</strong></td>
+    <td>The atomic unit of text for an LLM. ~0.75 English words. "The cat" → 2 tokens. Tokens are not characters and not exactly words — they're subword units from a tokenizer like BPE (Byte-Pair Encoding).</td>
+    <td>Pricing (per 1K tokens), context limits, and latency all revolve around tokens.</td>
+  </tr>
+  <tr>
+    <td><strong>Context Window</strong></td>
+    <td>Maximum number of tokens the model can process in one forward pass. Modern models: 4K (GPT-3.5), 128K (GPT-4 Turbo), 200K (Claude), 1M+ (Gemini).</td>
+    <td>Determines how much information you can provide in a single prompt. Long context doesn't mean the model <em>uses</em> all of it effectively (the "needle in a haystack" problem).</td>
+  </tr>
+  <tr>
+    <td><strong>Parameters</strong></td>
+    <td>The learnable weights in the neural network. 7B = 7 billion parameters, ~14GB at 16-bit precision. Range: 1B (tiny) to 1.7T+ (frontier).</td>
+    <td>More parameters ≈ more capacity, but also more VRAM and slower inference. A 7B model runs on a laptop; a 405B model needs a datacenter.</td>
+  </tr>
+</table>
+
+<h2 id="s3.5">3.5 Major LLM Families (2026)</h2>
+
+<table>
+  <tr><th>Family</th><th>Developer</th><th>Key Models</th><th>Open Weights?</th><th>Notable</th></tr>
+  <tr>
+    <td><strong>GPT</strong></td>
+    <td>OpenAI</td>
+    <td>GPT-4o, GPT-4.1, o3, o4-mini</td>
+    <td>No</td>
+    <td>Market leader. Multimodal. The "reasoning" o-series uses chain-of-thought at inference time.</td>
+  </tr>
+  <tr>
+    <td><strong>Claude</strong></td>
+    <td>Anthropic</td>
+    <td>Claude Opus 4.7, Sonnet 4.6, Haiku 4.5</td>
+    <td>No</td>
+    <td>Emphasis on safety and long-context reasoning. Constitutional AI training approach.</td>
+  </tr>
+  <tr>
+    <td><strong>Gemini</strong></td>
+    <td>Google DeepMind</td>
+    <td>Gemini 2.5 Pro/Flash</td>
+    <td>No</td>
+    <td>Natively multimodal (text, image, audio, video). Largest context windows (1M-2M tokens).</td>
+  </tr>
+  <tr>
+    <td><strong>Llama</strong></td>
+    <td>Meta</td>
+    <td>Llama 3.1 (8B/70B/405B), Llama 3.2 (multimodal)</td>
+    <td>Yes</td>
+    <td>Most widely used open-weight models. Foundation of most fine-tuned models and local deployments.</td>
+  </tr>
+  <tr>
+    <td><strong>Qwen</strong></td>
+    <td>Alibaba</td>
+    <td>Qwen 2.5 (0.5B–72B), Qwen 3</td>
+    <td>Yes</td>
+    <td>Strong multilingual performance. Excellent for non-English use cases. Competitive with Llama 3.</td>
+  </tr>
+  <tr>
+    <td><strong>Mistral</strong></td>
+    <td>Mistral AI</td>
+    <td>Mistral Large, Mixtral 8x22B, Codestral</td>
+    <td>Some</td>
+    <td>European champion. Mixture-of-Experts architecture. Strong code generation.</td>
+  </tr>
+  <tr>
+    <td><strong>DeepSeek</strong></td>
+    <td>DeepSeek</td>
+    <td>DeepSeek-V3, DeepSeek-R1</td>
+    <td>Yes</td>
+    <td>Extremely cost-efficient training. R1 uses reinforcement-learning-based reasoning.</td>
+  </tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- 4. EMBEDDINGS & VECTOR REPRESENTATIONS -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h1 id="s4">4. Embeddings &amp; Vector Representations</h1>
+
+<h2 id="s4.1">4.1 What Are Embeddings?</h2>
+
+<p>
+  An <strong>embedding</strong> is a dense vector (list of floating-point numbers)
+  that represents the semantic meaning of a piece of text in a high-dimensional
+  space. Texts with similar meanings have vectors that are close together.
+</p>
+
+<div class="diagram-box">
+"The king ruled the kingdom"   →  [0.12, -0.34, 0.78, ..., 0.05]  (768 dimensions)
+"The queen governed the realm" →  [0.14, -0.31, 0.75, ..., 0.03]  (very close!)
+"Banana smoothie recipe"       →  [-0.56, 0.82, -0.13, ..., 0.67]  (far away!)
+</div>
+
+<p>
+  Embeddings are the bridge between human language and machine computation.
+  They turn "meaning" into math — specifically, into vectors where distance
+  equals semantic similarity.
+</p>
+
+<h2 id="s4.2">4.2 How Embeddings Are Generated</h2>
+
+<p>Embedding models are specialized neural networks trained to map text to vectors:</p>
+<ul>
+  <li><strong>Encoder-only models:</strong> BERT, RoBERTa, and their descendants. Designed to produce high-quality sentence/paragraph embeddings.</li>
+  <li><strong>Decoder-only models:</strong> GPT-style models can be used for embeddings by taking the hidden state at the last token, but they are not optimized for this.</li>
+  <li><strong>Contrastive training:</strong> Modern embedding models (e.g., <code>nomic-embed-text</code>, <code>bge-large</code>, <code>text-embedding-3</code>) are trained to maximize similarity for related texts and minimize it for unrelated texts — often using billions of text pairs.</li>
+</ul>
+
+<h2 id="s4.3">4.3 Cosine Similarity &amp; Vector Search</h2>
+
+<p>The most common way to compare embeddings:</p>
+
+<pre><code>cosine_similarity(A, B) = (A · B) / (|A| × |B|)</code></pre>
+
+<p>Properties:</p>
+<ul>
+  <li>Range: -1 to +1 (for normalized vectors, 0 to 1 in practice).</li>
+  <li>1.0 = identical direction (semantically identical).</li>
+  <li>0.0 = orthogonal (unrelated).</li>
+  <li>-1.0 = opposite direction (rare in practice with modern embeddings).</li>
+</ul>
+
+<p>
+  <strong>Vector search</strong> in a database (Qdrant, Pinecone, pgvector) works by:
+</p>
+<ol>
+  <li>Embedding the query text into a vector.</li>
+  <li>Finding the K vectors in the database with highest cosine similarity (or lowest Euclidean distance) to the query vector.</li>
+  <li>Returning the corresponding documents/chunks.</li>
+</ol>
+
+<p>For efficiency, vector databases use <strong>Approximate Nearest Neighbor (ANN)</strong> algorithms (HNSW, IVF) rather than exact exhaustive search over millions of vectors.</p>
+
+<h2 id="s4.4">4.4 Popular Embedding Models</h2>
+
+<table>
+  <tr><th>Model</th><th>Dimensions</th><th>Max Tokens</th><th>Open?</th><th>Best For</th></tr>
+  <tr><td><code>nomic-embed-text</code></td><td>768</td><td>8192</td><td>Yes (Ollama)</td><td>General purpose, local deployment, English</td></tr>
+  <tr><td><code>text-embedding-3-small</code></td><td>512/1536</td><td>8191</td><td>No (OpenAI API)</td><td>Cost-efficient cloud embeddings</td></tr>
+  <tr><td><code>text-embedding-3-large</code></td><td>256/1024/3072</td><td>8191</td><td>No (OpenAI API)</td><td>Highest quality cloud embeddings</td></tr>
+  <tr><td><code>bge-large-en-v1.5</code></td><td>1024</td><td>512</td><td>Yes (HuggingFace)</td><td>High quality open-source English embeddings</td></tr>
+  <tr><td><code>mxbai-embed-large</code></td><td>1024</td><td>512</td><td>Yes (Ollama)</td><td>Strong open-source alternative</td></tr>
+  <tr><td><code>multilingual-e5-large</code></td><td>1024</td><td>512</td><td>Yes (HuggingFace)</td><td>Multi-language (100+ languages)</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- 5. RETRIEVAL-AUGMENTED GENERATION -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h1 id="s5">5. Retrieval-Augmented Generation (RAG)</h1>
+
+<h2 id="s5.1">5.1 Why RAG? The Hallucination Problem</h2>
+
+<p>
+  LLMs have a fundamental limitation: their knowledge is frozen at training time.
+  They don't know about your documents, your company's policies, or last week's
+  news. Worse, when asked about things they don't know, they often
+  <strong>hallucinate</strong> — generating plausible-sounding but factually
+  incorrect information.
+</p>
+
+<p><strong>RAG solves this by giving the LLM access to relevant information at query time.</strong></p>
+
+<div class="two-col">
+  <div>
+    <h3>Without RAG</h3>
+    <pre><code>User: "What is our
+return policy?"
+
+LLM: "Most companies offer
+a 30-day return window..."
+
+(Generic, possibly wrong
+for this specific company)
+</code></pre>
+  </div>
+  <div>
+    <h3>With RAG</h3>
+    <pre><code>User: "What is our
+return policy?"
+
+System: [Retrieves actual
+return policy document]
+
+LLM: "Per the Returns Policy
+document (v3, §2.1): Returns
+are accepted within 60 days
+with original receipt..."
+
+(Specific, sourced, correct)
+</code></pre>
+  </div>
+</div>
+
+<h2 id="s5.2">5.2 The RAG Architecture</h2>
+
+<div class="diagram-box">
+                    THE RAG PIPELINE
+
+┌─────────────────────────────────────────────────────────┐
+│                     OFFLINE (Indexing)                   │
+│                                                          │
+│  Documents → Chunk → Embed → Store in Vector DB          │
+│                                                          │
+│  Example: "Returns Policy.pdf" → 50 chunks →            │
+│  50× 768-dim vectors → Qdrant collection                │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│                     ONLINE (Query Time)                  │
+│                                                          │
+│  1. User asks question                                   │
+│     "What is our return policy?"                         │
+│          ↓                                               │
+│  2. Embed the question → query vector [768-dim]          │
+│          ↓                                               │
+│  3. Vector search → top-K relevant chunks                │
+│          ↓                                               │
+│  4. Construct prompt:                                    │
+│     "Answer using ONLY these sources:                    │
+│      [Source 1] Returns Policy §2.1: ...                 │
+│      [Source 2] Returns Policy §3.4: ...                 │
+│      Question: What is our return policy?"               │
+│          ↓                                               │
+│  5. LLM generates answer grounded in sources             │
+│          ↓                                               │
+│  6. Return answer with source citations                  │
+└─────────────────────────────────────────────────────────┘
+</div>
+
+<h2 id="s5.3">5.3 Advanced RAG Patterns</h2>
+
+<p>Basic RAG is just the starting point. Production systems use more sophisticated patterns:</p>
+
+<table>
+  <tr><th>Pattern</th><th>How It Works</th><th>When to Use</th></tr>
+  <tr>
+    <td><strong>Hybrid Search RAG</strong></td>
+    <td>Combine keyword (BM25) + vector search for retrieval. Fuse results with weighted scoring.</td>
+    <td>When you need both exact term matching and semantic understanding. (Used in our platform.)</td>
+  </tr>
+  <tr>
+    <td><strong>Reranked RAG</strong></td>
+    <td>Retrieve N candidates, then apply a cross-encoder reranker to score relevance more accurately before sending top-K to the LLM.</td>
+    <td>When retrieval quality is critical and the added latency is acceptable.</td>
+  </tr>
+  <tr>
+    <td><strong>Agentic RAG</strong></td>
+    <td>The LLM decides whether to search, what to search for, and iterates — refining queries based on intermediate results.</td>
+    <td>Complex multi-hop questions: "Compare the liability clauses across all contracts signed in Q3."</td>
+  </tr>
+  <tr>
+    <td><strong>Graph RAG</strong></td>
+    <td>Augment vector retrieval with knowledge graph traversal. Entities and relationships provide structured context alongside unstructured text chunks.</td>
+    <td>Legal, medical, or scientific domains with rich structured knowledge bases. (Used in our platform via Neo4j.)</td>
+  </tr>
+  <tr>
+    <td><strong>Small-to-Big Retrieval</strong></td>
+    <td>Index small chunks for precise retrieval, but feed larger surrounding context to the LLM for generation.</td>
+    <td>When you want retrieval precision but generation needs broader context.</td>
+  </tr>
+</table>
+
+<h2 id="s5.4">5.4 RAG vs. Fine-Tuning vs. Long Context</h2>
+
+<p>These three approaches solve different problems, and the right choice depends on the use case:</p>
+
+<table>
+  <tr><th>Approach</th><th>What It Does</th><th>Best For</th><th>Limitations</th></tr>
+  <tr>
+    <td><strong>RAG</strong></td>
+    <td>Retrieves relevant info at query time. Knowledge is external, updatable, and auditable.</td>
+    <td>Factual Q&A over documents, policy lookup, compliance checking. Dynamic/updating knowledge bases.</td>
+    <td>Retrieval quality is the bottleneck. Garbage retrieval = garbage generation. Adds latency.</td>
+  </tr>
+  <tr>
+    <td><strong>Fine-Tuning</strong></td>
+    <td>Continues training the model on domain-specific data. Changes how the model behaves, not just what it knows.</td>
+    <td>Teaching a specific style, format, or reasoning pattern. Domain terminology adaptation.</td>
+    <td>Knowledge still becomes stale. Expensive to update. Can cause catastrophic forgetting of general capabilities.</td>
+  </tr>
+  <tr>
+    <td><strong>Long Context</strong></td>
+    <td>Put all relevant documents directly in the prompt (up to the context window limit).</td>
+    <td>Small document sets, one-off analysis tasks.</td>
+    <td>Cost scales quadratically with context length (attention is O(n²)). Models don't attend equally to all parts of long contexts. Latency increases with context size.</td>
+  </tr>
+</table>
+
+<div class="callout">
+  <strong>Best practice:</strong> RAG and fine-tuning are complementary, not competing. Use fine-tuning to teach the model <em>how</em> to answer (format, style, reasoning approach) and RAG to provide <em>what</em> to answer from (up-to-date facts from your documents).
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- 6. PROMPT ENGINEERING -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h1 id="s6">6. Prompt Engineering</h1>
+
+<h2 id="s6.1">6.1 What is Prompt Engineering?</h2>
+
+<p>
+  <strong>Prompt engineering</strong> is the practice of designing inputs to LLMs
+  that elicit desired outputs. It's part science (understanding how models
+  process prompts), part craft (iterative refinement), and part engineering
+  (building reliable, versioned prompt templates for production systems).
+</p>
+
+<h2 id="s6.2">6.2 Core Techniques</h2>
+
+<table>
+  <tr><th>Technique</th><th>Description</th><th>Example</th></tr>
+  <tr>
+    <td><strong>Zero-shot</strong></td>
+    <td>Ask directly with no examples.</td>
+    <td>"Classify this email as spam or not spam: [email]"</td>
+  </tr>
+  <tr>
+    <td><strong>Few-shot</strong></td>
+    <td>Provide 2–5 examples in the prompt.</td>
+    <td>"Here are examples: Email A → Spam. Email B → Not spam. Now classify: [email]"</td>
+  </tr>
+  <tr>
+    <td><strong>Chain of Thought (CoT)</strong></td>
+    <td>Ask the model to reason step by step before answering.</td>
+    <td>"Let's think through this step by step. First, identify the key facts. Then..."</td>
+  </tr>
+  <tr>
+    <td><strong>Role Prompting</strong></td>
+    <td>Assign a persona to shape the response.</td>
+    <td>"You are a senior corporate attorney reviewing this contract..."</td>
+  </tr>
+  <tr>
+    <td><strong>Structured Output</strong></td>
+    <td>Specify the exact format you want.</td>
+    <td>"Respond in JSON with fields: 'answer', 'confidence', 'sources'."</td>
+  </tr>
+  <tr>
+    <td><strong>Negative Prompting</strong></td>
+    <td>Explicitly state what NOT to do.</td>
+    <td>"Do not speculate. If you don't know, say so. Do not invent citations."</td>
+  </tr>
+  <tr>
+    <td><strong>Context Grounding</strong></td>
+    <td>Provide source material and instruct the model to only use it.</td>
+    <td>"Answer using ONLY the following sources. Cite the source number for each claim."</td>
+  </tr>
+</table>
+
+<h2 id="s6.3">6.3 Prompt Templates &amp; Versioning</h2>
+
+<p>In production, prompts are not handwritten per-query — they are templates:</p>
+
+<pre><code>// Prompt template with version tracking
+templateVersion: "v2.3-legal-analysis"
+systemPrompt: "You are a legal document analyst. Answer using ONLY
+               the provided sources. Cite [Source N] for each claim.
+               If sources are insufficient, say so explicitly.
+               Do not invent legal citations."
+
+userPrompt: "Sources:
+             {{#each sources}}
+             [Source {{@index}}] {{this.text}} ({{this.title}}, §{{this.section}})
+             {{/each}}
+
+             Question: {{question}}
+
+             Provide a structured answer with:
+             1. Direct Answer
+             2. Supporting Evidence (with source citations)
+             3. Limitations (what the sources don't address)
+             4. Confidence Assessment (High/Medium/Low)"
+</code></pre>
+
+<div class="callout-blue">
+  <strong>Why version prompts:</strong> When an AI answer is used in a legal or
+  compliance context, you must be able to reproduce it. Prompt template version,
+  model version, and retrieval sources must all be recorded. (Our platform does
+  this via the audit system.)
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- 7. AI SYSTEM ARCHITECTURE PATTERNS -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h1 id="s7">7. AI System Architecture Patterns</h1>
+
+<p class="section-intro">
+  Building a demo is easy. Building a production AI system that is reliable,
+  auditable, and maintainable requires deliberate architecture.
+</p>
+
+<h2 id="s7.1">7.1 The Modular Monolith Pattern</h2>
+
+<p>
+  While microservices dominate conference talks, the <strong>modular monolith</strong>
+  is often the right choice for AI systems:
+</p>
+<ul>
+  <li><strong>Transactional integrity:</strong> Document upload → text extraction → chunking → embedding → dual indexing should be one atomic operation. Distributed transactions (sagas) add complexity that provides no business value here.</li>
+  <li><strong>Deployment simplicity:</strong> <code>java -jar app.jar</code> vs. orchestrating 6+ microservices.</li>
+  <li><strong>Refactoring safety:</strong> Compile-time boundaries between modules prevent circular dependencies. You can extract a module into a microservice later if needed.</li>
+  <li><strong>Observability:</strong> One process to monitor, one log stream, one correlation ID space.</li>
+</ul>
+
+<h2 id="s7.2">7.2 Provider Abstraction</h2>
+
+<p>
+  The most important architectural pattern in AI systems: <strong>always abstract
+  the AI provider behind an interface</strong>.
+</p>
+
+<pre><code>// Interface (in api/ package)
+public interface ChatCompletionProvider {
+    String complete(String prompt, ModelCapabilities capabilities);
+}
+
+// Implementations (in application/ package)
+public class OllamaChatCompletionProvider implements ChatCompletionProvider { ... }
+public class OpenAiChatCompletionProvider implements ChatCompletionProvider { ... }
+public class AnthropicChatCompletionProvider implements ChatCompletionProvider { ... }
+</code></pre>
+
+<p>Benefits:</p>
+<ul>
+  <li><strong>No vendor lock-in:</strong> Switch from Ollama to OpenAI by changing one Spring bean.</li>
+  <li><strong>Testability:</strong> Unit tests use a mock implementation. No network calls in tests.</li>
+  <li><strong>Graceful degradation:</strong> The <code>NoOpChatCompletionProvider</code> returns a clear "not configured" message instead of crashing.</li>
+  <li><strong>A/B testing:</strong> Run multiple implementations side by side for comparison.</li>
+</ul>
+
+<h2 id="s7.3">7.3 Grounding &amp; Citation</h2>
+
+<p>
+  Ungrounded AI is a liability. The grounding pattern ensures every AI claim
+  can be traced to evidence:
+</p>
+
+<ol>
+  <li><strong>Retrieve</strong> relevant source passages (chunks) for the query.</li>
+  <li><strong>Include</strong> those passages in the prompt with identifiers ([Source 1], [Source 2]).</li>
+  <li><strong>Instruct</strong> the LLM to cite sources inline.</li>
+  <li><strong>Post-process</strong> the answer to extract and validate citations against the retrieval context.</li>
+  <li><strong>Flag</strong> uncited claims for review.</li>
+</ol>
+
+<p>
+  Our platform's <code>GroundingService</code> and <code>ClaimValidator</code>
+  implement this pattern as a post-inference quality gate.
+</p>
+
+<h2 id="s7.4">7.4 Guardrails &amp; Validation</h2>
+
+<p>Production AI systems need multiple layers of validation:</p>
+
+<table>
+  <tr><th>Layer</th><th>What It Checks</th><th>When It Runs</th></tr>
+  <tr><td><strong>Input validation</strong></td><td>Is the question non-empty, safe, within length limits?</td><td>Before any processing</td></tr>
+  <tr><td><strong>Intent classification</strong></td><td>Should this go to RAG, index inspection, or be rejected?</td><td>Before retrieval</td></tr>
+  <tr><td><strong>Retrieval quality</strong></td><td>Are there enough relevant sources? Are scores above threshold?</td><td>After retrieval, before LLM call</td></tr>
+  <tr><td><strong>Temporal consistency</strong></td><td>Does the answer respect chronological constraints?</td><td>After LLM call</td></tr>
+  <tr><td><strong>Claim validation</strong></td><td>Are factual claims supported by retrieved sources?</td><td>After LLM call</td></tr>
+  <tr><td><strong>Output formatting</strong></td><td>Is the response well-structured? Does it include citations?</td><td>Before returning to user</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- 8. RUNNING LLMS LOCALLY -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h1 id="s8">8. Running LLMs Locally</h1>
+
+<h2 id="s8.1">8.1 Why Local Inference?</h2>
+
+<p>Five reasons enterprises choose local over API-based LLMs:</p>
+<ol>
+  <li><strong>Data sovereignty:</strong> Documents (legal, medical, classified) never leave the premises.</li>
+  <li><strong>Cost at scale:</strong> At 10K+ queries/day, API costs exceed hardware costs within months.</li>
+  <li><strong>Latency:</strong> No network round-trip. Sub-50ms response times achievable.</li>
+  <li><strong>Availability:</strong> No dependency on external service uptime. Works air-gapped.</li>
+  <li><strong>Compliance:</strong> Satisfies GDPR, HIPAA, ITAR, and other data residency requirements.</li>
+</ol>
+
+<h2 id="s8.2">8.2 Ollama, vLLM, llama.cpp</h2>
+
+<table>
+  <tr><th>Tool</th><th>Type</th><th>Best For</th><th>Key Feature</th></tr>
+  <tr>
+    <td><strong>Ollama</strong></td>
+    <td>Desktop/server LLM runner</td>
+    <td>Development, small-scale production, ease of use</td>
+    <td>Simple CLI, REST API, model library, GPU auto-detection. <code>ollama run qwen2.5:14b</code>.</td>
+  </tr>
+  <tr>
+    <td><strong>llama.cpp</strong></td>
+    <td>C++ inference engine</td>
+    <td>CPU inference, edge devices, maximum portability</td>
+    <td>Runs on CPU (no GPU needed). GGUF quantized model format. Powers most local LLM tools under the hood.</td>
+  </tr>
+  <tr>
+    <td><strong>vLLM</strong></td>
+    <td>High-throughput serving</td>
+    <td>Production serving at scale, multi-user</td>
+    <td>PagedAttention for efficient KV cache management. OpenAI-compatible API. 10-20× higher throughput than naive serving.</td>
+  </tr>
+  <tr>
+    <td><strong>LM Studio</strong></td>
+    <td>Desktop GUI</td>
+    <td>Non-technical users, exploration</td>
+    <td>Point-and-click model download and chat. Built on llama.cpp.</td>
+  </tr>
+</table>
+
+<h2 id="s8.3">8.3 Hardware Considerations</h2>
+
+<table>
+  <tr><th>Model Size</th><th>VRAM Required (4-bit quantized)</th><th>Example Hardware</th></tr>
+  <tr><td>1B–3B parameters</td><td>1–2 GB</td><td>Any modern laptop, Raspberry Pi 5 (8GB)</td></tr>
+  <tr><td>7B–8B parameters</td><td>4–6 GB</td><td>Laptop with 8GB VRAM (RTX 3070, M2 MacBook)</td></tr>
+  <tr><td>13B–14B parameters</td><td>8–10 GB</td><td>RTX 3080/4070 (12GB), M3 Max MacBook (36GB unified)</td></tr>
+  <tr><td>30B–34B parameters</td><td>18–22 GB</td><td>RTX 4090 (24GB), M2 Ultra (76GB unified)</td></tr>
+  <tr><td>70B–72B parameters</td><td>40–48 GB</td><td>2× RTX 4090, A100 (80GB), Mac Studio (192GB unified)</td></tr>
+  <tr><td>405B parameters</td><td>200+ GB</td><td>4× A100/H100, datacenter GPU cluster</td></tr>
+</table>
+
+<div class="callout-amber">
+  <strong>Key insight:</strong> Quantization (4-bit, 8-bit) reduces model size by 4–8× with minimal quality loss. A 7B model at 4-bit uses ~4GB VRAM and runs on a laptop. This is what makes local AI economically viable.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- 9. AI ETHICS, SAFETY & GOVERNANCE -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h1 id="s9">9. AI Ethics, Safety &amp; Governance</h1>
+
+<h2 id="s9.1">9.1 Hallucination &amp; Factual Accuracy</h2>
+
+<p>
+  <strong>Hallucination</strong> is when an LLM generates text that is
+  grammatically correct and semantically plausible but factually wrong.
+  It's not a bug — it's a property of how these models work (they predict
+  likely tokens, not true facts).
+</p>
+
+<p>Mitigation strategies (layered):</p>
+<ol>
+  <li><strong>RAG:</strong> Ground answers in retrieved documents.</li>
+  <li><strong>Citation requirements:</strong> Require the model to cite sources for factual claims.</li>
+  <li><strong>Post-hoc validation:</strong> Check claims against knowledge bases.</li>
+  <li><strong>Confidence calibration:</strong> Show users how confident the system is in each claim.</li>
+  <li><strong>Human review:</strong> For high-stakes outputs, a human must verify before action.</li>
+</ol>
+
+<h2 id="s9.2">9.2 Bias, Fairness, and Representation</h2>
+
+<p>
+  LLMs inherit biases from their training data — which is predominantly
+  English-language internet text produced by a narrow demographic slice of
+  humanity. Key concerns:
+</p>
+<ul>
+  <li><strong>Representation bias:</strong> Models perform worse for underrepresented languages, dialects, and cultural contexts.</li>
+  <li><strong>Stereotype reinforcement:</strong> Models may reproduce gender, racial, and occupational stereotypes present in training data.</li>
+  <li><strong>Access inequality:</strong> Frontier models are expensive and controlled by a few corporations. Open-weight models (Llama, Qwen) are partially addressing this.</li>
+</ul>
+
+<div class="callout-blue">
+  <strong>Consultant's framing:</strong> Don't claim to "solve" bias — it's a
+  research problem. Instead, describe the <em>mitigations</em> you implement:
+  diverse evaluation sets, output monitoring, user feedback loops, and
+  transparency about model limitations.
+</div>
+
+<h2 id="s9.3">9.3 Data Privacy &amp; Sovereignty</h2>
+
+<p>When building AI systems, data flows matter:</p>
+<ul>
+  <li><strong>API-based models (OpenAI, Anthropic):</strong> Your data is sent to a third-party server. Check the data usage policy — some providers use API data for training (OpenAI no longer does for API calls; always verify current policy).</li>
+  <li><strong>Local models (Ollama, vLLM):</strong> Data never leaves your infrastructure. This is the only acceptable option for regulated industries.</li>
+  <li><strong>RAG considerations:</strong> Even with local inference, retrieval may pull sensitive documents into the prompt. Access controls must apply at the retrieval stage, not just the LLM stage.</li>
+</ul>
+
+<h2 id="s9.4">9.4 The EU AI Act &amp; Regulatory Landscape</h2>
+
+<p>The EU AI Act (effective 2024–2026, phased implementation) is the world's first comprehensive AI regulation. Key points:</p>
+
+<table>
+  <tr><th>Risk Level</th><th>Examples</th><th>Requirements</th></tr>
+  <tr><td><strong>Unacceptable Risk</strong></td><td>Social scoring, real-time biometric surveillance in public spaces, manipulative AI</td><td>Prohibited entirely</td></tr>
+  <tr><td><strong>High Risk</strong></td><td>AI in hiring, credit scoring, medical diagnosis, legal document analysis, law enforcement</td><td>Conformity assessment, human oversight, transparency, accuracy, robustness, record-keeping</td></tr>
+  <tr><td><strong>Limited Risk</strong></td><td>Chatbots, emotion recognition, deepfake generation</td><td>Transparency obligations (users must know they're interacting with AI)</td></tr>
+  <tr><td><strong>Minimal Risk</strong></td><td>AI in video games, spam filters, inventory management</td><td>No specific requirements</td></tr>
+</table>
+
+<div class="callout-amber">
+  <strong>Document intelligence and legal AI is likely high-risk</strong> under the
+  EU AI Act if used for legal decision support. This means your platform needs
+  audit trails, accuracy metrics, human oversight mechanisms, and transparency
+  documentation. Our platform's audit system, grounding, and confidence scoring
+  are direct responses to these regulatory requirements.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- 10. KEY TERMINOLOGY CHEAT SHEET -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h1 id="s10">10. Key Terminology Cheat Sheet</h1>
+
+<table>
+  <tr><th>Term</th><th>Definition</th></tr>
+  <tr><td><strong>Attention</strong></td><td>Mechanism that lets each token "look at" every other token. The core innovation of transformers.</td></tr>
+  <tr><td><strong>Autoregressive</strong></td><td>A model that generates one token at a time, conditioning on previously generated tokens. GPT-style models are autoregressive.</td></tr>
+  <tr><td><strong>Chunking</strong></td><td>Splitting documents into smaller pieces for embedding and retrieval. Critical parameter: chunk size and overlap.</td></tr>
+  <tr><td><strong>Context Window</strong></td><td>Max tokens the model can process in one pass. Ranges from 4K to 2M+ tokens in 2026.</td></tr>
+  <tr><td><strong>Cross-Encoder</strong></td><td>A model that scores a query-document pair together (vs. a bi-encoder that encodes them separately). More accurate but slower.</td></tr>
+  <tr><td><strong>Embedding</strong></td><td>A dense vector representation of text, where semantic similarity ≈ vector proximity.</td></tr>
+  <tr><td><strong>Few-Shot Learning</strong></td><td>Providing examples in the prompt to guide model behavior without weight updates.</td></tr>
+  <tr><td><strong>Fine-Tuning</strong></td><td>Continuing training of a pretrained model on domain-specific data to adapt its behavior or knowledge.</td></tr>
+  <tr><td><strong>GGUF</strong></td><td>File format for quantized models used by llama.cpp and Ollama. Enables running large models on consumer hardware.</td></tr>
+  <tr><td><strong>Grounding</strong></td><td>Linking AI-generated claims back to specific source documents or passages.</td></tr>
+  <tr><td><strong>HNSW</strong></td><td>Hierarchical Navigable Small World — an ANN algorithm used by Qdrant, Weaviate, and others for fast vector search.</td></tr>
+  <tr><td><strong>Latency</strong></td><td>Time from request to first token (TTFT) and total time to completion. Critical UX metric for AI features.</td></tr>
+  <tr><td><strong>LoRA / QLoRA</strong></td><td>Parameter-efficient fine-tuning methods. Train only a small adapter (1–10% of parameters) rather than the full model.</td></tr>
+  <tr><td><strong>Mixture of Experts (MoE)</strong></td><td>Architecture where only a subset of parameters is active for any given input. Mixtral, DeepSeek-V3. More capacity at lower inference cost.</td></tr>
+  <tr><td><strong>Quantization</strong></td><td>Reducing numerical precision of model weights (FP16 → INT8 → INT4). Reduces VRAM by 2–8× with minimal quality loss.</td></tr>
+  <tr><td><strong>RAG</strong></td><td>Retrieval-Augmented Generation — giving an LLM access to external knowledge at query time via retrieval.</td></tr>
+  <tr><td><strong>RLHF</strong></td><td>Reinforcement Learning from Human Feedback — aligning model outputs with human preferences using a learned reward model.</td></tr>
+  <tr><td><strong>Temperature</strong></td><td>Parameter controlling randomness in token sampling. 0 = deterministic, 1 = creative, >1 = increasingly random.</td></tr>
+  <tr><td><strong>Token</strong></td><td>Atomic unit of LLM input/output. ~0.75 words in English. "Artificial intelligence" → ~3 tokens.</td></tr>
+  <tr><td><strong>Transformer</strong></td><td>The neural network architecture introduced in 2017 that powers virtually all modern LLMs.</td></tr>
+  <tr><td><strong>Vector Database</strong></td><td>Database optimized for storing and searching vector embeddings. Qdrant, Pinecone, pgvector, Weaviate, Milvus.</td></tr>
+  <tr><td><strong>Zero-Shot</strong></td><td>Asking a model to perform a task with no examples, relying entirely on its pretraining and instruction tuning.</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- 11. CONVERSATION-READY TALKING POINTS -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h1 id="s11">11. Conversation-Ready Talking Points</h1>
+
+<p>When the conversation turns to AI in an interview or client meeting, here are concise positions you can take:</p>
+
+<div class="highlight-box">
+<h3>"Should we use a cloud API or run models locally?"</h3>
+<p>
+  "It depends on three factors: data sensitivity, query volume, and latency
+  requirements. For regulated industries or high volumes, local models (Ollama,
+  vLLM) with open-weight models like Llama 3 or Qwen 2.5 give you data
+  sovereignty, predictable costs, and lower latency. For prototyping or
+  low-volume use, cloud APIs are faster to start. A well-architected system
+  abstracts the provider so you can switch without rewriting application logic."
+</p>
+</div>
+
+<div class="highlight-box">
+<h3>"RAG vs. fine-tuning — which should we use?"</h3>
+<p>
+  "They solve different problems. RAG gives the model access to up-to-date
+  facts from your knowledge base at query time. Fine-tuning changes how the
+  model behaves — its style, reasoning patterns, and domain fluency. For most
+  enterprise use cases, start with RAG for knowledge and add fine-tuning for
+  behavior. They're complementary, not competing. And long context windows
+  aren't a replacement for RAG — attention is O(n²) and models don't use all
+  parts of long contexts equally well."
+</p>
+</div>
+
+<div class="highlight-box">
+<h3>"How do we prevent the AI from making things up?"</h3>
+<p>
+  "You can't eliminate hallucination entirely — it's inherent to how these
+  models work. But you can build a system that makes hallucinations
+  <em>detectable</em> and <em>manageable</em>. The approach we use is layered:
+  (1) RAG to ground answers in real documents, (2) prompt instructions to cite
+  sources and refuse to speculate, (3) post-inference validation that checks
+  claims against the retrieval context, (4) confidence scoring so users know
+  when to trust the output, and (5) audit trails so answers can be reviewed
+  after the fact."
+</p>
+</div>
+
+<div class="highlight-box">
+<h3>"What model should we use?"</h3>
+<p>
+  "The model itself matters less than the architecture around it. GPT-4, Claude,
+  Llama 3, Qwen 2.5 — the frontier models are converging in capability. The
+  real differentiation is in your retrieval quality, your prompt engineering,
+  your validation pipeline, and your data. Choose a model that meets your
+  latency and cost requirements, then invest in the system around it. And
+  always abstract the provider so you can swap models as the landscape evolves."
+</p>
+</div>
+
+<div class="highlight-box">
+<h3>"Is AI going to replace [X profession]?"</h3>
+<p>
+  "AI automates tasks, not professions. A lawyer who uses AI to find relevant
+  precedents in seconds instead of hours is still a lawyer — just a more
+  effective one. The professionals who will be 'replaced' are those who refuse
+  to use these tools. The professionals who adopt AI as an augmentation tool
+  will be more valuable, not less. Our platform is designed for that
+  augmentation model — the AI proposes answers with citations, the human
+  professional reviews and decides."
+</p>
+</div>
+
+<div class="highlight-box">
+<h3>"How do you handle the EU AI Act compliance?"</h3>
+<p>
+  "For high-risk AI systems, the EU AI Act requires transparency, human
+  oversight, accuracy metrics, and record-keeping. Our platform addresses this
+  through: comprehensive audit logging of every AI interaction, source
+  citations for every claim, confidence scores, temporal validation, and
+  a human-review-before-action workflow. The key principle is that the AI
+  advises, the human decides, and everything is traceable."
+</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- 12. RECOMMENDED LEARNING PATH -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h1 id="s12">12. Recommended Learning Path</h1>
+
+<p>If you want to go deeper, here's a structured path from fundamentals to production:</p>
+
+<h3>Foundations (Understand the basics)</h3>
+<ol>
+  <li>Andrej Karpathy's "Intro to Large Language Models" (YouTube, 1 hour) — the best single introduction to LLMs.</li>
+  <li>Jay Alammar's "The Illustrated Transformer" (blog post) — visual explanation of the attention mechanism.</li>
+  <li>3Blue1Brown's "Neural Networks" series (YouTube) — intuitive math of neural networks.</li>
+  <li>"Attention Is All You Need" (Vaswani et al., 2017) — the original transformer paper. Read it even if you don't understand everything.</li>
+</ol>
+
+<h3>Applied (Build things)</h3>
+<ol>
+  <li>Set up Ollama locally. Run <code>ollama run qwen2.5:14b</code> and experiment with prompts.</li>
+  <li>Build a simple RAG system: chunk documents, embed with <code>nomic-embed-text</code>, store in Qdrant, query with an LLM.</li>
+  <li>Read the LangChain / LlamaIndex documentation — not necessarily to use them, but to understand the abstractions they provide.</li>
+  <li>Study the RAG survey papers: "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks" (Lewis et al., 2020) and more recent surveys.</li>
+</ol>
+
+<h3>Production (Engineer for reliability)</h3>
+<ol>
+  <li>Study production RAG architectures: query classification, hybrid search, reranking, grounding, validation.</li>
+  <li>Learn about embeddings: contrastive learning, Matryoshka embeddings, multilingual embeddings.</li>
+  <li>Understand evaluation: RAGAS framework, LLM-as-judge evaluation, human evaluation protocols.</li>
+  <li>Read about AI safety and governance: Anthropic's research, EU AI Act text, NIST AI Risk Management Framework.</li>
+</ol>
+
+<h3>Stay Current</h3>
+<ul>
+  <li>Follow AI researchers and engineers on X/Twitter and LinkedIn.</li>
+  <li>Read the arXiv CS.CL and CS.AI sections (or subscribe to summaries like "The Batch" by Andrew Ng).</li>
+  <li>Watch conference talks: NeurIPS, ICML, ICLR, ACL (the papers are dense; the talks are accessible).</li>
+</ul>
+
+<div class="callout" style="margin-top:32px;">
+  <strong>Final advice for the interview:</strong> You don't need to know
+  everything. You need to know the fundamentals deeply, understand the
+  tradeoffs in production AI systems, and be able to have an informed opinion
+  grounded in experience. This guide gives you the conceptual framework. The
+  Document Intelligence Platform gives you the concrete implementation. Together,
+  they demonstrate that you can both <em>think</em> about AI and
+  <em>build</em> AI — which is exactly what separates an AI consultant from
+  someone who has just read about AI.
+</div>
+
+</body>
+</html>

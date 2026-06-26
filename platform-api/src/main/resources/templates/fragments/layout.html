@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="icon" href="data:,">
+</head>
+<body>
+<nav th:fragment="nav" class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <div class="container-fluid app-shell">
+        <a class="navbar-brand" th:href="@{/dashboard}"><th:block th:text="#{app.name}">Document Intelligence Platform</th:block></a>
+        <div class="navbar-nav">
+            <a class="nav-link" th:href="@{/workspaces}" th:text="#{nav.workspaces}">Workspaces</a>
+            <a class="nav-link" th:href="@{/documents}" th:text="#{nav.documents}">Documents</a>
+            <a class="nav-link" th:href="@{/jobs}" th:text="#{nav.jobs}">Jobs</a>
+            <a class="nav-link" th:href="@{/documents/upload}" th:text="#{nav.upload}">Upload</a>
+            <a class="nav-link" th:href="@{/search}" th:text="#{nav.search}">Search</a>
+            <a class="nav-link" th:href="@{/chunks}" th:text="#{nav.chunks}">Chunks</a>
+            <a class="nav-link" th:href="@{/audit}" th:text="#{nav.audit}">Audit</a>
+            <a class="nav-link" th:href="@{/ai}" th:text="#{nav.ai}">AI</a>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <div class="dropdown">
+                <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    🌐
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" th:href="@{${currentUri}(lang=en)}">🇬🇧 English</a></li>
+                    <li><a class="dropdown-item" th:href="@{${currentUri}(lang=de)}">🇩🇪 Deutsch</a></li>
+                    <li><a class="dropdown-item" th:href="@{${currentUri}(lang=fr)}">🇫🇷 Français</a></li>
+                </ul>
+            </div>
+            <form th:action="@{/logout}" method="post" class="m-0">
+                <button class="btn btn-outline-light btn-sm" type="submit" th:text="#{nav.logout}">Logout</button>
+            </form>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</nav>
+</body>
+</html>
