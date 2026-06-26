@@ -1,4 +1,4 @@
-package com.cognitera.platform.api.health;
+package com.cognitera.platform.ai.health;
 
 import com.cognitera.platform.ai.api.ChatCompletionProvider;
 import org.springframework.boot.actuate.health.Health;

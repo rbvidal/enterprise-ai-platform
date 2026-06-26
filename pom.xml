@@ -25,7 +25,9 @@
         <module>platform-document</module>
         <module>platform-search</module>
         <module>platform-ai</module>
+        <module>platform-neo4j</module>
         <module>platform-workspace</module>
+        <module>platform-observability</module>
         <module>platform-api</module>
     </modules>
 

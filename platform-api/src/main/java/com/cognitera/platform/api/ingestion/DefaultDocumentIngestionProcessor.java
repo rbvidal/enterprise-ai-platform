@@ -9,6 +9,8 @@ import com.cognitera.platform.search.api.ChunkManagementService;
 import com.cognitera.platform.search.api.IndexChunkCommand;
 import com.cognitera.platform.search.api.IndexingOrchestrationService;
 import com.cognitera.platform.search.model.ChunkType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Component;
 
@@ -17,13 +19,14 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Default implementation of {@link DocumentIngestionProcessor} that extracts text
- * and indexes document chunks, falling back to keyword-only indexing when no
- * embedding infrastructure is available.
+ * Default implementation of {@link DocumentIngestionProcessor}.
+ * Extracts text, runs semantic enrichment, chunks, and indexes documents.
+ * Falls back to keyword-only indexing when no embedding infrastructure is available.
  */
 @Component
 public class DefaultDocumentIngestionProcessor implements DocumentIngestionProcessor {
 
+    private static final Logger log = LoggerFactory.getLogger(DefaultDocumentIngestionProcessor.class);
     private static final int CHUNK_SIZE = 1200;
     private static final int CHUNK_OVERLAP = 150;
 
@@ -31,33 +34,47 @@ public class DefaultDocumentIngestionProcessor implements DocumentIngestionProce
     private final ChunkManagementService chunks;
     private final TextExtractionService textExtractionService;
     private final ObjectProvider<IndexingOrchestrationService> indexingOrchestrator;
+    private final ObjectProvider<EnrichmentHook> enrichmentHook;
 
-    /**
-     * Constructs the processor with required dependencies.
-     */
     public DefaultDocumentIngestionProcessor(
             DocumentFacade documents,
             ChunkManagementService chunks,
             TextExtractionService textExtractionService,
-            ObjectProvider<IndexingOrchestrationService> indexingOrchestrator) {
+            ObjectProvider<IndexingOrchestrationService> indexingOrchestrator,
+            ObjectProvider<EnrichmentHook> enrichmentHook) {
         this.documents = documents;
         this.chunks = chunks;
         this.textExtractionService = textExtractionService;
         this.indexingOrchestrator = indexingOrchestrator;
+        this.enrichmentHook = enrichmentHook;
     }
 
-    /**
-     * Ingests a document by extracting its text, chunking it, and indexing each chunk.
-     */
     @Override
     public void ingest(UUID documentId) {
         IndexingOrchestrationService orchestrator = indexingOrchestrator.getIfAvailable();
         if (orchestrator != null) {
             orchestrator.indexDocument(documentId);
+            runEnrichment(documentId);
             return;
         }
-        // Fallback: keyword-only indexing when embedding infrastructure is not configured
         ingestKeywordOnly(documentId);
+    }
+
+    private void runEnrichment(UUID documentId) {
+        EnrichmentHook hook = enrichmentHook.getIfAvailable();
+        if (hook == null) return;
+        try {
+            Document document = documents.getDocument(documentId, "system");
+            DocumentVersion version = document.versions().stream()
+                    .filter(v -> v.versionNumber() == document.currentVersion())
+                    .findFirst().orElse(null);
+            if (version != null) {
+                String text = textExtractionService.extractText(document.metadata().type(), version);
+                hook.enrich(document.id().toString(), document.metadata().title(), text);
+            }
+        } catch (Exception e) {
+            log.warn("Enrichment failed for document {}: {}", documentId, e.getMessage());
+        }
     }
 
     private void ingestKeywordOnly(UUID documentId) {
@@ -68,6 +85,17 @@ public class DefaultDocumentIngestionProcessor implements DocumentIngestionProce
                 .orElseThrow(() -> new IllegalStateException("Document has no current version"));
 
         String extractedText = textExtractionService.extractText(document.metadata().type(), version);
+
+        // Run enrichment before chunking
+        EnrichmentHook hook = enrichmentHook.getIfAvailable();
+        if (hook != null) {
+            try {
+                hook.enrich(document.id().toString(), document.metadata().title(), extractedText);
+            } catch (Exception e) {
+                log.warn("Enrichment failed for document {}: {}", documentId, e.getMessage());
+            }
+        }
+
         List<String> textChunks = chunkText(extractedText);
         for (int i = 0; i < textChunks.size(); i++) {
             chunks.indexChunk(new IndexChunkCommand(

@@ -51,6 +51,10 @@ platform:
       embedding-model: ${OLLAMA_EMBEDDING_MODEL:nomic-embed-text}
       embedding-dimension: ${OLLAMA_EMBEDDING_DIMENSION:768}
       request-timeout: ${OLLAMA_REQUEST_TIMEOUT:120s}
+  neo4j:
+    uri: ${NEO4J_URI:bolt://localhost:7687}
+    username: ${NEO4J_USERNAME:neo4j}
+    password: ${NEO4J_PASSWORD:password}
 
 #   openai:
 #     api-key: ${OPENAI_API_KEY}

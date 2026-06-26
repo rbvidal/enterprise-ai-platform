@@ -2,6 +2,7 @@ package com.cognitera.platform.search.application;
 
 import com.cognitera.platform.audit.api.AuditEventType;
 import com.cognitera.platform.document.model.DocumentType;
+import com.cognitera.platform.search.api.GraphSearchProvider;
 import com.cognitera.platform.search.api.HybridRetrievalService;
 import com.cognitera.platform.search.api.KeywordSearchProvider;
 import com.cognitera.platform.search.api.QueryIntentClassifier;
@@ -26,6 +27,7 @@ public class DefaultHybridRetrievalService implements HybridRetrievalService {
 
     private final KeywordSearchProvider keywordSearchProvider;
     private final VectorSearchProvider vectorSearchProvider;
+    private final GraphSearchProvider graphSearchProvider;
     private final RerankingService rerankingService;
     private final SearchAuditPublisher auditPublisher;
     private final QueryIntentClassifier intentClassifier;
@@ -34,12 +36,14 @@ public class DefaultHybridRetrievalService implements HybridRetrievalService {
     public DefaultHybridRetrievalService(
             KeywordSearchProvider keywordSearchProvider,
             VectorSearchProvider vectorSearchProvider,
+            GraphSearchProvider graphSearchProvider,
             RerankingService rerankingService,
             SearchAuditPublisher auditPublisher,
             QueryIntentClassifier intentClassifier,
             ObjectProvider<RerankingProvider> rerankingProvider) {
         this.keywordSearchProvider = keywordSearchProvider;
         this.vectorSearchProvider = vectorSearchProvider;
+        this.graphSearchProvider = graphSearchProvider;
         this.rerankingService = rerankingService;
         this.auditPublisher = auditPublisher;
         this.intentClassifier = intentClassifier;
@@ -55,8 +59,11 @@ public class DefaultHybridRetrievalService implements HybridRetrievalService {
         List<RetrievalCandidate> vectorResults = shouldRunVector(query.mode())
                 ? vectorSearchProvider.search(query)
                 : List.of();
+        List<RetrievalCandidate> graphResults = shouldRunGraph(query.mode())
+                ? graphSearchProvider.search(query)
+                : List.of();
 
-        List<RetrievalCandidate> merged = merge(keywordResults, vectorResults, intent);
+        List<RetrievalCandidate> merged = merge(keywordResults, vectorResults, graphResults, intent);
         List<RetrievalCandidate> baseReranked = rerankingService.rerank(query, merged);
         RerankingProvider crossReranker = rerankingProvider.getIfAvailable();
         List<RetrievalCandidate> crossReranked = crossReranker != null
@@ -73,25 +80,36 @@ public class DefaultHybridRetrievalService implements HybridRetrievalService {
                         "intent", intent.intent(),
                         "keywordCandidates", Integer.toString(keywordResults.size()),
                         "vectorCandidates", Integer.toString(vectorResults.size()),
+                        "graphCandidates", Integer.toString(graphResults.size()),
                         "resultCount", Integer.toString(crossReranked.size())));
         return crossReranked;
     }
 
     private boolean shouldRunKeyword(SearchMode mode) {
-        return mode == SearchMode.KEYWORD || mode == SearchMode.HYBRID;
+        return mode == SearchMode.KEYWORD || mode == SearchMode.HYBRID || mode == SearchMode.HYBRID_GRAPH;
     }
 
     private boolean shouldRunVector(SearchMode mode) {
-        return mode == SearchMode.SEMANTIC || mode == SearchMode.HYBRID;
+        return mode == SearchMode.SEMANTIC || mode == SearchMode.HYBRID || mode == SearchMode.HYBRID_GRAPH;
     }
 
-    private List<RetrievalCandidate> merge(List<RetrievalCandidate> keywordResults, List<RetrievalCandidate> vectorResults, QueryIntent intent) {
+    private boolean shouldRunGraph(SearchMode mode) {
+        return (mode == SearchMode.GRAPH || mode == SearchMode.HYBRID_GRAPH)
+                && graphSearchProvider.isAvailable();
+    }
+
+    private List<RetrievalCandidate> merge(List<RetrievalCandidate> keywordResults,
+                                            List<RetrievalCandidate> vectorResults,
+                                            List<RetrievalCandidate> graphResults,
+                                            QueryIntent intent) {
         Map<String, RetrievalCandidate> merged = new LinkedHashMap<>();
-        keywordResults.forEach(candidate -> merged.put(candidate.chunk().chunkId().toString(), candidate));
-        vectorResults.forEach(candidate -> merged.merge(
-                candidate.chunk().chunkId().toString(),
-                candidate,
+        keywordResults.forEach(c -> merged.put(c.chunk().chunkId().toString(), c));
+        vectorResults.forEach(c -> merged.merge(
+                c.chunk().chunkId().toString(), c,
                 (first, second) -> combine(first, second, intent)));
+        graphResults.forEach(c -> merged.merge(
+                c.chunk().chunkId().toString(), c,
+                (existing, graph) -> combineWithGraph(existing, graph)));
         return List.copyOf(merged.values());
     }
 
@@ -99,20 +117,22 @@ public class DefaultHybridRetrievalService implements HybridRetrievalService {
         double keywordScore = Math.max(first.keywordScore(), second.keywordScore());
         double vectorScore = Math.max(first.vectorScore(), second.vectorScore());
         double docTypeWeight = intent.weightFor(first.chunk().documentType());
-        double authorityBoost = computeAuthorityBoost(first, intent);
-        double rankingScore = ((keywordScore * 0.40) + (vectorScore * 0.40) + (Math.max(first.confidenceScore(), second.confidenceScore()) * 0.20)) * docTypeWeight * authorityBoost;
+        double rankingScore = ((keywordScore * 0.40) + (vectorScore * 0.40) + (Math.max(first.confidenceScore(), second.confidenceScore()) * 0.20)) * docTypeWeight;
         return new RetrievalCandidate(
-                first.chunk(),
-                first.text(),
-                keywordScore,
-                vectorScore,
+                first.chunk(), first.text(),
+                keywordScore, vectorScore,
                 Math.min(1.0, rankingScore),
                 Math.max(first.confidenceScore(), second.confidenceScore()),
-                "hybrid",
-                first.citation());
+                "hybrid", first.citation());
     }
 
-    private double computeAuthorityBoost(RetrievalCandidate candidate, QueryIntent intent) {
-        return 1.0;
+    private RetrievalCandidate combineWithGraph(RetrievalCandidate existing, RetrievalCandidate graph) {
+        double graphBoost = graph.rankingScore() > 0 ? graph.rankingScore() * 0.15 : 0;
+        double newScore = Math.min(1.0, existing.rankingScore() + graphBoost);
+        return new RetrievalCandidate(
+                existing.chunk(), existing.text(),
+                existing.keywordScore(), existing.vectorScore(),
+                newScore, existing.confidenceScore(),
+                "hybrid+graph", existing.citation());
     }
 }

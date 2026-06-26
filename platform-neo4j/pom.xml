@@ -10,22 +10,11 @@
         <version>0.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>platform-ai</artifactId>
-    <name>platform-ai</name>
-    <description>LLM orchestration, Spring AI integration, grounding, and provenance</description>
+    <artifactId>platform-neo4j</artifactId>
+    <name>platform-neo4j</name>
+    <description>Auto-generated knowledge graph from document enrichment — stores entities, concepts, relationships</description>
 
     <dependencies>
-
-        <dependency>
-            <groupId>com.cognitera</groupId>
-            <artifactId>platform-audit</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.cognitera</groupId>
-            <artifactId>platform-search</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
@@ -34,8 +23,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
-
-
+        <dependency>
+            <groupId>org.neo4j.driver</groupId>
+            <artifactId>neo4j-java-driver</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
