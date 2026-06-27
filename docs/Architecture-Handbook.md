@@ -1,10 +1,10 @@
 # Enterprise AI Platform — Architecture & Engineering Handbook
 
-**Second Edition — June 2026**
+**Third Edition — June 2026**
 
 ---
 
-> This handbook is for the engineer who looks at an AI demo and immediately asks: *What happens when it fails? How do I extend it? Why was it designed this way?*
+> This handbook is for the engineer who looks at an AI demo and immediately asks: *What happens when it fails? How do I extend it? Why was it designed this way?* If you are that engineer, start here. By the end, you should understand not only how this platform works, but how to think about designing one yourself.
 
 ---
 
@@ -37,10 +37,11 @@
 
 **Part V — Reflection**
 18. [Extending the Architecture](#18-extending-the-architecture)
-19. [Performance Notes](#19-performance-notes)
-20. [The Trade-offs We Accepted](#20-the-trade-offs)
-21. [What We Learned](#21-what-we-learned)
-22. [The Architecture Endures](#22-the-architecture-endures)
+19. [Design Rules](#19-design-rules)
+20. [Performance Notes](#20-performance-notes)
+21. [The Trade-offs We Accepted](#21-the-trade-offs)
+22. [What We Learned](#22-what-we-learned)
+23. [The Architecture Endures](#23-the-architecture-endures)
 
 **Appendices:** [A — Key Decisions](#appendix-a) · [B — Glossary](#appendix-b) · [C — References](#appendix-c)
 
@@ -89,13 +90,13 @@ Three specific gaps separate demos from platforms.
 | Audit trail | None | Full explainability metadata on every inference |
 | Extensibility | Rewrite code | Implement SPI + add configuration |
 
-### What This Platform Demonstrates
+This platform closes those three gaps. It is a working reference implementation — not a product, not a framework. When we set out to build it, the goal was not to create the most feature-rich AI application. It was to create a foundation where architectural concerns — modularity, degradation, explainability, auditability — are first-class, not retrofitted.
 
-This platform closes those three gaps. It is a working reference implementation — not a product, not a framework, not a SaaS service. It demonstrates how a team of experienced software engineers integrates AI into infrastructure: with clear module boundaries, swappable providers, versioned prompts, automated evaluation, and graceful degradation baked into every external dependency.
-
-The architecture embodies a simple thesis: **AI is infrastructure, not a feature.** Treat LLMs, embedding models, vector databases, and knowledge graphs the way you treat PostgreSQL — abstract them behind interfaces, select them via configuration, swap them without touching business logic.
+The architecture embodies a simple thesis: **AI is infrastructure, not a feature.** Treat LLMs, embedding models, vector databases, and knowledge graphs the way you treat PostgreSQL. Abstract them behind interfaces. Select them via configuration. Swap them without touching business logic.
 
 That thesis shapes every decision that follows.
+
+> **Design Rule** — Business logic must never depend on a specific AI provider. Every provider integration lives behind an interface. Every interface has a fallback implementation for when the provider is unavailable. No exception.
 
 ---
 
@@ -111,17 +112,23 @@ A document enrichment service never calls a specific LLM provider. It calls an i
 
 ### Graceful Degradation, Not Hard Failures
 
-In production, external services fail. Designing for this from day one means every external dependency is optional. The platform starts with only PostgreSQL. Add Qdrant: vector search activates. Add Neo4j: the graph populates. Add Ollama: LLM inference runs. Remove any: the platform continues, reduced capabilities logged clearly, never silently.
+In production, external services fail. We learned this the hard way on previous projects — a vector database going down at 2 AM should not take the entire search system with it. Designing for degradation from day one means every external dependency is optional.
 
-This was not added after the fact. Conditional bean activation, fallback implementations, and availability checks are built into every provider boundary.
+The platform starts with only PostgreSQL. Add Qdrant: vector search activates. Add Neo4j: the graph populates. Remove any: the platform continues, reduced capabilities logged clearly, never silently.
+
+> **Engineering Observation** — Degradation is not a feature you add later. It is a design constraint you build against from the first line of code. Retrofitting degradation into a system that assumes all services are always available is exponentially harder than designing for it upfront.
 
 ### Explainability by Default
 
-If this platform generates an answer, it can explain itself — which intent was classified, which retrieval strategy was selected, which prompt template and version was used, which provider and model ran inference, how many chunks and graph nodes were retrieved, and what evaluation scores resulted. All generated as a byproduct of execution. No separate "explain this" pass. Zero cost in the happy path.
+If this platform generates an answer, it can explain itself — which intent was classified, which strategy was selected, which prompt template and version was used, which provider and model ran inference, how many chunks and graph nodes were retrieved, and what evaluation scores resulted. All generated as a byproduct of execution. No separate "explain this" pass. Zero cost in the happy path.
+
+> **Design Rule** — Explainability must have zero marginal cost. If explaining an answer requires additional computation, it will be disabled under load precisely when it is most needed. Build it into the execution path or don't build it at all.
 
 ### Documents Are the Knowledge Source
 
-Users upload documents. The platform builds the knowledge. There is no manual knowledge base. The enrichment engine extracts entities, concepts, and relationships automatically during ingestion. The knowledge graph is auto-generated. An earlier version included a manual knowledge base — it was removed. The document corpus is the only source of truth.
+Users upload documents. The platform builds the knowledge. There is no manual knowledge base. The enrichment engine extracts entities, concepts, and relationships automatically during ingestion. The knowledge graph is auto-generated.
+
+An earlier version of this project included a manual knowledge base where users could create and curate structured knowledge entries. We removed it. The realization was simple: maintaining a parallel knowledge structure alongside the document corpus created consistency problems. Which was authoritative — the uploaded document or the curated entry? What happened when the document was updated but the entry was not? The document corpus is the only source of truth. Everything else is derived.
 
 ### Domain Independence
 
@@ -209,7 +216,11 @@ A document's journey through the platform touches text extraction, semantic enri
 
 ### The Asynchronous Choice
 
-The key architectural decision: run ingestion asynchronously. Document processing takes seconds to minutes. HTTP request threads should not block that long. Upload creates a pending job and returns immediately. A scheduled worker picks it up.
+When we first built the ingestion pipeline, we considered processing documents synchronously during the HTTP request. The upload endpoint would extract text, chunk, embed, and index — all before returning a response. This worked on a laptop with a 2-page PDF. It failed completely with a 200-page financial report.
+
+Document processing takes seconds to minutes. HTTP request threads should never block that long. The fix was a scheduled worker that polls for pending jobs every ten seconds. Upload creates a job and returns immediately. The worker does the heavy lifting asynchronously.
+
+> **Engineering Observation** — "It works on my machine" is the most dangerous phrase in software engineering. What works for a 2-page PDF on localhost fails catastrophically for a 200-page PDF behind a load balancer. Design for the worst case, not the demo case.
 
 ![Document Ingestion Pipeline](diagrams/05-document-ingestion.svg)
 
@@ -219,7 +230,9 @@ The pipeline is sequential by design, not by limitation. Parallel enrichment and
 
 ### Enrichment Before Chunking
 
-One design choice that emerged during testing: enrichment runs before chunking, not after. Full document context produces better entity disambiguation than individual chunks. A name like "Apple" is ambiguous in a 200-word chunk but clear in a 5,000-word financial report. This is the kind of decision that looks obvious in retrospect but required testing to discover.
+One design choice emerged during testing: enrichment runs before chunking, not after. Our first implementation chunked first, then enriched each chunk individually. Entity extraction quality was poor — a name like "Apple" is ambiguous in a 200-word chunk but obvious in a 5,000-word financial report. Reversing the order — enrich the full document, then chunk — improved entity disambiguation significantly. This looks obvious in retrospect. It was not obvious when we wrote the first implementation.
+
+> **Lesson Learned** — Context size matters for extraction quality. Chunking destroys context. Run extraction on the largest coherent text unit available, then chunk the results. This principle applies beyond document processing — it applies to any system that extracts structured information from unstructured text.
 
 ### Degradation in Practice
 
@@ -352,9 +365,11 @@ The solution: a decision layer whose sole responsibility is choosing which retri
 
 ### Deterministic Over ML-Based
 
-The intent classifier uses keyword rules, not machine learning. This is deliberate. Deterministic routing means the same query always takes the same path — debuggable, auditable, predictable. A trained classifier would be more accurate but less transparent.
+The intent classifier uses keyword rules, not machine learning. We made this choice deliberately. Deterministic routing means the same query always takes the same path — debuggable, auditable, predictable. A trained classifier would likely be more accurate, but we valued transparency over accuracy for this component.
 
-The consequence: misclassification is possible and propagates deterministically. A query classified as keyword-only when it needs hybrid search will produce poorer results every time. This is an explicit trade-off. If classification accuracy becomes critical, the classifier can be replaced without touching the orchestrator — the architecture supports it.
+The consequence is worth stating plainly: misclassification propagates deterministically. A query classified as keyword-only when it needs hybrid search will produce poorer results every single time. We accepted this. If classification accuracy becomes critical, the classifier can be replaced without touching the orchestrator — the interface supports it.
+
+> **Design Rule** — Make components individually replaceable. The classifier can be upgraded from keyword rules to an ML model without any changes to the retrieval orchestrator, the prompt builder, or the inference pipeline. Each component owns its interface. No component owns another component's implementation.
 
 ### The Fusion Algorithm
 
@@ -500,7 +515,33 @@ The goal was never to predict every extension point. It was to establish pattern
 
 ---
 
-## 19. Performance Notes
+## 19. Design Rules
+
+After building this platform, certain rules emerged that now guide every change. They are not theoretical. Each one was learned the hard way — by breaking it, experiencing the consequences, and fixing the result.
+
+**Business logic never depends on providers.** Every AI capability — chat completion, embedding, reranking, enrichment — lives behind an interface. Orchestration code calls the interface. Implementations activate based on configuration. This is the single most important rule. It is what makes provider swaps possible without touching business logic.
+
+**Documents are the single source of truth.** Knowledge is extracted from documents during ingestion. There is no manual knowledge base. If a fact appears in the knowledge graph, it came from a document. If it did not come from a document, it is not in the graph. This rule eliminated an entire class of consistency problems.
+
+**Every prompt is versioned.** Prompts change. When a prompt changes, answers change. Without versioning, you cannot compare answers before and after a prompt change. Without versioning, you cannot audit which prompt produced which answer. The prompt registry makes versioning automatic.
+
+**Every answer is explainable.** The orchestration layer records every decision — intent, strategy, prompt, provider, model, results, scores — as a byproduct of execution. There is no separate explanation step. Explanation has zero marginal cost.
+
+**Every optional dependency degrades gracefully.** The platform starts with PostgreSQL alone. Add Qdrant: vector search activates. Add Neo4j: the graph populates. Remove any: the platform continues. Conditional bean activation, fallback implementations, and availability checks implement this rule everywhere.
+
+**Every extension begins with an interface.** If a component might need to be replaced — and in AI, everything might need to be replaced — define an interface first. Implementations come second. This is not premature abstraction. It is acknowledging that AI infrastructure evolves faster than application code.
+
+**Infrastructure is replaceable.** Qdrant today might be Weaviate tomorrow. Ollama today might be vLLM tomorrow. The architecture assumes this and designs for it. Business logic never imports a specific vector database client.
+
+**Retrieval should be deterministic before it becomes intelligent.** Intent classification uses keyword rules, not ML. Strategy selection is a lookup table. Fusion is weighted linear combination. Every step is deterministic, auditable, and debuggable. Intelligence can be added later — but a system that is not deterministic cannot be debugged, and a system that cannot be debugged cannot be trusted.
+
+**Wiring must be verified, not assumed.** In a Spring application with conditional beans and optional dependencies, it is possible for an entire pipeline to compile, pass tests, and never execute. Wiring verification tests — tests that confirm beans are injected and called — prevent this. This rule was added after we discovered the AI inference pipeline was dead code.
+
+These rules are not permanent. They will evolve as the platform evolves. But they represent hard-won engineering judgment. Breaking any of them should require explicit justification.
+
+---
+
+## 20. Performance Notes
 
 This is a reference implementation, not a production deployment. It has not been benchmarked. What follows are architectural observations.
 
@@ -510,7 +551,7 @@ No caching layer exists. Each retrieval re-executes. This is appropriate for dem
 
 ---
 
-## 20. The Trade-offs We Accepted
+## 21. The Trade-offs We Accepted
 
 These decisions reflect engineering judgment, not universal truth. Each was debated, documented, and deliberately accepted.
 
@@ -529,7 +570,7 @@ Each decision has a dedicated ADR in the companion volume with deeper rationale,
 
 ---
 
-## 21. What We Learned
+## 22. What We Learned
 
 **Clean interfaces make domain-specific code easy to remove.** The original codebase contained 55 German BGB paragraph references and 25+ legal keywords embedded in enrichment and analysis services. They were removed without architectural changes because the interfaces had clean separation from domain logic. The lesson generalizes: invest in interface design early. It pays off when requirements shift. This is not theoretical — it happened, and the interfaces saved months of refactoring.
 
@@ -545,19 +586,23 @@ Each decision has a dedicated ADR in the companion volume with deeper rationale,
 
 ---
 
-## 22. The Architecture Endures
+## 23. The Architecture Endures
 
-Technologies change. Models evolve. Providers come and go. Vector databases are replaced by faster alternatives. LLM APIs shift with each release. Prompt engineering is still nascent. The specific choices made today — Ollama over vLLM, Qdrant over Weaviate, Neo4j over RDF — will look dated within a few years.
+In five years, the models running this platform will be different. In three years, the vector database may have been replaced. In two years, the LLM provider you use today may no longer exist. The specific choices documented in this handbook — Ollama for local inference, Qdrant for vector storage, Neo4j for graph traversal — will look dated sooner than any of us expect.
 
-But the architectural principles that shaped those choices do not date.
+But the principles that shaped those choices will not date.
 
-Treating AI as infrastructure rather than a feature means the interface between business logic and AI backends remains stable even as the backends themselves change. Building for graceful degradation means the platform is never more fragile than its most unreliable dependency. Explaining every decision means the system is auditable by construction, not by afterthought. Extracting knowledge from documents during ingestion rather than query time means enrichment quality can be verified before any question is asked.
+Treating AI as infrastructure rather than a feature means the interface between business logic and AI backends remains stable even as every backend changes. Designing for graceful degradation means the platform is never more fragile than its most unreliable dependency. Making explainability a byproduct of execution means every answer is auditable forever, at zero additional cost. Extracting knowledge from documents during ingestion means enrichment quality is verified before any question is asked.
 
-These principles are independent of any specific technology. They apply whether the platform runs on Ollama or OpenAI, whether vectors live in Qdrant or pgvector, whether the graph lives in Neo4j or a property graph embedded in the application.
+These principles are independent of any specific technology. They apply whether inference runs on Ollama, OpenAI, or a model that has not been invented yet. They apply whether vectors live in Qdrant, pgvector, or a database that launches next year. They apply whether the graph lives in Neo4j, a property graph embedded in the application, or a graph database built on an entirely different paradigm.
 
-The architecture documented in this handbook is not the final answer. It is a snapshot of engineering judgment applied to a specific set of technologies at a specific point in time. But the principles — abstraction, degradation, explainability, provenance, domain independence — will remain useful long after the specific implementations have been replaced.
+Good software architecture does not predict the future. It makes the present coherent and the future possible. It does not bet on which technology will win. It designs interfaces that make technology choices replaceable. It does not assume services will always be available. It designs for their absence. It does not hide decisions behind opaque implementations. It surfaces them as metadata.
 
-That is what makes this an architecture worth studying, not just a codebase worth reading.
+The architecture documented in this handbook is a snapshot — engineering judgment applied to a specific set of technologies at a specific point in time. The implementations will be replaced. The principles — abstraction, degradation, explainability, provenance, domain independence — will outlast every one of them.
+
+A codebase is read by machines. An architecture is read by engineers. The machines will move on to newer code. The engineers will carry the principles forward.
+
+That is what makes this worth studying.
 
 ---
 
