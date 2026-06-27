@@ -47,6 +47,22 @@
 
 ---
 
+## About This Project
+
+This is not an AI framework. It is not LangChain, Spring AI, Haystack, or any of the libraries that make calling LLMs easier. Those tools solve a different problem: they provide APIs for building AI applications quickly.
+
+This project demonstrates the architectural patterns that separate an AI demo from an AI platform.
+
+The distinction matters. A framework makes it easy to call a model. A platform makes it possible to swap models without rewriting code, to trace every answer to its source, to prove to an auditor that the system did not hallucinate, to keep running when infrastructure fails. These are architecture concerns.
+
+When we started building, we made an explicit choice: design for the unhappy path first. What happens when the vector database is down? Which prompt version produced that answer last Tuesday? How do we add a new provider without touching business logic? These questions shaped every decision that follows.
+
+The result is a modular monolith — 9 Maven modules, a single deployable, compile-time boundaries enforcing dependency direction. It runs on Java 21 and Spring Boot 3.3. It is tested with 157 automated tests and documented with 20 Architecture Decision Records.
+
+It is not a production SaaS service. It is not a chatbot. It is not a benchmark. It is a reference implementation — the kind of codebase another engineering team could adopt as the starting point for their own AI application.
+
+---
+
 ## Part I — Vision
 
 ---
@@ -207,6 +223,22 @@ At the top, the assembly module wires everything together — REST controllers, 
 The platform communicates with four external systems. PostgreSQL is the only hard requirement. Qdrant provides vector search. Neo4j stores the knowledge graph. Ollama or OpenAI provide LLM inference and embeddings. Each additional service adds capability but is never required.
 
 Spring Boot 3.3 with Java 21 was chosen for ecosystem breadth and enterprise familiarity — not because it is the fastest or most lightweight framework, but because a reference implementation should prioritize clarity over novelty.
+
+### Why Java?
+
+A reasonable question: in an era where most AI infrastructure is built in Python, why choose Java?
+
+**Ecosystem maturity.** Spring Boot provides battle-tested infrastructure — security, JPA, scheduling, Actuator, property binding — that would need to be built or assembled from disparate libraries in other ecosystems. This lets the architecture focus on AI concerns rather than application infrastructure.
+
+**Compile-time safety.** Nine Maven modules with directional dependencies enforced at compile time. A Python project with equivalent modularity would require runtime enforcement through import linters and convention. Java's type system and Maven's dependency resolution make module boundaries structural, not aspirational.
+
+**Concurrency model.** Java 21's virtual threads enable straightforward parallel processing of document ingestion, embedding generation, and enrichment — without the complexity of reactive programming models or the overhead of platform thread pools.
+
+**Operational ecosystem.** Micrometer for metrics, Prometheus for collection, Actuator for health checks — the Java observability ecosystem is mature and standardized. These are not libraries you need to evaluate and integrate. They are conventions the ecosystem has already settled.
+
+**Long-term maintainability.** A reference implementation meant to be studied by other engineering teams benefits from explicit types, clear interfaces, and a language where refactoring is supported by tooling rather than test coverage alone.
+
+None of this means Java is universally superior to Python for AI work. It means Java was the right choice *for this project* — a modular monolith prioritizing architectural clarity, long-term maintainability, and enterprise integration patterns over development speed.
 
 ---
 
@@ -383,17 +415,21 @@ score = (keyword×0.40 + vector×0.40 + confidence×0.20) × docTypeWeight + gra
 
 ## 10. Prompts as Engineering Assets
 
-| Approach | Versioning | Audit trail | Discoverability | A/B testing |
-|----------|-----------|-------------|-----------------|-------------|
-| Inline strings in code | Git history only | Manual | Grep | Impossible |
-| External files | File-level | Manual | Directory listing | Manual |
-| Versioned registry | Per-prompt | Automatic | Query by category | Built-in |
+A prompt is the interface between your application and an LLM. Change the prompt, and answers change — sometimes subtly, sometimes dramatically. In most AI projects, prompts are strings embedded in source code. Changed without versioning. Untraceable after deployment. Impossible to A/B test.
 
-Prompts scattered across source code as string constants are invisible, unversioned, and untestable. When a prompt changes, there is no audit trail. When a new domain requires different instructions, there is no mechanism to provide them without changing code.
+This works for prototypes. It fails for platforms where the prompt *is* the product.
 
-The prompt registry treats prompts as engineering assets — versioned, categorized, discoverable, auditable. Every prompt has a qualified ID recorded in inference metadata. Nine categories organize prompts by purpose. The `render()` method substitutes variables — simple, predictable, no template engine dependency.
+> **Engineering Observation** — Prompt versioning appears unnecessary until the first prompt regression. A small wording change degrades answer quality, nobody can trace which answers used the old version, and rollback means reverting a git commit and redeploying. After that experience, versioning becomes mandatory.
 
-The registry is deliberately simple. No template inheritance. No dependency between prompts. No runtime compilation. Complexity in prompt management should be justified by need, not added preemptively. The current design handles versioning, categorization, and rendering. When those prove insufficient, the interface can evolve — but the extension point is clear and the migration path is short.
+Consider what happens without a registry. A team member changes a prompt to fix a specific issue. The change ships. A week later, someone notices that answers to a different class of questions have degraded. Which prompt version produced those degraded answers? Nobody knows. The prompts were strings in code — they changed, and the only record is a git diff buried in a commit with an unhelpful message.
+
+A versioned registry makes this problem disappear. Every prompt has a qualified ID — `rag-answer/v1`, `entity-extraction/v1`. Every inference records which prompt version was used. When answer quality changes, you can correlate it to a prompt change immediately. You can run the same query against v1 and v2 and compare evaluation scores. Prompt changes become auditable, testable, and reversible.
+
+Nine categories organize prompts by purpose — retrieval, summarization, extraction, classification, evaluation, reasoning, workflow, graph, search, system. Categories are not just organizational. They enable discovery: `findByCategory(RETRIEVAL)` returns all prompts designed for retrieval tasks. A new team member can browse the registry and understand what prompts exist and how they are used.
+
+The registry is deliberately simple. No template inheritance — prompts are independent. No dependency between prompts — changing one never affects another. No runtime compilation — substitution is simple string replacement. Complexity should be justified by need, not added preemptively.
+
+> **Design Rule** — Every prompt must be versioned. Every inference must record which prompt version was used. This is not optional. It is the minimum requirement for auditing, debugging, and improving prompt quality over time.
 
 ---
 
@@ -458,9 +494,9 @@ The metric definitions stabilize first. Full integration follows. This ordering 
 
 ## 15. Security
 
-Authentication uses JWT with BCrypt-12 password hashing. Refresh tokens are hashed before storage — never plaintext — and rotated on use. Both stateless API authentication and session-based form login are supported.
+The security model is standard by design. JWT with BCrypt-12 hashing. Refresh tokens hashed before storage, rotated on use. Both stateless API authentication and session-based form login. Provider API keys injected via environment variables — never committed. Input enters through variable placeholders in vetted prompt templates. Responses are HTML-escaped.
 
-Provider API keys are injected via environment variable substitution — never hardcoded, never committed. User input enters through variable placeholders in vetted prompt templates. Controller responses are HTML-escaped. The security model is standard, proven, and deliberately unremarkable. Innovation in security is a bug, not a feature.
+> **Design Rule** — Innovation in security is a bug, not a feature. Use proven patterns. Do not invent authentication schemes. Do not roll your own cryptography. The platform's security is deliberately unremarkable because remarkable security is usually broken security.
 
 ---
 
@@ -485,17 +521,19 @@ The test suite is structured as executable architecture documentation. Tests des
 
 ## 17. Deployment
 
-The platform starts with `docker compose up -d` for PostgreSQL and Qdrant. Add `--profile graph` for the knowledge graph database. One command starts the application.
-
-Configuration uses a single file with environment variable substitution. Every custom property uses the `platform.*` namespace. The deployment model is deliberately simple: one process, one configuration file, one command. A reference implementation should be easy to run on a development machine.
+One command starts the platform. One configuration file controls it. Every custom property lives under the `platform.*` namespace. Every external service is optional — the platform starts with PostgreSQL alone.
 
 ![Deployment Architecture](diagrams/16-deployment.svg)
 
-**Figure 17.1.** Production deployment. The knowledge graph database is in a separate Docker profile. Every additional service adds capability but is never required.
+**Figure 17.1.** The knowledge graph database lives in a separate Docker profile. Every additional service adds capability but is never required. A reference implementation should be trivial to run on a development machine.
 
 ---
 
 ## Part V — Reflection
+
+The preceding chapters described how the platform works. The remaining chapters step back and ask: what did we learn? What rules emerged? What trade-offs proved correct? What would we do differently?
+
+These questions separate documentation from architecture. Documentation describes what was built. Architecture explains why it was built that way — and what the builder learned in the process.
 
 ---
 
