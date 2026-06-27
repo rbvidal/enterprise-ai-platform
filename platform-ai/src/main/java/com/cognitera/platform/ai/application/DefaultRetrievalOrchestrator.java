@@ -33,13 +33,16 @@ public class DefaultRetrievalOrchestrator implements RetrievalOrchestrator {
     private final SearchFacade searchFacade;
     private final QueryIntentClassifier intentClassifier;
     private final PromptRegistry promptRegistry;
+    private final EvaluationService evaluationService;
 
     public DefaultRetrievalOrchestrator(SearchFacade searchFacade,
                                          QueryIntentClassifier intentClassifier,
-                                         PromptRegistry promptRegistry) {
+                                         PromptRegistry promptRegistry,
+                                         EvaluationService evaluationService) {
         this.searchFacade = searchFacade;
         this.intentClassifier = intentClassifier;
         this.promptRegistry = promptRegistry;
+        this.evaluationService = evaluationService;
     }
 
     @Override
@@ -64,6 +67,12 @@ public class DefaultRetrievalOrchestrator implements RetrievalOrchestrator {
 
         Instant end = Instant.now();
         trace.add("Completed in " + (end.toEpochMilli() - start.toEpochMilli()) + "ms");
+
+        // Run evaluation on the retrieval quality
+        var evalResult = evaluationService.evaluate(
+                request.question(), "", page.results().toString());
+        trace.add("Evaluation: grounding=" + String.format("%.2f", evalResult.groundingScore())
+                + " faithfulness=" + String.format("%.2f", evalResult.faithfulness()));
 
         return RetrievalOrchestrationResult.builder()
                 .intent(intent.name())
