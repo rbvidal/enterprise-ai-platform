@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 520" font-family="Segoe UI,Inter,system-ui,sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#2563EB"/>
+    </marker>
+    <marker id="arrowPurple" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#7C3AED"/>
+    </marker>
+    <marker id="arrowOrange" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#D97706"/>
+    </marker>
+  </defs>
+  <rect width="860" height="520" fill="#fff"/>
+  <text x="430" y="32" text-anchor="middle" font-size="18" font-weight="700" fill="#1F2937">GraphRAG — Graph-Enhanced Retrieval Pipeline</text>
+
+  <!-- Query -->
+  <rect x="330" y="60" width="200" height="40" rx="8" fill="#EFF6FF" stroke="#2563EB" stroke-width="1.5"/>
+  <text x="430" y="85" text-anchor="middle" font-size="13" font-weight="600" fill="#1F2937">User Query</text>
+
+  <!-- Three retrieval branches -->
+  <line x1="360" y1="100" x2="150" y2="140" stroke="#0891B2" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="430" y1="100" x2="430" y2="140" stroke="#D97706" stroke-width="1.5" marker-end="url(#arrowOrange)"/>
+  <line x1="500" y1="100" x2="710" y2="140" stroke="#7C3AED" stroke-width="1.5" marker-end="url(#arrowPurple)"/>
+
+  <!-- Keyword -->
+  <rect x="30" y="145" width="240" height="60" rx="8" fill="#ECFEFF" stroke="#0891B2" stroke-width="1.5"/>
+  <text x="150" y="170" text-anchor="middle" font-size="12" font-weight="600" fill="#1F2937">Keyword Search</text>
+  <text x="150" y="188" text-anchor="middle" font-size="10" fill="#6B7280">JPA / TF Scoring</text>
+  <text x="150" y="200" text-anchor="middle" font-size="9" fill="#0891B2">Always available</text>
+
+  <!-- Vector -->
+  <rect x="310" y="145" width="240" height="60" rx="8" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+  <text x="430" y="170" text-anchor="middle" font-size="12" font-weight="600" fill="#1F2937">Vector Search</text>
+  <text x="430" y="188" text-anchor="middle" font-size="10" fill="#6B7280">Qdrant Cosine Similarity</text>
+  <text x="430" y="200" text-anchor="middle" font-size="9" fill="#D97706">Optional — keyword fallback</text>
+
+  <!-- Graph -->
+  <rect x="590" y="145" width="240" height="60" rx="8" fill="#F5F3FF" stroke="#7C3AED" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <text x="710" y="170" text-anchor="middle" font-size="12" font-weight="600" fill="#1F2937">Graph Search</text>
+  <text x="710" y="188" text-anchor="middle" font-size="10" fill="#6B7280">Neo4j Traversal</text>
+  <text x="710" y="200" text-anchor="middle" font-size="9" fill="#7C3AED">Optional — NoOpGraphSearchProvider fallback</text>
+
+  <!-- Neo4j adapter detail -->
+  <rect x="590" y="225" width="240" height="40" rx="6" fill="#F5F3FF" stroke="#C4B5FD" stroke-width="1"/>
+  <text x="710" y="240" text-anchor="middle" font-size="10" fill="#6D28D9">Neo4jGraphSearchAdapter</text>
+  <text x="710" y="255" text-anchor="middle" font-size="9" fill="#8B5CF6">bridges GraphEnrichmentService → GraphSearchProvider SPI</text>
+  <line x1="710" y1="205" x2="710" y2="225" stroke="#7C3AED" stroke-width="1" marker-end="url(#arrowPurple)"/>
+
+  <!-- Merge arrows -->
+  <line x1="150" y1="205" x2="250" y2="300" stroke="#0891B2" stroke-width="1.5"/>
+  <line x1="430" y1="205" x2="430" y2="300" stroke="#D97706" stroke-width="1.5"/>
+  <line x1="710" y1="265" x2="610" y2="300" stroke="#7C3AED" stroke-width="1.5" stroke-dasharray="5,3"/>
+
+  <!-- Fusion -->
+  <rect x="240" y="305" width="380" height="55" rx="8" fill="#EFF6FF" stroke="#2563EB" stroke-width="2"/>
+  <text x="430" y="328" text-anchor="middle" font-size="13" font-weight="700" fill="#1F2937">Weighted Linear Fusion</text>
+  <text x="430" y="345" text-anchor="middle" font-size="10" fill="#374151">score = (keyword×0.40 + vector×0.40 + confidence×0.20) × docTypeWeight + graphBoost</text>
+  <text x="430" y="358" text-anchor="middle" font-size="9" fill="#6B7280">Graph boost: +0 to +0.15 for candidates with related graph nodes</text>
+
+  <!-- Reranking -->
+  <line x1="430" y1="360" x2="430" y2="395" stroke="#2563EB" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="260" y="400" width="340" height="45" rx="8" fill="#F0FDF4" stroke="#059669" stroke-width="1.5"/>
+  <text x="430" y="420" text-anchor="middle" font-size="12" font-weight="600" fill="#1F2937">Two-Stage Reranking</text>
+  <text x="430" y="437" text-anchor="middle" font-size="10" fill="#6B7280">1. Sort by rankingScore ↓  2. LLM Cross-Encoder (Ollama, optional)</text>
+
+  <!-- Result -->
+  <line x1="430" y1="445" x2="430" y2="480" stroke="#2563EB" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="330" y="480" width="200" height="32" rx="6" fill="#DBEAFE" stroke="#2563EB" stroke-width="1.5"/>
+  <text x="430" y="501" text-anchor="middle" font-size="12" font-weight="600" fill="#1E40AF">Ranked Candidates</text>
+</svg>

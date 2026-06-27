@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" font-family="Segoe UI,Inter,system-ui,sans-serif">
+  <defs>
+    <marker id="arrowBlue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#2563EB"/>
+    </marker>
+    <marker id="arrowGray" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#6B7280"/>
+    </marker>
+  </defs>
+  <rect width="900" height="600" fill="#fff"/>
+
+  <text x="450" y="32" text-anchor="middle" font-size="18" font-weight="700" fill="#1F2937">Module Dependency Graph</text>
+
+  <!-- Application Layer -->
+  <rect x="550" y="65" width="240" height="35" rx="6" fill="#DBEAFE" stroke="#2563EB" stroke-width="1.5"/>
+  <text x="670" y="88" text-anchor="middle" font-size="13" font-weight="600" fill="#1E40AF">Application Layer</text>
+
+  <!-- platform-api -->
+  <rect x="590" y="120" width="160" height="40" rx="6" fill="#EFF6FF" stroke="#2563EB" stroke-width="1.5"/>
+  <text x="670" y="140" text-anchor="middle" font-size="12" font-weight="600" fill="#1F2937">platform-api</text>
+  <text x="670" y="153" text-anchor="middle" font-size="9" fill="#6B7280">REST + Thymeleaf + Assembly</text>
+
+  <!-- Platform Layer -->
+  <rect x="50" y="180" width="860" height="220" rx="8" fill="#F9FAFB" stroke="#D1D5DB" stroke-width="1"/>
+  <text x="480" y="200" text-anchor="middle" font-size="13" font-weight="600" fill="#374151">Platform Layer</text>
+
+  <!-- Row 1 -->
+  <rect x="70" y="220" width="150" height="60" rx="6" fill="#F5F3FF" stroke="#7C3AED" stroke-width="1.5"/>
+  <text x="145" y="245" text-anchor="middle" font-size="12" font-weight="600" fill="#1F2937">platform-ai</text>
+  <text x="145" y="260" text-anchor="middle" font-size="9" fill="#6B7280">RAG Orchestration</text>
+  <text x="145" y="273" text-anchor="middle" font-size="9" fill="#6B7280">Enrichment, Evaluation, Registries</text>
+
+  <rect x="250" y="220" width="150" height="60" rx="6" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+  <text x="325" y="245" text-anchor="middle" font-size="12" font-weight="600" fill="#1F2937">platform-search</text>
+  <text x="325" y="260" text-anchor="middle" font-size="9" fill="#6B7280">Hybrid Search</text>
+  <text x="325" y="273" text-anchor="middle" font-size="9" fill="#6B7280">Keyword + Vector + Graph</text>
+
+  <rect x="430" y="220" width="150" height="60" rx="6" fill="#ECFEFF" stroke="#0891B2" stroke-width="1.5"/>
+  <text x="505" y="245" text-anchor="middle" font-size="12" font-weight="600" fill="#1F2937">platform-document</text>
+  <text x="505" y="260" text-anchor="middle" font-size="9" fill="#6B7280">Document Lifecycle</text>
+  <text x="505" y="273" text-anchor="middle" font-size="9" fill="#6B7280">Ingestion Pipeline</text>
+
+  <rect x="610" y="220" width="140" height="60" rx="6" fill="#F3F4F6" stroke="#6B7280" stroke-width="1.5"/>
+  <text x="680" y="245" text-anchor="middle" font-size="12" font-weight="600" fill="#1F2937">platform-workspace</text>
+  <text x="680" y="260" text-anchor="middle" font-size="9" fill="#6B7280">Wizard + Timeline</text>
+  <text x="680" y="273" text-anchor="middle" font-size="9" fill="#6B7280">Document Linking</text>
+
+  <rect x="770" y="220" width="120" height="60" rx="6" fill="#F5F3FF" stroke="#7C3AED" stroke-width="1.5"/>
+  <text x="830" y="245" text-anchor="middle" font-size="12" font-weight="600" fill="#1F2937">platform-neo4j</text>
+  <text x="830" y="260" text-anchor="middle" font-size="9" fill="#6B7280">Knowledge Graph</text>
+  <text x="830" y="273" text-anchor="middle" font-size="9" fill="#6B7280">Provenance</text>
+
+  <!-- Row 2 -->
+  <rect x="70" y="310" width="130" height="60" rx="6" fill="#F0FDF4" stroke="#059669" stroke-width="1.5"/>
+  <text x="135" y="335" text-anchor="middle" font-size="12" font-weight="600" fill="#1F2937">platform-observability</text>
+  <text x="135" y="350" text-anchor="middle" font-size="9" fill="#6B7280">Metrics + Health</text>
+  <text x="135" y="363" text-anchor="middle" font-size="9" fill="#6B7280">Micrometer</text>
+
+  <rect x="250" y="310" width="130" height="60" rx="6" fill="#F3F4F6" stroke="#6B7280" stroke-width="1.5"/>
+  <text x="315" y="335" text-anchor="middle" font-size="12" font-weight="600" fill="#1F2937">platform-auth</text>
+  <text x="315" y="350" text-anchor="middle" font-size="9" fill="#6B7280">JWT + BCrypt</text>
+  <text x="315" y="363" text-anchor="middle" font-size="9" fill="#6B7280">Refresh Tokens</text>
+
+  <!-- Foundation Layer -->
+  <rect x="430" y="310" width="150" height="60" rx="6" fill="#EFF6FF" stroke="#2563EB" stroke-width="2"/>
+  <text x="505" y="335" text-anchor="middle" font-size="12" font-weight="600" fill="#1F2937">platform-audit</text>
+  <text x="505" y="350" text-anchor="middle" font-size="9" fill="#6B7280">Immutable Audit Log</text>
+  <text x="505" y="363" text-anchor="middle" font-size="9" fill="#6B7280">Correlation IDs</text>
+
+  <!-- Dependencies (simplified — key arrows only) -->
+  <line x1="670" y1="140" x2="220" y2="220" stroke="#2563EB" stroke-width="1.2" marker-end="url(#arrowBlue)"/>
+  <line x1="670" y1="140" x2="400" y2="220" stroke="#2563EB" stroke-width="1.2" marker-end="url(#arrowBlue)"/>
+  <line x1="670" y1="140" x2="580" y2="220" stroke="#2563EB" stroke-width="1.2" marker-end="url(#arrowBlue)"/>
+  <line x1="670" y1="140" x2="755" y2="220" stroke="#2563EB" stroke-width="1.2" marker-end="url(#arrowBlue)"/>
+  <line x1="670" y1="140" x2="895" y2="220" stroke="#2563EB" stroke-width="1.2" marker-end="url(#arrowBlue)"/>
+  <line x1="220" y1="250" x2="400" y2="250" stroke="#6B7280" stroke-width="1" marker-end="url(#arrowGray)"/>
+  <line x1="400" y1="250" x2="290" y2="310" stroke="#6B7280" stroke-width="1" marker-end="url(#arrowGray)"/>
+
+  <!-- Legend -->
+  <rect x="70" y="430" width="820" height="55" rx="6" fill="#F9FAFB" stroke="#E5E7EB" stroke-width="1"/>
+  <text x="90" y="455" font-size="10" font-weight="600" fill="#374151">Dependency direction: Application → Platform → Foundation</text>
+  <text x="90" y="472" font-size="10" fill="#6B7280">Compile-time boundaries via Maven. platform-audit is the only leaf module — all others depend on it.</text>
+</svg>

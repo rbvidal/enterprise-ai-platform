@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 660" font-family="Segoe UI,Inter,system-ui,sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#2563EB"/>
+    </marker>
+  </defs>
+  <rect width="900" height="660" fill="#fff"/>
+  <text x="450" y="32" text-anchor="middle" font-size="18" font-weight="700" fill="#1F2937">AI Inference Pipeline</text>
+  <text x="450" y="52" text-anchor="middle" font-size="11" fill="#6B7280" font-style="italic">Sequence: User Query → Intent → Retrieval → Prompt → LLM → Validation → Answer</text>
+
+  <!-- Participants -->
+  <rect x="20" y="80" width="90" height="28" rx="6" fill="#DBEAFE" stroke="#2563EB" stroke-width="1"/>
+  <text x="65" y="99" text-anchor="middle" font-size="10" font-weight="600" fill="#1E40AF">User</text>
+
+  <rect x="140" y="80" width="90" height="28" rx="6" fill="#DBEAFE" stroke="#2563EB" stroke-width="1"/>
+  <text x="185" y="99" text-anchor="middle" font-size="10" font-weight="600" fill="#1E40AF">AiFacade</text>
+
+  <rect x="260" y="80" width="90" height="28" rx="6" fill="#F5F3FF" stroke="#7C3AED" stroke-width="1"/>
+  <text x="305" y="99" text-anchor="middle" font-size="10" font-weight="600" fill="#6D28D9">Classifier</text>
+
+  <rect x="380" y="80" width="90" height="28" rx="6" fill="#FEF3C7" stroke="#D97706" stroke-width="1"/>
+  <text x="425" y="99" text-anchor="middle" font-size="10" font-weight="600" fill="#B45309">Retrieval</text>
+
+  <rect x="500" y="80" width="90" height="28" rx="6" fill="#F0FDF4" stroke="#059669" stroke-width="1"/>
+  <text x="545" y="99" text-anchor="middle" font-size="10" font-weight="600" fill="#047857">Prompt</text>
+
+  <rect x="620" y="80" width="90" height="28" rx="6" fill="#FDF2F8" stroke="#DB2777" stroke-width="1"/>
+  <text x="665" y="99" text-anchor="middle" font-size="10" font-weight="600" fill="#BE185D">Router</text>
+
+  <rect x="740" y="80" width="90" height="28" rx="6" fill="#FDF2F8" stroke="#DB2777" stroke-width="1"/>
+  <text x="785" y="99" text-anchor="middle" font-size="10" font-weight="600" fill="#BE185D">LLM</text>
+
+  <!-- Lifelines -->
+  <line x1="65" y1="108" x2="65" y2="630" stroke="#DBEAFE" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="185" y1="108" x2="185" y2="630" stroke="#DBEAFE" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="305" y1="108" x2="305" y2="630" stroke="#EDE9FE" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="425" y1="108" x2="425" y2="630" stroke="#FEF3C7" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="545" y1="108" x2="545" y2="630" stroke="#D1FAE5" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="665" y1="108" x2="665" y2="630" stroke="#FCE7F3" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="785" y1="108" x2="785" y2="630" stroke="#FCE7F3" stroke-width="1" stroke-dasharray="4,4"/>
+
+  <!-- Arrow helper: small filled rectangle as arrowhead -->
+  <defs><path id="ah" d="M0,0 L5,3 L0,6 Z" fill="#2563EB"/></defs>
+
+  <!-- Step 1 -->
+  <line x1="65" y1="130" x2="180" y2="130" stroke="#2563EB" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="190" y="126" font-size="10" fill="#374151" font-weight="600">1. POST /ai (question)</text>
+
+  <!-- Step 2 -->
+  <line x1="185" y1="160" x2="300" y2="160" stroke="#2563EB" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="310" y="156" font-size="10" fill="#374151">2. classify(question)</text>
+
+  <!-- Step 3 -->
+  <line x1="305" y1="195" x2="185" y2="195" stroke="#7C3AED" stroke-width="1" stroke-dasharray="4,2" marker-end="url(#arrow)"/>
+  <text x="30" y="191" font-size="9" fill="#6D28D9">QUERY_ANSWER / INDEX_INSPECTION</text>
+
+  <!-- Step 4 -->
+  <line x1="185" y1="225" x2="420" y2="225" stroke="#2563EB" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="430" y="221" font-size="10" fill="#374151">3. retrieve(request)</text>
+
+  <!-- Step 5 -->
+  <line x1="425" y1="260" x2="185" y2="260" stroke="#D97706" stroke-width="1" stroke-dasharray="4,2" marker-end="url(#arrow)"/>
+  <text x="30" y="256" font-size="9" fill="#B45309">RetrievalContext (sources, authorities)</text>
+
+  <!-- Step 6 -->
+  <line x1="185" y1="290" x2="540" y2="290" stroke="#2563EB" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="550" y="286" font-size="10" fill="#374151">4. getLatest("rag-answer")</text>
+
+  <!-- Step 7 -->
+  <line x1="545" y1="320" x2="185" y2="320" stroke="#059669" stroke-width="1" stroke-dasharray="4,2" marker-end="url(#arrow)"/>
+  <text x="30" y="316" font-size="9" fill="#047857">PromptTemplate (v1, RETRIEVAL)</text>
+
+  <!-- Step 8 -->
+  <line x1="185" y1="350" x2="660" y2="350" stroke="#2563EB" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="670" y="346" font-size="10" fill="#374151">5. routeChat(request)</text>
+
+  <!-- Step 9 -->
+  <line x1="665" y1="385" x2="185" y2="385" stroke="#DB2777" stroke-width="1" stroke-dasharray="4,2" marker-end="url(#arrow)"/>
+  <text x="30" y="381" font-size="9" fill="#BE185D">OllamaChatProvider (available)</text>
+
+  <!-- Step 10 -->
+  <line x1="185" y1="415" x2="780" y2="415" stroke="#2563EB" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="30" y="411" font-size="9" fill="#1F2937">6. complete(prompt, capabilities)</text>
+
+  <!-- Step 11 -->
+  <line x1="785" y1="450" x2="185" y2="450" stroke="#DB2777" stroke-width="1" stroke-dasharray="4,2" marker-end="url(#arrow)"/>
+  <text x="30" y="446" font-size="9" fill="#BE185D">Raw answer text</text>
+
+  <!-- Step 12 -->
+  <rect x="30" y="475" width="170" height="65" rx="6" fill="#F9FAFB" stroke="#E5E7EB" stroke-width="1"/>
+  <text x="115" y="492" text-anchor="middle" font-size="10" font-weight="600" fill="#374151">7. Validate &amp; Ground</text>
+  <text x="115" y="507" text-anchor="middle" font-size="9" fill="#6B7280">TemporalConsistency</text>
+  <text x="115" y="520" text-anchor="middle" font-size="9" fill="#6B7280">ClaimValidator</text>
+  <text x="115" y="533" text-anchor="middle" font-size="9" fill="#6B7280">GroundingService</text>
+
+  <!-- Step 13 -->
+  <rect x="30" y="560" width="170" height="50" rx="6" fill="#F0FDF4" stroke="#059669" stroke-width="1"/>
+  <text x="115" y="580" text-anchor="middle" font-size="10" font-weight="600" fill="#047857">8. Evaluate</text>
+  <text x="115" y="597" text-anchor="middle" font-size="9" fill="#6B7280">Grounding / Faithfulness / Hallucination</text>
+
+  <!-- Result -->
+  <line x1="185" y1="630" x2="65" y2="630" stroke="#2563EB" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="15" y="646" font-size="10" font-weight="600" fill="#2563EB">AiResponse(answer, metadata)</text>
+</svg>

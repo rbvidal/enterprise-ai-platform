@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 580" font-family="Segoe UI,Inter,system-ui,sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#6B7280"/>
+    </marker>
+  </defs>
+
+  <rect width="900" height="580" fill="#fff"/>
+
+  <!-- Title -->
+  <text x="450" y="32" text-anchor="middle" font-size="18" font-weight="700" fill="#1F2937">System Context — Enterprise AI Platform</text>
+  <text x="450" y="52" text-anchor="middle" font-size="12" fill="#6B7280" font-style="italic">C4 Level 1</text>
+
+  <!-- Person -->
+  <rect x="50" y="200" width="140" height="90" rx="8" fill="#EFF6FF" stroke="#2563EB" stroke-width="1.5"/>
+  <text x="120" y="230" text-anchor="middle" font-size="13" font-weight="600" fill="#1F2937">Engineer</text>
+  <text x="120" y="248" text-anchor="middle" font-size="10" fill="#6B7280">Uploads documents</text>
+  <text x="120" y="262" text-anchor="middle" font-size="10" fill="#6B7280">Runs searches</text>
+  <text x="120" y="276" text-anchor="middle" font-size="10" fill="#6B7280">Asks AI questions</text>
+
+  <!-- Platform -->
+  <rect x="310" y="160" width="280" height="140" rx="8" fill="#EFF6FF" stroke="#2563EB" stroke-width="2.5"/>
+  <text x="450" y="195" text-anchor="middle" font-size="15" font-weight="700" fill="#1F2937">Enterprise AI Platform</text>
+  <text x="450" y="215" text-anchor="middle" font-size="11" fill="#6B7280">Java 21 / Spring Boot 3.3</text>
+  <text x="450" y="233" text-anchor="middle" font-size="11" fill="#6B7280">Modular Monolith</text>
+  <text x="450" y="251" text-anchor="middle" font-size="11" fill="#6B7280">9 Maven Modules</text>
+  <text x="450" y="269" text-anchor="middle" font-size="11" fill="#6B7280">Port 8080</text>
+  <line x1="350" y1="225" x2="310" y2="225" stroke="#6B7280" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <text x="320" y="218" font-size="9" fill="#6B7280">Browser</text>
+
+  <!-- PostgreSQL -->
+  <rect x="680" y="80" width="170" height="80" rx="8" fill="#ECFEFF" stroke="#0891B2" stroke-width="1.5"/>
+  <text x="765" y="110" text-anchor="middle" font-size="13" font-weight="600" fill="#1F2937">PostgreSQL</text>
+  <text x="765" y="128" text-anchor="middle" font-size="10" fill="#6B7280">Documents, Users, Chunks,</text>
+  <text x="765" y="142" text-anchor="middle" font-size="10" fill="#6B7280">Audit Log — JDBC :5433</text>
+  <line x1="590" y1="200" x2="680" y2="120" stroke="#0891B2" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+  <!-- Qdrant -->
+  <rect x="680" y="190" width="170" height="65" rx="8" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <text x="765" y="215" text-anchor="middle" font-size="13" font-weight="600" fill="#1F2937">Qdrant</text>
+  <text x="765" y="233" text-anchor="middle" font-size="10" fill="#6B7280">Vector Similarity Search</text>
+  <text x="765" y="247" text-anchor="middle" font-size="9" fill="#D97706">REST :6333 — Optional</text>
+  <line x1="590" y1="220" x2="680" y2="220" stroke="#D97706" stroke-width="1.2" marker-end="url(#arrow)" stroke-dasharray="5,3"/>
+
+  <!-- Neo4j -->
+  <rect x="680" y="285" width="170" height="65" rx="8" fill="#F5F3FF" stroke="#7C3AED" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <text x="765" y="310" text-anchor="middle" font-size="13" font-weight="600" fill="#1F2937">Neo4j</text>
+  <text x="765" y="328" text-anchor="middle" font-size="10" fill="#6B7280">Knowledge Graph</text>
+  <text x="765" y="342" text-anchor="middle" font-size="9" fill="#7C3AED">Bolt :7687 — Optional</text>
+  <line x1="590" y1="270" x2="680" y2="315" stroke="#7C3AED" stroke-width="1.2" marker-end="url(#arrow)" stroke-dasharray="5,3"/>
+
+  <!-- LLM -->
+  <rect x="680" y="380" width="170" height="80" rx="8" fill="#FDF2F8" stroke="#DB2777" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <text x="765" y="408" text-anchor="middle" font-size="13" font-weight="600" fill="#1F2937">Ollama / OpenAI</text>
+  <text x="765" y="426" text-anchor="middle" font-size="10" fill="#6B7280">LLM Inference + Embeddings</text>
+  <text x="765" y="444" text-anchor="middle" font-size="9" fill="#DB2777">HTTP REST :11434 — Optional</text>
+  <line x1="590" y1="290" x2="680" y2="420" stroke="#DB2777" stroke-width="1.2" marker-end="url(#arrow)" stroke-dasharray="5,3"/>
+
+  <!-- Legend -->
+  <rect x="50" y="480" width="600" height="70" rx="8" fill="#F9FAFB" stroke="#E5E7EB" stroke-width="1"/>
+  <text x="70" y="500" font-size="11" font-weight="600" fill="#1F2937">Legend</text>
+  <rect x="70" y="512" width="12" height="12" rx="2" fill="#EFF6FF" stroke="#2563EB" stroke-width="1"/>
+  <text x="88" y="522" font-size="10" fill="#6B7280">Platform / User</text>
+  <rect x="200" y="512" width="12" height="12" rx="2" fill="#ECFEFF" stroke="#0891B2" stroke-width="1"/>
+  <text x="218" y="522" font-size="10" fill="#6B7280">Required</text>
+  <rect x="310" y="512" width="12" height="12" rx="2" fill="#FEF3C7" stroke="#D97706" stroke-width="1" stroke-dasharray="5,3"/>
+  <text x="328" y="522" font-size="10" fill="#6B7280">Optional</text>
+  <line x1="440" y1="518" x2="470" y2="518" stroke="#6B7280" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <text x="478" y="522" font-size="10" fill="#6B7280">Data flow (protocol)</text>
+</svg>
