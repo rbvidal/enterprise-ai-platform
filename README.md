@@ -1,98 +1,114 @@
-# Document Intelligence Platform
+# Enterprise AI Platform
 
-General-purpose document intelligence platform built with Java 21, Spring Boot 3.3, and Thymeleaf.
+A reusable modular monolith for building AI-powered enterprise applications — retrieval-augmented generation, semantic enrichment, knowledge graph construction, multi-provider AI orchestration, and production observability.
 
-## Overview
+**Java 21 · Spring Boot 3.3 · 9 Modules · 157 Tests**
 
-An enterprise-grade platform for uploading, indexing, searching, and reasoning across document collections. Supports any domain: enterprise knowledge management, technical documentation, research papers, compliance documents, contracts, and more.
+---
+
+## What Is This?
+
+This is not a chatbot. It is not a RAG demo. It is a **reference implementation** demonstrating how an experienced engineering team integrates AI into enterprise software: clear module boundaries, swappable provider backends, versioned prompts, automatic quality evaluation, and graceful degradation when infrastructure fails.
+
+The platform can serve as the foundation for document intelligence, contract analysis, enterprise search, compliance, financial review, and research platforms. The included Document Intelligence application is the first reference implementation.
+
+---
+
+## Quick Start
+
+```bash
+git clone <repo-url>
+cd document-intelligence-platform
+
+# Start infrastructure (PostgreSQL + Qdrant)
+docker compose up -d
+
+# Optional: Neo4j for GraphRAG
+docker compose --profile graph up -d
+
+# Build and run
+mvn spring-boot:run -pl platform-api
+```
+
+Open `http://localhost:8080`. Upload documents, search, and query AI.
+
+---
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│              Thymeleaf UI (Bootstrap 5)                  │
-│  Dashboard │ Documents │ Search │ Workspaces │ AI       │
-└────────────────────┬────────────────────────────────────┘
-                     │ Server-side rendering + REST API
-┌────────────────────┴────────────────────────────────────┐
-│              Spring Boot 3.3 (Java 21)                   │
-│                                                          │
-│  platform-api       Page controllers, REST API, DTOs     │
-│  platform-web       Thymeleaf templates, CSS, i18n      │
-│  platform-ai        LLM orchestration, retrieval         │
-│  platform-search    Hybrid retrieval, vector + keyword   │
-│  platform-document  Ingestion, versioning, storage       │
-│  platform-workspace Workspace management, timelines      │
-│  platform-knowledge Knowledge base, taxonomy             │
-│  platform-neo4j     Knowledge graph integration          │
-│  platform-auth      JWT auth, RBAC                       │
-│  platform-audit     Immutable audit event log            │
-│  platform-domain    Shared domain interfaces             │
-└────────────────────┬────────────────────────────────────┘
-                     │
-┌────────────────────┴────────────────────────────────────┐
-│                   Infrastructure                         │
-│  PostgreSQL  │  Qdrant  │  Neo4j  │  Ollama             │
-└─────────────────────────────────────────────────────────┘
+platform-api          Application assembly (REST + Thymeleaf UI)
+    ↓
+platform-ai           RAG orchestration, enrichment, evaluation, registries
+platform-search       Hybrid search (keyword + vector + graph)
+platform-document     Document lifecycle + ingestion pipeline
+platform-neo4j        Knowledge graph persistence (auto-generated)
+platform-workspace    Workspace wizard + timeline
+platform-observability Micrometer metrics + health indicators
+platform-auth         JWT authentication + user management
+    ↓
+platform-audit        Immutable audit log (leaf module)
 ```
 
-## Key Features
+**Dependency direction flows downward.** `platform-api` depends on everything; nobody depends on `platform-api`. Compile-time boundaries enforced by Maven.
 
-- **Document Ingestion:** PDF, DOCX, TXT, HTML parsing with chunking and embedding
-- **Hybrid Search:** Semantic vector search + BM25 keyword search with fusion and reranking
-- **AI-Powered Q&A:** Retrieval-augmented generation with source citations
-- **Knowledge Graph:** Neo4j-powered entity and relationship exploration
-- **Workspaces:** Stage-based workflow (Setup → Ingestion → Analysis → Review → Complete)
-- **Audit Logging:** Immutable event log with correlation tracing
-- **Multi-language:** i18n support (English, German, French)
+---
 
-## Quick Start
+## Key Capabilities
 
-### Prerequisites
+| Capability | Description |
+|-----------|-------------|
+| **Hybrid Search** | Keyword (JPA/TF) + Vector (Qdrant) + Graph (Neo4j) with weighted fusion |
+| **GraphRAG** | Knowledge graph traversal augments retrieval when Neo4j is available |
+| **Semantic Enrichment** | Automatic entity, concept, and relationship extraction during ingestion |
+| **Multi-Provider AI** | Ollama (local) and OpenAI-compatible (cloud) behind a common SPI |
+| **Prompt Registry** | Versioned prompts with categories, variables, and audit trails |
+| **Model Registry** | Queryable model capabilities — streaming, vision, JSON, embeddings |
+| **Provider Router** | 4-tier deterministic provider selection |
+| **Evaluation** | Automated grounding, faithfulness, and hallucination scoring |
+| **Explainability** | Full metadata on every inference — provider, model, prompt, strategy, timing |
+| **Workflow Engine** | Configurable multi-step processes for document intelligence |
+| **Observability** | Micrometer + Prometheus metrics, health indicators, correlation IDs |
+| **Graceful Degradation** | Every external dependency is optional — the platform starts with only PostgreSQL |
+
+---
+
+## Documentation
+
+| Book | Audience | Purpose |
+|------|----------|---------|
+| [Architecture & Engineering Handbook](docs/Architecture-Handbook.pdf) | Architects, Staff Engineers, Principal Engineers | Design philosophy, architecture, trade-offs, lessons learned |
+| [Architecture Decision Records](docs/Architecture-Decision-Records.pdf) | Architects, Principal Engineers | Permanent record of every major engineering decision |
+| [Developer Guide](docs/Developer-Guide.pdf) | Developers, Contributors | Build, run, extend, test, debug, contribute |
+
+---
+
+## Testing
+
+```bash
+mvn verify                    # 157 tests: unit + integration + architecture + resilience
+mvn verify -Pui-tests         # + Playwright browser tests
+```
+
+---
+
+## Requirements
 
 - Java 21
-- Docker and Docker Compose
-- Maven 3.9+
+- Maven 3.x
+- Docker (for PostgreSQL, Qdrant, Neo4j)
+- Ollama (optional — for local LLM inference)
 
-### Start Infrastructure
-
-```bash
-docker compose up -d
-```
-
-### Run
-
-```bash
-mvn spring-boot:run -pl platform-api
-```
-
-The application is available at http://localhost:8080
-
-## Module Structure
-
-| Module | Description |
-|---|---|
-| `platform-domain` | Shared domain interfaces |
-| `platform-audit` | Immutable audit event infrastructure |
-| `platform-auth` | JWT authentication, RBAC |
-| `platform-document` | Document lifecycle, ingestion, versioning |
-| `platform-search` | Hybrid retrieval, chunking |
-| `platform-ai` | LLM orchestration, RAG |
-| `platform-workspace` | Workspace management, stage-based workflows |
-| `platform-knowledge` | Knowledge base, taxonomy |
-| `platform-neo4j` | Knowledge graph (Neo4j) |
-| `platform-web` | Thymeleaf templates, CSS, i18n |
-| `platform-api` | Page controllers, REST API, application assembly |
-
-## Technology Stack
-
-- **Backend:** Java 21, Spring Boot 3.3, Spring Security, Spring AI, JPA/Hibernate
-- **Vector Store:** Qdrant
-- **Graph DB:** Neo4j 5
-- **AI/ML:** Ollama (local LLM + embeddings), Spring AI abstraction
-- **Frontend:** Thymeleaf, Bootstrap 5
-- **Infrastructure:** Docker Compose, PostgreSQL 16
+---
 
 ## License
 
-MIT
+[Specify license]
+
+---
+
+> **For architects:** Start with the [Architecture Handbook](docs/Architecture-Handbook.pdf). It explains *why* the platform was designed this way.
+>
+> **For developers:** Start with the [Developer Guide](docs/Developer-Guide.pdf). It explains *how* to build, run, and extend the platform.
+>
+> **For decision rationale:** Consult the [ADR volume](docs/Architecture-Decision-Records.pdf). It preserves the architectural history of the project.
