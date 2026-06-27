@@ -1,8 +1,8 @@
 package com.cognitera.platform.web;
 
-import com.cognitera.platform.ai.api.RetrievalAugmentationService;
+import com.cognitera.platform.ai.api.AiFacade;
 import com.cognitera.platform.ai.model.AiRequest;
-import com.cognitera.platform.ai.model.RetrievalContext;
+import com.cognitera.platform.ai.model.AiResponse;
 import com.cognitera.platform.ai.model.RetrievalScope;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Controller;
@@ -15,22 +15,18 @@ import java.util.UUID;
 
 /**
  * Thymeleaf page controller for the AI retrieval-augmented query page.
+ * Executes the full AI pipeline: retrieval → prompt construction → LLM inference →
+ * grounding → validation → structured answer.
  */
 @Controller
 public class AiPageController {
 
-    private final ObjectProvider<RetrievalAugmentationService> aiServiceProvider;
+    private final ObjectProvider<AiFacade> aiFacadeProvider;
 
-    /**
-     * Constructs the controller with an optional AI service provider.
-     */
-    public AiPageController(ObjectProvider<RetrievalAugmentationService> aiServiceProvider) {
-        this.aiServiceProvider = aiServiceProvider;
+    public AiPageController(ObjectProvider<AiFacade> aiFacadeProvider) {
+        this.aiFacadeProvider = aiFacadeProvider;
     }
 
-    /**
-     * Renders the AI query page with empty form state.
-     */
     @GetMapping("/ai")
     public String ai(Model model) {
         model.addAttribute("model", "");
@@ -40,12 +36,9 @@ public class AiPageController {
         return "ai/index";
     }
 
-    /**
-     * Processes the AI query, retrieves context, and renders formatted results as HTML.
-     */
     @PostMapping("/ai")
     public String handleAi(@RequestParam(required = false) String modelParam,
-                           @RequestParam(defaultValue = "HYBRID") String scope,
+                           @RequestParam(required = false) String scope,
                            @RequestParam(required = false) String workspaceId,
                            @RequestParam String question,
                            Model pageModel) {
@@ -53,8 +46,8 @@ public class AiPageController {
         pageModel.addAttribute("scope", scope);
         pageModel.addAttribute("question", question);
 
-        RetrievalAugmentationService aiService = aiServiceProvider.getIfAvailable();
-        if (aiService == null) {
+        AiFacade aiFacade = aiFacadeProvider.getIfAvailable();
+        if (aiFacade == null) {
             pageModel.addAttribute("formattedAnswer",
                     "<div class=\"alert alert-warning\">AI service is not configured. "
                     + "Ensure the embedding/Ollama configuration is active.</div>");
@@ -62,32 +55,52 @@ public class AiPageController {
         }
 
         try {
-            RetrievalScope retrievalScope = RetrievalScope.ALL_DOCUMENTS;
             UUID wsId = workspaceId != null && !workspaceId.isBlank()
                     ? UUID.fromString(workspaceId) : null;
             AiRequest request = new AiRequest(question, modelParam, null, null,
-                    20, retrievalScope, wsId);
-            RetrievalContext context = aiService.retrieve(request);
+                    20, RetrievalScope.ALL_DOCUMENTS, wsId);
+            AiResponse response = aiFacade.answer(request);
 
             StringBuilder html = new StringBuilder();
+
+            // Answer section
+            String answerText = response.answer() != null ? response.answer().answer() : "";
+            java.util.List<com.cognitera.platform.ai.model.SourceCitation> sources =
+                    response.answer() != null ? response.answer().sourceCitations() : java.util.List.of();
+            String strategy = response.metadata() != null ? response.metadata().retrievalStrategy() : "hybrid";
+            double confidence = response.answer() != null && response.answer().confidence() != null
+                    ? response.answer().confidence().overallConfidence() : 0.0;
+
             html.append("<div class=\"card mb-3\"><div class=\"card-body\">");
-            html.append("<h5>Retrieval Results</h5>");
-            html.append("<p class=\"text-muted\">Strategy: ").append(context.retrievalStrategy())
-                .append(" | Sources found: ").append(context.sources().size()).append("</p>");
-            if (!context.sources().isEmpty()) {
+            html.append("<h5>Answer ")
+                .append("<small class=\"text-muted\">(confidence: ")
+                .append(String.format("%.0f%%", confidence * 100)).append(")</small></h5>");
+            html.append("<div class=\"mb-0\">")
+                .append(escapeHtml(answerText))
+                .append("</div>");
+            html.append("</div></div>");
+
+            // Sources section
+            html.append("<div class=\"card mb-3\"><div class=\"card-body\">");
+            html.append("<h5>Retrieved Sources</h5>");
+            if (!sources.isEmpty()) {
+                html.append("<p class=\"text-muted\">")
+                    .append("Strategy: ").append(escapeHtml(strategy))
+                    .append(" | Sources: ").append(sources.size())
+                    .append("</p>");
                 html.append("<ul class=\"list-group list-group-flush\">");
-                context.sources().stream().limit(10).forEach(s -> {
+                sources.stream().limit(10).forEach(s -> {
                     html.append("<li class=\"list-group-item\">");
                     html.append("<strong>").append(escapeHtml(s.title())).append("</strong>");
-                    html.append(" <span class=\"badge bg-secondary\">")
-                        .append(escapeHtml(s.tier().name())).append("</span>");
                     html.append("<br><small class=\"text-muted\">")
-                        .append(escapeHtml(s.excerpt() != null ? s.excerpt() : "")).append("</small>");
+                        .append(escapeHtml(s.excerpt() != null ? s.excerpt() : ""))
+                        .append("</small>");
                     html.append("</li>");
                 });
                 html.append("</ul>");
             }
             html.append("</div></div>");
+
             pageModel.addAttribute("formattedAnswer", html.toString());
         } catch (Exception e) {
             pageModel.addAttribute("formattedAnswer",
