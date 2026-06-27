@@ -40,3 +40,4 @@ build/
 *.class
 *.jar
 *.war
+uploads/
