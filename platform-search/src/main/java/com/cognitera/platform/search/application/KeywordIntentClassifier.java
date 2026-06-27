@@ -15,37 +15,33 @@ public class KeywordIntentClassifier implements QueryIntentClassifier {
             "GENERAL", new IntentRule(
                     Set.of("what is", "how to", "explain", "describe", "define",
                             "what are", "tell me", "information"),
-                    Map.of(), false, 1.0),
+                    Map.of()
+),
             "CONTRACT", new IntentRule(
                     Set.of("contract", "agreement", "terms", "clause", "obligation",
                             "party", "parties", "amendment", "revision",
                             "sign", "execute", "effective date"),
-                    Map.of(DocumentType.PDF, 1.5, DocumentType.DOCX, 1.2),
-                    false, 1.0),
+                    Map.of(DocumentType.PDF, 1.5, DocumentType.DOCX, 1.2)),
             "FINANCE", new IntentRule(
                     Set.of("invoice", "payment", "bill", "fee", "due", "amount",
                             "charge", "balance", "receipt", "expense",
                             "financial", "accounting", "budget"),
-                    Map.of(DocumentType.PDF, 1.3, DocumentType.TXT, 1.1),
-                    false, 1.0),
+                    Map.of(DocumentType.PDF, 1.3, DocumentType.TXT, 1.1)),
             "COMPLIANCE", new IntentRule(
                     Set.of("compliance", "regulation", "policy", "standard",
                             "requirement", "audit", "governance",
                             "violation", "breach"),
-                    Map.of(DocumentType.PDF, 1.5),
-                    false, 1.0),
+                    Map.of(DocumentType.PDF, 1.5)),
             "PROCEDURE", new IntentRule(
                     Set.of("procedure", "how to proceed", "what steps", "next steps",
                             "process", "workflow", "guide", "manual",
                             "instruction", "tutorial", "checklist"),
-                    Map.of(DocumentType.TXT, 1.2, DocumentType.HTML, 1.1),
-                    false, 1.0),
+                    Map.of(DocumentType.TXT, 1.2, DocumentType.HTML, 1.1)),
             "COMMUNICATION", new IntentRule(
                     Set.of("ask", "request", "tell", "say", "email", "letter", "write",
                             "contact", "message", "reply", "respond", "send",
                             "discuss", "propose", "notify"),
-                    Map.of(DocumentType.TXT, 1.3, DocumentType.PDF, 0.8),
-                    false, 1.0)
+                    Map.of(DocumentType.TXT, 1.3, DocumentType.PDF, 0.8))
     );
 
     private static final Map<DocumentType, Double> DEFAULT_WEIGHTS = Map.of(
@@ -80,13 +76,11 @@ public class KeywordIntentClassifier implements QueryIntentClassifier {
         IntentRule rule = RULES.get(bestIntent);
         Map<DocumentType, Double> weights = new HashMap<>(DEFAULT_WEIGHTS);
         weights.putAll(rule.weights());
-        return new QueryIntent(bestIntent, weights, rule.isLegalNormative(), rule.statuteBoost());
+        return new QueryIntent(bestIntent, weights);
     }
 
     private record IntentRule(
             Set<String> keywords,
-            Map<DocumentType, Double> weights,
-            boolean isLegalNormative,
-            double statuteBoost) {
+            Map<DocumentType, Double> weights) {
     }
 }

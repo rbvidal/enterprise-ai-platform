@@ -65,10 +65,9 @@ platform:
     qdrant:
       host: ${QDRANT_HOST:localhost}
       rest-port: ${QDRANT_REST_PORT:6333}
-      collection: ${QDRANT_COLLECTION:docintel_chunks}
+      collection: ${QDRANT_COLLECTION:document_intelligence_chunks}
       vector-dimension: ${QDRANT_VECTOR_DIMENSION:768}
     embedding:
       ollama:
         base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
         model: ${OLLAMA_EMBEDDING_MODEL:nomic-embed-text}
-        dimension: ${OLLAMA_EMBEDDING_DIMENSION:768}

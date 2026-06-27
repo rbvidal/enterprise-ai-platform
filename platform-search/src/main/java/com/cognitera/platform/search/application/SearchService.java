@@ -84,8 +84,7 @@ public class SearchService implements SearchFacade, ChunkManagementService {
                         "mode", normalized.mode().name(),
                         "queryLength", Integer.toString(normalized.query().length()),
                         "resultCount", Integer.toString(results.size()),
-                        "intent", intent.intent(),
-                        "isLegalNormative", Boolean.toString(intent.isLegalNormativeQuery())));
+                        "intent", intent.intent()));
         return new SearchResultPage(results, normalized.page(), normalized.size(), candidates.size(), totalPages, normalized.mode().name());
     }
 
