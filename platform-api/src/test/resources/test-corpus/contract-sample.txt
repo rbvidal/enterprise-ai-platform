@@ -1,0 +1,38 @@
+SOFTWARE DEVELOPMENT AGREEMENT
+
+This Software Development Agreement ("Agreement") is entered into as of January 15, 2026, by and between Cognitera Inc., a Delaware corporation with offices at 100 Innovation Drive, San Francisco, CA 94105 ("Developer"), and Acme Corporation, a Delaware corporation with offices at 500 Enterprise Boulevard, New York, NY 10001 ("Client").
+
+1. SCOPE OF WORK
+Developer agrees to design, develop, and deliver an Enterprise AI Platform ("Platform") according to the specifications attached as Exhibit A. The Platform shall include retrieval-augmented generation, semantic enrichment, knowledge graph construction, and multi-provider AI orchestration capabilities.
+
+2. DELIVERY SCHEDULE
+- Phase 1 (Architecture): March 31, 2026
+- Phase 2 (Core Features): May 15, 2026
+- Phase 3 (Testing & QA): June 30, 2026
+- Phase 4 (Deployment): July 31, 2026
+
+3. COMPENSATION
+Client agrees to pay Developer a total fee of $850,000, payable in four installments:
+- $200,000 upon execution of this Agreement
+- $250,000 upon completion of Phase 2
+- $250,000 upon completion of Phase 3
+- $150,000 upon final acceptance and deployment
+
+All invoices are payable within 30 days of receipt. Late payments accrue interest at 1.5% per month.
+
+4. INTELLECTUAL PROPERTY
+Upon full payment, Developer assigns to Client all rights, title, and interest in the Platform source code. Developer retains a perpetual, royalty-free license to use the Platform architecture patterns in future projects.
+
+5. WARRANTIES
+Developer warrants that the Platform will conform to the specifications for a period of 90 days following deployment. This warranty is exclusive and in lieu of all other warranties.
+
+6. LIMITATION OF LIABILITY
+Neither party shall be liable for indirect, special, or consequential damages. Developer's total liability shall not exceed the fees paid under this Agreement.
+
+7. TERMINATION
+Either party may terminate this Agreement upon 30 days written notice if the other party materially breaches any provision.
+
+IN WITNESS WHEREOF, the parties have executed this Agreement.
+
+Cognitera Inc. — Signature: /s/ John Smith, CTO — Date: January 15, 2026
+Acme Corporation — Signature: /s/ Dr. Sarah Chen, CFO — Date: January 15, 2026

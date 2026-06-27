@@ -1,0 +1,63 @@
+# Expected Architectural Behaviors — AI Regression Dataset
+# These behaviors must be validated by automated tests
+# We validate architectural behavior, not exact LLM text
+
+# Prompt Registry
+[PROMPT-001] Prompt rag-answer/v1 resolves with category RETRIEVAL
+[PROMPT-002] Prompt entity-extraction/v1 resolves with category EXTRACTION
+[PROMPT-003] Prompt rerank-evaluation/v1 resolves with category EVALUATION
+[PROMPT-004] Prompt rendering substitutes {{variables}} correctly
+[PROMPT-005] Unknown prompt IDs return empty
+
+# Model Capability Registry
+[MODEL-001] gpt-4o supports vision: true
+[MODEL-002] nomic-embed-text supports embeddings: true
+[MODEL-003] llama3.2 supports tool calling: true
+[MODEL-004] Unknown models return empty
+[MODEL-005] Provider filtering returns correct subset
+
+# Provider Router
+[ROUTER-001] openai:gpt-4o prefix routes to openai provider
+[ROUTER-002] ollama:qwen2.5 prefix routes to ollama provider
+[ROUTER-003] Unavailable provider is skipped
+[ROUTER-004] Preferred provider matched when available
+[ROUTER-005] Throws when no providers available
+
+# Semantic Enrichment
+[ENRICH-001] Organization entities extracted from financial report
+[ENRICH-002] Person entities extracted from financial report
+[ENRICH-003] Financial concepts detected (monetary amounts)
+[ENRICH-004] Temporal concepts detected (dates)
+[ENRICH-005] Entity confidence scores between 0 and 1
+
+# Retrieval Orchestration
+[RETRIEVE-001] INDEX_INSPECTION intent → KEYWORD mode
+[RETRIEVE-002] QUESTION_ANSWERING intent → HYBRID mode
+[RETRIEVE-003] DOCUMENT_LOOKUP intent → SEMANTIC mode
+[RETRIEVE-004] Explainability metadata present in orchestration result
+[RETRIEVE-005] Trace log contains step-by-step decisions
+
+# Evaluation
+[EVAL-001] Grounding score in [0, 1] range
+[EVAL-002] Faithfulness score in [0, 1] range
+[EVAL-003] Hallucination indicators detected for uncertainty phrases
+[EVAL-004] Pass/fail gate set based on thresholds
+[EVAL-005] Citation coverage reflects cited sources
+
+# Workflow Engine
+[WORKFLOW-001] document-intelligence workflow advances SETUP → INGESTION → ANALYSIS → REVIEW → COMPLETE
+[WORKFLOW-002] batch-ingestion workflow advances INGEST → ENRICH → COMPLETE
+[WORKFLOW-003] Previous step navigation works
+[WORKFLOW-004] Unknown workflow throws IllegalArgumentException
+[WORKFLOW-005] Active instances are findable
+
+# GraphRAG
+[GRAPH-001] GraphSearchProvider returns empty when Neo4j unavailable
+[GRAPH-002] isAvailable() returns correct status
+[GRAPH-003] findRelatedDocuments returns empty when unavailable
+[GRAPH-004] Graph adapter is conditionally created
+
+# Graceful Degradation
+[DEGRADE-001] No providers available → IllegalStateException
+[DEGRADE-002] Preferred provider down → fallback selected
+[DEGRADE-003] Graph unavailable → empty graph search results

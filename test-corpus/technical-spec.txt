@@ -1,0 +1,47 @@
+TECHNICAL SPECIFICATION — Enterprise AI Platform
+
+Version: 1.0
+Date: 2026-06-27
+Author: Cognitera Engineering
+
+1. OVERVIEW
+The Enterprise AI Platform is a modular monolith implemented in Java 21 and Spring Boot 3.3.
+It provides retrieval-augmented generation (RAG), semantic enrichment, knowledge graph construction, and multi-provider AI orchestration.
+
+2. ARCHITECTURE
+The platform consists of 9 Maven modules:
+- platform-audit: Immutable audit log with correlation IDs
+- platform-auth: JWT authentication with refresh token rotation
+- platform-document: Document lifecycle and ingestion pipeline
+- platform-search: Hybrid search with keyword, vector, and graph retrieval
+- platform-ai: RAG orchestration, enrichment, evaluation, prompt registry
+- platform-neo4j: Auto-generated knowledge graph with provenance
+- platform-workspace: 5-phase workflow wizard
+- platform-observability: Micrometer metrics and health indicators
+- platform-api: REST and Thymeleaf controllers
+
+3. KEY CAPABILITIES
+The platform demonstrates:
+- Provider abstraction (Ollama, OpenAI-compatible)
+- Model capability registry with intelligent routing
+- Prompt registry with versioning and categories
+- Semantic enrichment with entity and relationship extraction
+- GraphRAG with Neo4j traversal
+- Evaluation framework with grounding and faithfulness scores
+- Workflow engine for multi-step document processing
+- Full explainability metadata on every inference
+
+4. DEPLOYMENT
+Required infrastructure:
+- PostgreSQL with pgvector
+- Qdrant vector database
+- Neo4j graph database (optional, for GraphRAG)
+- Ollama or OpenAI-compatible LLM server
+
+The platform degrades gracefully when optional services are unavailable.
+
+5. PERFORMANCE CHARACTERISTICS
+- Chunking: 1200-character target with 150-character overlap, sentence-aware
+- Embedding: 768-dimensional vectors via nomic-embed-text
+- Retrieval: Weighted linear fusion of keyword, vector, and graph results
+- Inference: Configurable timeouts with provider fallback

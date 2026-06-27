@@ -1,0 +1,45 @@
+# Representative questions for the AI regression dataset
+# Each question maps to expected architectural behaviors
+
+# Technical specification questions
+Q: What are the key capabilities of the Enterprise AI Platform?
+Expected: HYBRID retrieval, retrieves chunks from technical-spec.txt
+Expected: RAG, semantic enrichment, GraphRAG appear in retrieved context
+Expected: Prompt template rag-answer/v1 used
+Expected: 2+ source citations in answer
+Expected: Explainability metadata present
+
+Q: How does the platform handle optional services?
+Expected: SEMANTIC retrieval
+Expected: Graceful degradation mentioned in context
+Expected: Grounding score >= 0.3
+
+# Financial report questions
+Q: What was Acme Corporation's revenue in Q2 2026?
+Expected: KEYWORD retrieval (exact figure lookup)
+Expected: Entity extracted: Acme Corporation (ORGANIZATION)
+Expected: Entity extracted: $45.2 million (financial concept)
+Expected: Citation references financial-report.txt
+
+Q: Who prepared the Q2 2026 financial report?
+Expected: KEYWORD or HYBRID retrieval
+Expected: Entity extracted: Dr. Sarah Chen (PERSON)
+Expected: Entity extracted: Acme Corporation (ORGANIZATION)
+
+# Contract analysis questions
+Q: What is the total contract value between Cognitera and Acme?
+Expected: KEYWORD retrieval (exact figure)
+Expected: Entity extracted: $850,000 (financial concept)
+Expected: Relationship: Cognitera Inc. → Acme Corporation (DEVELOPER → CLIENT)
+
+Q: When is Phase 3 of the project scheduled for completion?
+Expected: KEYWORD retrieval
+Expected: Date extracted: June 30, 2026
+Expected: Timeline concept detected
+
+# Cross-document questions
+Q: What organization signed the software development agreement?
+Expected: HYBRID or GRAPH retrieval
+Expected: Entity: Cognitera Inc. (ORGANIZATION)
+Expected: Entity: Acme Corporation (ORGANIZATION)
+Expected: Relationship: PARTIES_TO type relationship in graph

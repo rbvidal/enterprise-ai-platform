@@ -1,0 +1,37 @@
+QUARTERLY FINANCIAL REPORT — Q2 2026
+
+Organization: Acme Corporation
+Prepared by: Dr. Sarah Chen, Chief Financial Officer
+Date: June 30, 2026
+
+EXECUTIVE SUMMARY
+Acme Corporation reported revenue of $45.2 million for Q2 2026, representing 12% year-over-year growth. Operating expenses were $18.7 million, with net income reaching $8.3 million after accounting for a one-time technology investment of $2.1 million in the Enterprise AI Platform developed by Cognitera Engineering.
+
+REVENUE BREAKDOWN
+- Enterprise Software: $22.1 million (49% of total)
+- Professional Services: $13.5 million (30%)
+- Cloud Infrastructure: $9.6 million (21%)
+
+OPERATING EXPENSES
+- Research & Development: $7.2 million
+- Sales & Marketing: $5.8 million
+- General & Administrative: $3.4 million
+- Technology Investment: $2.1 million (one-time)
+- Other: $0.2 million
+
+KEY METRICS
+- Gross Margin: 58.6%
+- Operating Margin: 18.4%
+- Customer Count: 847 (up from 782 in Q1)
+- Average Contract Value: $53,300
+
+BALANCE SHEET HIGHLIGHTS
+- Total Assets: $312.5 million
+- Total Liabilities: $87.3 million
+- Shareholder Equity: $225.2 million
+- Cash & Equivalents: $67.4 million
+
+OUTLOOK
+Management projects Q3 revenue of $47-49 million, driven by new product launches in the cloud infrastructure segment. The company plans to hire 45 additional engineers and expand its European operations through the Berlin office.
+
+This report complies with IFRS accounting standards and has been reviewed by the Audit Committee.
