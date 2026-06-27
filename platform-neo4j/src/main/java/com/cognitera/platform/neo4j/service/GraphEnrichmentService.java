@@ -107,19 +107,19 @@ public class GraphEnrichmentService {
     }
 
     private void upsertNode(Session session, GraphNode node) {
-        session.run("MERGE (n:" + node.type().name() + " {id: $id}) " +
+        session.run("MERGE (n:" + node.getType().name() + " {id: $id}) " +
                 "SET n += $props",
-                Values.parameters("id", node.id(), "props", node.properties()));
+                Values.parameters("id", node.getId(), "props", node.getProperties()));
     }
 
     private void createRelationship(Session session, GraphRelationship rel) {
         session.run("MATCH (a {id: $sourceId}), (b {id: $targetId}) " +
-                "MERGE (a)-[r:" + rel.type().name() + "]->(b) " +
+                "MERGE (a)-[r:" + rel.getType().name() + "]->(b) " +
                 "SET r += $props",
                 Values.parameters(
-                        "sourceId", rel.sourceId(),
-                        "targetId", rel.targetId(),
-                        "props", rel.properties() != null ? rel.properties() : Map.of()));
+                        "sourceId", rel.getSourceId(),
+                        "targetId", rel.getTargetId(),
+                        "props", rel.getProperties() != null ? rel.getProperties() : Map.of()));
     }
 
     private GraphNode.NodeType parseNodeType(List<Object> labels) {
