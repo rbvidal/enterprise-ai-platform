@@ -44,7 +44,7 @@ cd enterprise-ai-platform
 # Start infrastructure (PostgreSQL + Qdrant)
 docker compose up -d
 
-# Optional: Neo4j for GraphRAG
+# Enable knowledge graph and GraphRAG
 docker compose --profile graph up -d
 
 # Build and run
