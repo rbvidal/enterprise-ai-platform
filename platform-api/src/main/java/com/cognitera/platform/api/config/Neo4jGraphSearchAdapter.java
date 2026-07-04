@@ -6,7 +6,7 @@ import com.cognitera.platform.search.api.GraphSearchProvider;
 import com.cognitera.platform.search.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -17,7 +17,7 @@ import java.util.*;
  * Enables GraphRAG: graph traversal results participate in retrieval fusion.
  */
 @Component
-@ConditionalOnBean(GraphEnrichmentService.class)
+@ConditionalOnProperty(name = "platform.neo4j.uri")
 public class Neo4jGraphSearchAdapter implements GraphSearchProvider {
 
     private static final Logger log = LoggerFactory.getLogger(Neo4jGraphSearchAdapter.class);
