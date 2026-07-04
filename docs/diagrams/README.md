@@ -16,28 +16,28 @@ All diagrams use a consistent visual language: white backgrounds, rounded rectan
 
 ## Diagram Inventory
 
-| # | Filename | Purpose | Referenced In |
-|---|----------|---------|---------------|
-| 01 | `01-system-context.svg` | C4 Level 1 — System landscape with external actors | Handbook §4.1 |
-| 02 | `02-container-architecture.svg` | C4 Level 2 — Runtime containers and protocols | Handbook §4.2 |
-| 03 | `03-module-dependencies.svg` | Maven module dependency graph with layers | Handbook §5.1 |
-| 04 | `04-ai-inference-pipeline.svg` | Sequence: query → answer through full AI pipeline | Handbook §8.1 |
-| 05 | `05-document-ingestion.svg` | Sequence: upload → extraction → enrichment → indexing | Handbook §7.1 |
-| 06 | `06-semantic-enrichment.svg` | Data flow: document → entities → concepts → graph | Handbook §9.1 |
-| 07 | `07-graphrag-retrieval.svg` | GraphRAG: 3-source fusion with Neo4j traversal | Handbook §10.1 |
-| 08 | `08-retrieval-orchestration.svg` | Decision tree: intent → strategy → search | Handbook §11.1 |
-| 09 | `09-hybrid-fusion.svg` | Score-level weighted linear fusion algorithm | Handbook §11.2 |
-| 10 | `10-prompt-registry.svg` | Class diagram: PromptTemplate, Category, Registry | Handbook §12.1 |
-| 11 | `11-model-capability-registry.svg` | Class diagram: ModelCapability, Registry, CapabilityRequest | Handbook §13.1 |
-| 12 | `12-provider-router.svg` | Decision flow: 4-tier provider selection | Handbook §13.2 |
-| 13 | `13-workflow-engine.svg` | State machine: 5-phase document intelligence workflow | Handbook §14.1 |
-| 14 | `14-explainability.svg` | Metadata model: RetrievalOrchestrationResult fields | Handbook §15.1 |
-| 15 | `15-observability.svg` | Metrics flow: AI operations → Micrometer → Prometheus | Handbook §16.1 |
-| 16 | `16-deployment.svg` | C4 Deployment: containers, ports, protocols | Handbook §19.1 |
-| 17 | `17-provider-spi.svg` | Provider SPI architecture: interfaces, implementations, fallbacks | Handbook §8.2 |
-| 18 | `18-testing-pyramid.svg` | 5-layer testing strategy | Handbook §18.1 |
-| 19 | `19-security.svg` | Authentication flow: JWT, BCrypt, refresh rotation | Handbook §17 |
-| 20 | `20-repository-structure.svg` | Source tree: 9 modules, packages, resources | Handbook §5 |
+| # | Filename | Purpose | Referenced In | Status |
+|---|----------|---------|---------------|--------|
+| 01 | `01-system-context.svg` | C4 Level 1 — System landscape with external actors | Handbook §4.1 | Complete |
+| 02 | `02-container-architecture.svg` | C4 Level 2 — Runtime containers and protocols | Handbook §4.2 | Complete |
+| 03 | `03-module-dependencies.svg` | Maven module dependency graph with layers | Handbook §5.1 | Complete |
+| 04 | `04-ai-inference-pipeline.svg` | Sequence: query → answer through full AI pipeline | Handbook §8.1 | Complete |
+| 05 | `05-document-ingestion.svg` | Sequence: upload → extraction → enrichment → indexing | Handbook §7.1 | Planned |
+| 06 | `06-semantic-enrichment.svg` | Data flow: document → entities → concepts → graph | Handbook §9.1 | Planned |
+| 07 | `07-graphrag-retrieval.svg` | GraphRAG: 3-source fusion with Neo4j traversal | Handbook §10.1 | Complete |
+| 08 | `08-retrieval-orchestration.svg` | Decision tree: intent → strategy → search | Handbook §11.1 | Planned |
+| 09 | `09-hybrid-fusion.svg` | Score-level weighted linear fusion algorithm | Handbook §11.2 | Planned |
+| 10 | `10-prompt-registry.svg` | Class diagram: PromptTemplate, Category, Registry | Handbook §12.1 | Planned |
+| 11 | `11-model-capability-registry.svg` | Class diagram: ModelCapability, Registry, CapabilityRequest | Handbook §13.1 | Planned |
+| 12 | `12-provider-router.svg` | Decision flow: 4-tier provider selection | Handbook §13.2 | Planned |
+| 13 | `13-workflow-engine.svg` | State machine: 5-phase document intelligence workflow | Handbook §14.1 | Planned |
+| 14 | `14-explainability.svg` | Metadata model: RetrievalOrchestrationResult fields | Handbook §15.1 | Planned |
+| 15 | `15-observability.svg` | Metrics flow: AI operations → Micrometer → Prometheus | Handbook §16.1 | Planned |
+| 16 | `16-deployment.svg` | C4 Deployment: containers, ports, protocols | Handbook §19.1 | Planned |
+| 17 | `17-provider-spi.svg` | Provider SPI architecture: interfaces, implementations, fallbacks | Handbook §8.2 | Complete |
+| 18 | `18-testing-pyramid.svg` | 5-layer testing strategy | Handbook §18.1 | Planned |
+| 19 | `19-security.svg` | Authentication flow: JWT, BCrypt, refresh rotation | Handbook §17 | Planned |
+| 20 | `20-repository-structure.svg` | Source tree: 9 modules, packages, resources | Handbook §5 | Planned |
 
 ## Visual Style Guide
 
@@ -53,6 +53,6 @@ All diagrams use a consistent visual language: white backgrounds, rounded rectan
 Diagrams are hand-authored SVG. To modify:
 1. Edit the `.svg` file directly
 2. Verify rendering by opening in a browser
-3. Regenerate the handbook PDF with `npx md-to-pdf docs/Architecture-and-Engineering-Handbook-v3.md`
+3. Regenerate the handbook PDF from `docs/Architecture-and-Engineering-Handbook.md`
 
-**Last Updated:** June 2026
+**Last Updated:** July 2026

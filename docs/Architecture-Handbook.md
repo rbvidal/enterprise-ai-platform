@@ -41,7 +41,9 @@
 20. [Performance Notes](#20-performance-notes)
 21. [The Trade-offs We Accepted](#21-the-trade-offs)
 22. [What We Learned](#22-what-we-learned)
-23. [The Architecture Endures](#23-the-architecture-endures)
+23. [Evolution of the Platform](#23-evolution-of-the-platform)
+24. [Where This Platform Fits](#24-where-this-platform-fits)
+25. [The Architecture Endures](#25-the-architecture-endures)
 
 **Appendices:** [A — Key Decisions](#appendix-a) · [B — Glossary](#appendix-b) · [C — References](#appendix-c)
 
@@ -49,17 +51,17 @@
 
 ## About This Project
 
-This is not an AI framework. It is not LangChain, Spring AI, Haystack, or any of the libraries that make calling LLMs easier. Those tools solve a different problem: they provide APIs for building AI applications quickly.
+Rather than replacing AI orchestration frameworks, this platform provides a reusable architectural foundation for building document-centric AI applications. It complements tools like LangChain and Spring AI — those libraries provide APIs for calling models; this platform demonstrates the infrastructure that makes those calls auditable, replaceable, and resilient.
 
-This project demonstrates the architectural patterns that separate an AI demo from an AI platform.
+This project embodies the architectural patterns that separate an AI demo from an AI platform.
 
-The distinction matters. A framework makes it easy to call a model. A platform makes it possible to swap models without rewriting code, to trace every answer to its source, to prove to an auditor that the system did not hallucinate, to keep running when infrastructure fails. These are architecture concerns.
+A framework makes it easy to call a model. A platform makes it possible to swap models without rewriting code, to trace every answer to its source, to prove to an auditor that the system did not hallucinate, to keep running when infrastructure fails. These are architecture concerns, not library concerns.
 
 When we started building, we made an explicit choice: design for the unhappy path first. What happens when the vector database is down? Which prompt version produced that answer last Tuesday? How do we add a new provider without touching business logic? These questions shaped every decision that follows.
 
-The result is a modular monolith — 9 Maven modules, a single deployable, compile-time boundaries enforcing dependency direction. It runs on Java 21 and Spring Boot 3.3. It is tested with 157 automated tests and documented with 20 Architecture Decision Records.
+The result is a modular monolith — nine modules in a single deployable, with compile-time boundaries enforcing dependency direction. It runs on Java 21 and Spring Boot 3.3, backed by 157 automated tests and 20 Architecture Decision Records.
 
-It is not a production SaaS service. It is not a chatbot. It is not a benchmark. It is a reference implementation — the kind of codebase another engineering team could adopt as the starting point for their own AI application.
+The platform focuses on reusable architectural patterns rather than product-specific capabilities such as multi-tenancy, billing, or large-scale SaaS operations. It demonstrates the infrastructure needed to build intelligent document-centric applications, regardless of the user interface placed on top of them. It is a reference implementation — a codebase another engineering team could adopt as the starting point for their own AI application.
 
 ---
 
@@ -106,7 +108,7 @@ Three specific gaps separate demos from platforms.
 | Audit trail | None | Full explainability metadata on every inference |
 | Extensibility | Rewrite code | Implement SPI + add configuration |
 
-This platform closes those three gaps. It is a working reference implementation — not a product, not a framework. When we set out to build it, the goal was not to create the most feature-rich AI application. It was to create a foundation where architectural concerns — modularity, degradation, explainability, auditability — are first-class, not retrofitted.
+This platform closes those three gaps. It is a working reference implementation — a reusable architectural foundation. When we set out to build it, the goal was to create a foundation where architectural concerns — modularity, degradation, explainability, auditability — are first-class, not retrofitted.
 
 The architecture embodies a simple thesis: **AI is infrastructure, not a feature.** Treat LLMs, embedding models, vector databases, and knowledge graphs the way you treat PostgreSQL. Abstract them behind interfaces. Select them via configuration. Swap them without touching business logic.
 
@@ -176,11 +178,29 @@ These questions expose the gap between an AI demo and an AI platform. A demo nee
 
 This project closes that gap. It demonstrates how experienced engineers integrate AI into enterprise infrastructure — not as a feature bolted onto an existing system, but as infrastructure designed from first principles.
 
-The result is a modular monolith: 9 Maven modules, a single deployable, compile-time boundaries enforcing dependency direction. It is not a product. It is not a framework. It is a foundation — code another engineering team could adopt as the starting point for their own AI application.
+The result is a modular monolith: nine modules in a single deployable, with compile-time boundaries enforcing dependency direction. This is a foundation — code another engineering team could adopt as the starting point for their own AI application.
 
 What's in scope: multi-provider AI orchestration, hybrid search across keyword, vector, and graph sources, automatic semantic enrichment during ingestion, GraphRAG with knowledge graph traversal, versioned prompt management, a queryable model capability database, automated evaluation of every answer, full explainability metadata, a reusable workflow engine, production metrics, and 157 automated tests.
 
-What's deliberately absent: microservices, multi-agent systems, model fine-tuning, user management, billing. These are valid concerns that would distract from the core architecture.
+What's deliberately absent: microservices, multi-agent systems, model fine-tuning, user management, billing. These are valid concerns — they belong to a different architectural layer. This platform provides the AI infrastructure foundation on top of which those product capabilities would be built.
+
+### Why Document Intelligence?
+
+Documents are an ideal domain for demonstrating Enterprise AI architecture. They naturally demand the capabilities that separate a platform from a demo.
+
+**Provenance.** Every answer must trace to a source document. Documents are the evidence — you cannot cite what you cannot find.
+
+**Citations.** Answer quality is measured by how well claims are supported by source material. Documents provide that source material.
+
+**Explainability.** Auditors and regulators ask "why did the system produce this answer?" With documents, the answer is concrete: "Because it retrieved these passages from these sources, using this prompt version and this model."
+
+**Auditability.** Every inference must be reproducible. Document-based retrieval makes this possible — re-run the same query against the same index, and the same documents surface.
+
+**Traceability.** Document ingestion creates a provenance chain — original file → extracted text → chunks → embeddings → graph nodes. Every transformation preserves a link back to the source.
+
+**Semantic retrieval.** Documents contain entities, concepts, and relationships that keyword matching misses. Extracting and indexing this structured understanding transforms search from "does this document contain these words?" to "does this document discuss this topic?"
+
+Documents are not the only domain where these concerns matter — regulatory filings, engineering documentation, contracts, financial reports, medical records, and technical specifications all share the same requirements. The architectural principles demonstrated here apply equally to any domain where answers must be grounded in an authoritative corpus. Documents simply make the clearest case study.
 
 ---
 
@@ -209,6 +229,8 @@ At the top, the assembly module wires everything together — REST controllers, 
 | Modular Monolith | Compile-time boundaries; single deployable; clear dependency direction | No runtime isolation; modules share JVM |
 | Microservices | Independent deployment; isolated failure domains; per-service scaling | Network complexity; eventual consistency; operational overhead |
 | Single JAR (no modules) | Simplest to build | No dependency enforcement; rapid architectural decay |
+
+> **Architectural Lesson** — Start with a modular monolith. Extract microservices when you have a specific reason — a team boundary, an independent scaling requirement, an isolated failure domain. The modular boundaries you built at compile time become the seams for future extraction. If you start with a single JAR without modules, extraction requires first discovering where the boundaries should have been. The modules are cheap to build now and expensive to retrofit.
 
 ### External Dependencies
 
@@ -268,7 +290,7 @@ One design choice emerged during testing: enrichment runs before chunking, not a
 
 ### Degradation in Practice
 
-Each step in the pipeline degrades independently. No embedding provider configured? Chunks are stored keyword-only, and search still works. No LLM available? Regex patterns extract entities with reasonable accuracy. No Neo4j? Enrichment still runs — only graph persistence is skipped. The pipeline is designed as a chain of independent, fallible steps, not a monolithic transaction.
+The [graceful degradation principle](#2-the-principles) governs every step of the ingestion pipeline. Each stage degrades independently. No embedding provider configured? Chunks are stored keyword-only, and search still works. No LLM available? Regex patterns extract entities with reasonable accuracy. No Neo4j? Enrichment still runs — only graph persistence is skipped. The pipeline is a chain of independent, fallible steps, not a monolithic transaction.
 
 ---
 
@@ -309,6 +331,8 @@ Answering a question with AI is not one operation. It is twelve — and each pro
 | Factory pattern | `ProviderFactory.get("openai")` | Centralized but still couples factory to provider names |
 
 The provider architecture is the Strategy pattern applied to AI infrastructure. Business logic depends on interfaces. Implementations activate based on configuration. The two never meet in source code. This is not novel — but applying it consistently to AI, where most projects hardcode provider specifics, is what makes the architecture worth studying.
+
+> **Design Consequence** — Every provider interface must have at least two implementations: the real provider and a fallback that returns a sensible result or a clear degradation signal. If you only have one implementation, you have not proven the interface is actually an abstraction — you have only renamed the dependency. The second implementation validates the interface design.
 
 ---
 
@@ -365,6 +389,8 @@ Example: a contract signed by Acme Corporation and a financial report mentioning
 
 A knowledge graph captures these relationships explicitly. Traversing it reveals connections that keyword and vector search miss. This was the motivation for GraphRAG — not theoretical elegance, but a real retrieval blind spot.
 
+GraphRAG depends on [Semantic Enrichment](#7-semantic-enrichment) — without entity extraction during ingestion, there are no nodes to traverse. The enrichment pipeline populates the graph; GraphRAG queries it. The two subsystems were designed together because neither delivers its full value alone.
+
 ![GraphRAG Retrieval Pipeline](diagrams/07-graphrag-retrieval.svg)
 
 **Figure 8.1.** Three retrieval sources converge in weighted fusion. Graph results boost existing candidates — they don't compete with them. When the graph is unavailable, retrieval degrades to keyword + vector.
@@ -399,7 +425,9 @@ The solution: a decision layer whose sole responsibility is choosing which retri
 
 The intent classifier uses keyword rules, not machine learning. We made this choice deliberately. Deterministic routing means the same query always takes the same path — debuggable, auditable, predictable. A trained classifier would likely be more accurate, but we valued transparency over accuracy for this component.
 
-The consequence is worth stating plainly: misclassification propagates deterministically. A query classified as keyword-only when it needs hybrid search will produce poorer results every single time. We accepted this. If classification accuracy becomes critical, the classifier can be replaced without touching the orchestrator — the interface supports it.
+The consequence is worth stating plainly: misclassification propagates deterministically. A query classified as keyword-only when it needs hybrid search will produce poorer results every single time.
+
+> **Trade-off** — Deterministic classification was chosen over ML-based classification. This sacrifices accuracy for transparency and debuggability. An ML classifier might misclassify fewer queries, but when it does misclassify, the reason is opaque. A keyword-rule classifier misclassifies more often, but every misclassification can be inspected, understood, and fixed. For a reference implementation, transparency wins over accuracy. In production, the trade-off may reverse — and the interface supports replacing the classifier without touching the orchestrator.
 
 > **Design Rule** — Make components individually replaceable. The classifier can be upgraded from keyword rules to an ML model without any changes to the retrieval orchestrator, the prompt builder, or the inference pipeline. Each component owns its interface. No component owns another component's implementation.
 
@@ -425,9 +453,11 @@ Consider what happens without a registry. A team member changes a prompt to fix 
 
 A versioned registry makes this problem disappear. Every prompt has a qualified ID — `rag-answer/v1`, `entity-extraction/v1`. Every inference records which prompt version was used. When answer quality changes, you can correlate it to a prompt change immediately. You can run the same query against v1 and v2 and compare evaluation scores. Prompt changes become auditable, testable, and reversible.
 
-Nine categories organize prompts by purpose — retrieval, summarization, extraction, classification, evaluation, reasoning, workflow, graph, search, system. Categories are not just organizational. They enable discovery: `findByCategory(RETRIEVAL)` returns all prompts designed for retrieval tasks. A new team member can browse the registry and understand what prompts exist and how they are used.
+Nine categories organize prompts by purpose — retrieval, summarization, extraction, classification, evaluation, reasoning, workflow, graph, search, system. Categories enable discovery: querying the registry by category returns all prompts designed for a given task. A new team member can browse the registry and understand what prompts exist and how they are used.
 
 The registry is deliberately simple. No template inheritance — prompts are independent. No dependency between prompts — changing one never affects another. No runtime compilation — substitution is simple string replacement. Complexity should be justified by need, not added preemptively.
+
+The [Retrieval Decision Layer](#9-the-retrieval-decision-layer) resolves which prompt template to use based on classified query intent. The [Audit Trail](#13-the-audit-trail) records which prompt version produced every inference. Together, these three subsystems — registry, orchestrator, audit — form a closed loop: prompts are authored, versioned, selected, executed, and traced.
 
 > **Design Rule** — Every prompt must be versioned. Every inference must record which prompt version was used. This is not optional. It is the minimum requirement for auditing, debugging, and improving prompt quality over time.
 
@@ -450,6 +480,8 @@ The router receives all available implementations via dependency injection. Addi
 
 The architecture prevents business logic from selecting providers directly. Services request capabilities — streaming, embeddings, JSON output — and the router maps capabilities to providers. This indirection is what makes adding providers a zero-change operation for orchestration code.
 
+The router and model capability registry are separate concerns — the registry describes what exists, the router decides what to use. This separation means the registry can be updated without touching routing logic. Every routing decision is recorded by the [Audit Trail](#13-the-audit-trail), linking each inference to the specific provider and model that produced it.
+
 ---
 
 ## 12. Workflows Without Hardcoding
@@ -464,7 +496,9 @@ Document intelligence involves multi-step processes. Upload leads to extraction,
 
 The workflow engine separates process definition from execution. Five methods cover the API. Two workflows come pre-registered. Steps declare handler types as extension points.
 
-The engine deliberately avoids BPMN frameworks or state machine libraries. Five methods on an interface. Deterministic linear transitions. Not the most powerful workflow engine — the simplest one that demonstrates the concept. A production system might adopt Camunda or Temporal, and the interface was designed so that substitution would not require changing callers.
+The engine deliberately avoids BPMN frameworks or state machine libraries. Five methods on an interface. Deterministic linear transitions. Not the most powerful workflow engine — the simplest one that demonstrates the concept.
+
+> **Operational Note** — The workflow engine interface was designed so that adopting Camunda, Temporal, or a state machine library would not require changing callers. When the simple engine is no longer sufficient — when workflows need parallel branches, human approval steps, or long-running sagas — the substitution is local to the engine implementation. The five-method interface was chosen not because it is the best workflow API, but because it is the narrowest contract that can be satisfied by both a simple in-memory implementation and a full BPMN engine.
 
 ---
 
@@ -624,7 +658,131 @@ Each decision has a dedicated ADR in the companion volume with deeper rationale,
 
 ---
 
-## 23. The Architecture Endures
+## 23. Evolution of the Platform
+
+Architecture is not designed in a single sitting. It emerges from solving concrete problems, one after another, each solution revealing the next problem that was invisible before. The architecture documented in this handbook did not arrive fully formed. It evolved.
+
+Understanding that evolution matters. It explains not just what the architecture looks like, but why it looks that way — and why certain decisions were made in a particular order.
+
+### The Evolution Path
+
+**Stage 1 — Document upload.** The platform began with a simple capability: accept a file, extract its text, store both. No AI. No search. Just ingestion. This stage proved that asynchronous processing was necessary — large documents blocked HTTP threads, forcing the move to a job queue with scheduled workers.
+
+**Stage 2 — Keyword search.** Once documents were stored, users needed to find them. Full-text search over extracted text was the first retrieval capability. It found exact matches but missed semantically related content — a search for "revenue growth" returned nothing from a document discussing "sales increased."
+
+**Stage 3 — Vector search.** Embedding models transformed text into vectors, enabling semantic similarity search. "Revenue growth" now matched "sales increased." But vector search had its own blind spots — it missed exact identifiers like contract numbers, invoice IDs, and dates that keyword search handled effortlessly.
+
+**Stage 4 — Hybrid retrieval.** Neither keyword nor vector search was sufficient alone. The fusion layer combined both — keyword for precision on exact identifiers, vector for semantic coverage. Each contributed weighted scores. Results improved measurably.
+
+**Stage 5 — Semantic enrichment.** Retrieval quality hit a ceiling. Documents discussing the same entity — "Acme Corporation" — were not connected unless they shared keywords or embedding proximity. The enrichment engine was added: extract entities, concepts, and relationships during ingestion. Now the platform understood not just what words appeared, but what they meant.
+
+**Stage 6 — Knowledge graph.** Extracted entities and relationships needed a home. The knowledge graph captured "Acme Corporation is an ORGANIZATION" and "document X mentions Acme" as explicit, queryable facts. The graph made relationships that were previously implicit in text explicit in structure.
+
+**Stage 7 — GraphRAG.** The knowledge graph existed but was not used during retrieval. GraphRAG connected enrichment output to the retrieval pipeline: graph traversal results boost the scores of candidates that share entities with top-ranked documents. Retrieval now considered three dimensions — keywords, semantics, and relationships.
+
+**Stage 8 — Prompt Registry.** As prompts multiplied — retrieval prompts, extraction prompts, classification prompts, evaluation prompts — they became scattered across source files. A wording change to one prompt caused a regression nobody could trace. The prompt registry made prompts versioned, categorized, and auditable assets.
+
+**Stage 9 — Provider abstraction.** The platform originally called a single LLM provider directly. Adding a second provider required rewriting orchestration code. The provider SPI — chat, embedding, reranking — decoupled business logic from infrastructure. Adding a provider became a configuration change.
+
+**Stage 10 — Retrieval orchestration.** Multiple retrievers created a new problem: which ones to use for which query? Running all retrievers for every query wasted resources. The decision layer — intent classification → strategy selection → retrieval execution — made routing deterministic and auditable.
+
+**Stage 11 — Evaluation.** As the pipeline grew more sophisticated, answer quality became harder to assess subjectively. Automated evaluation — grounding, faithfulness, hallucination detection — provided quantitative quality signals for every answer. Evaluation closed the loop: you could now measure whether an architectural change improved or degraded results.
+
+**Stage 12 — Enterprise AI Platform.** Each preceding stage solved a specific problem. Together they form a coherent architecture — not because someone designed it top-down, but because each solution created the conditions for the next problem to become visible. The platform is the accumulation of twelve engineering responses to twelve concrete needs.
+
+### Architecture Maturity Model
+
+The evolution path suggests a general model. Enterprise AI is not one technology — it is the accumulation of architectural capabilities, each building on the ones below.
+
+```
+Level 0 — Call LLM API
+    Direct API calls. No abstraction. No retrieval. No audit trail.
+
+Level 1 — Prompt Templates
+    Prompts are reusable templates, not inline strings. Basic parameter substitution.
+
+Level 2 — Retrieval-Augmented Generation
+    Documents are retrieved and included in the prompt context. Single retrieval method.
+
+Level 3 — Hybrid Search
+    Multiple retrieval methods combined through fusion. Keyword + vector.
+
+Level 4 — Semantic Enrichment
+    Entities, concepts, and relationships extracted from documents during ingestion.
+    Structured understanding supplements unstructured text.
+
+Level 5 — Knowledge Graph
+    Extracted knowledge stored as queryable graph. Relationships become explicit.
+
+Level 6 — GraphRAG
+    Knowledge graph participates in retrieval. Graph traversal boosts relevant results.
+
+Level 7 — Provider Independence
+    All AI infrastructure behind interfaces. Providers selected via configuration.
+    Adding a provider requires zero orchestration code changes.
+
+Level 8 — Explainability
+    Every inference produces complete metadata. Answers are auditable by construction.
+    Zero marginal cost — explanation is a byproduct, not a feature.
+
+Level 9 — Enterprise AI Platform
+    All capabilities integrated. Graceful degradation at every level.
+    Architecture is the product. Specific technologies are replaceable.
+```
+
+Most AI projects stop at Level 2. They add retrieval to LLM calls and consider the problem solved. The remaining levels — enrichment, graph, independence, explainability — are what separate a project that calls an AI API from a platform that integrates AI as infrastructure.
+
+The maturity model is not a roadmap. Not every project needs Level 9. But understanding where you are on the model — and what capabilities become available at the next level — makes architectural planning concrete rather than aspirational.
+
+> **Engineering Observation** — The order matters. Provider independence (Level 7) before explainability (Level 8) means explainability metadata is provider-agnostic from the start. Enrichment (Level 4) before GraphRAG (Level 6) means the graph is populated before it is queried. The levels are not independent — each enables the ones above it. Building them out of order creates rework.
+
+---
+
+## 24. Where This Platform Fits
+
+A platform designed around document intelligence, explainability, and provider independence fits certain scenarios naturally. Other scenarios demand capabilities this platform intentionally leaves to other architectural layers.
+
+### Suitable Domains
+
+This platform's architecture applies wherever answers must be grounded in an authoritative document corpus:
+
+**Enterprise document intelligence.** Organizations with large document collections — contracts, reports, specifications, policies — benefit from retrieval that understands entities and relationships, not just keywords.
+
+**Compliance and regulatory review.** When answers must cite sources and every inference must be auditable, the explainability architecture provides the metadata compliance workflows require.
+
+**Technical documentation.** Engineering organizations with thousands of design documents, incident reports, and runbooks need search that understands technical concepts across document boundaries.
+
+**Legal document analysis.** The provenance, citation, and auditability architecture was designed for domains where the source of every claim matters.
+
+**Financial document processing.** Reports, filings, and analyses share entities — companies, amounts, dates — that enrichment and graph traversal surface across document boundaries.
+
+**Corporate knowledge bases.** Internal wikis, policy documents, and decision records form a document corpus that benefits from semantic retrieval and entity-aware search.
+
+**Internal AI assistants.** Assistants grounded in an organization's own documents require exactly the retrieval, provenance, and explainability architecture this platform provides.
+
+**Retrieval systems for structured knowledge domains.** Any domain where the corpus is documents, the answers must cite sources, and the inference process must be auditable.
+
+These are examples, not limitations. The platform is domain-agnostic by design. The document intelligence application included in the repository demonstrates one domain; new domains are added through configuration, not core changes.
+
+### Beyond Scope
+
+Every architecture defines boundaries. The capabilities below are valid engineering concerns that belong to a different architectural layer — above or alongside the AI infrastructure this platform provides.
+
+**Consumer chatbots.** Conversational AI with personality, multi-turn dialogue management, and session state lives in the application layer. The platform provides retrieval and inference; the application provides the conversation.
+
+**Autonomous agents.** Multi-step agentic workflows with tool selection, planning, and self-correction loops require an agent framework on top of the retrieval and inference infrastructure.
+
+**Model training and fine-tuning.** This platform consumes models; it does not train them. Model training pipelines, dataset preparation, and fine-tuning workflows are separate infrastructure concerns.
+
+**SaaS operations.** Multi-tenancy, subscription billing, user management, rate limiting, and SLA enforcement are product-layer concerns that would be built on top of the platform.
+
+**CRM and business workflow.** Customer relationship management, case tracking, and business process automation belong to application modules, not the AI infrastructure core.
+
+None of these represent gaps. They represent deliberate scope boundaries. The platform provides the AI infrastructure foundation. The application layer provides the product capabilities built on top of that foundation. The separation is architectural, not accidental.
+
+> **Design Consequence** — Every capability the platform deliberately excludes is a capability another team could add without modifying the core. The platform is designed to be built upon, not to be complete. Completeness would mean the architecture cannot accommodate unanticipated requirements. Incompleteness is a feature.
+
+## 25. The Architecture Endures
 
 In five years, the models running this platform will be different. In three years, the vector database may have been replaced. In two years, the LLM provider you use today may no longer exist. The specific choices documented in this handbook — Ollama for local inference, Qdrant for vector storage, Neo4j for graph traversal — will look dated sooner than any of us expect.
 
@@ -638,15 +796,19 @@ Good software architecture does not predict the future. It makes the present coh
 
 The architecture documented in this handbook is a snapshot — engineering judgment applied to a specific set of technologies at a specific point in time. The implementations will be replaced. The principles — abstraction, degradation, explainability, provenance, domain independence — will outlast every one of them.
 
-A codebase is read by machines. An architecture is read by engineers. The machines will move on to newer code. The engineers will carry the principles forward.
+Specific technologies are temporary. Engineering principles are durable. The vector database you choose today will be replaced. The model you depend on today may not exist in five years. The framework version you deploy today will be end-of-life long before the architecture it runs becomes obsolete. What endures is the engineering judgment embedded in the interfaces, the degradation boundaries, the audit trails, the abstraction layers — the decisions that make technology replaceable.
 
-That is what makes this worth studying.
+A codebase is read by machines. An architecture is read by engineers. The machines will move on to newer code. The engineers will carry the principles forward — to their next project, their next platform, their next architecture.
+
+That is what makes this worth studying. Not because it uses a particular vector database or language model. Because it demonstrates how to think about building one yourself.
+
+> If you have read this far, you understand not only how this platform works but why it was built that way. The principles are yours to apply. The interfaces are yours to adapt. The design rules are yours to follow, break deliberately, or improve. Good architecture is never finished — but this is a good place to start.
 
 ---
 
 ## Appendix A — Key Decisions
 
-Twenty Architecture Decision Records document every major engineering decision. The complete volume — with introduction, decision index, architecture timeline, and cross-references — is available as [Architecture-Decision-Records.pdf](Architecture-Decision-Records.pdf).
+Twenty Architecture Decision Records document every major engineering decision. The complete volume — with introduction, decision index, architecture timeline, and cross-references — is available as [Enterprise-AI-Platform-Architecture-Decision-Records.pdf](Enterprise-AI-Platform-Architecture-Decision-Records.pdf).
 
 | ADR | Title | Status | Category |
 |-----|-------|--------|----------|
@@ -769,5 +931,5 @@ Twenty Architecture Decision Records document every major engineering decision. 
 - **Playwright** — Cross-browser automation
 
 ### Companion Volumes
-- [Architecture Decision Records](Architecture-Decision-Records.pdf) — 20 ADRs
-- [Developer Guide](Developer-Guide.pdf) — Build, run, extend, test, contribute
+- [Architecture Decision Records](Enterprise-AI-Platform-Architecture-Decision-Records.pdf) — 20 ADRs
+- [Developer Guide](Enterprise-AI-Platform-Developer-Guide.pdf) — Build, run, extend, test, contribute

@@ -1,0 +1,8 @@
+{
+  "name": "enterprise-ai-platform-docs",
+  "private": true,
+  "dependencies": {
+    "marked": "^12.0.0",
+    "puppeteer": "^22.0.0"
+  }
+}

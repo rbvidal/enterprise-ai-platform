@@ -14,7 +14,7 @@ public class ObservabilityConfig {
     @Bean
     public MeterRegistryCustomizer<MeterRegistry> metricsCommonTags() {
         return registry -> registry.config().commonTags(
-                "application", "document-intelligence-platform");
+                "application", "enterprise-ai-platform");
     }
 
     /** Enables @Timed annotation support. */

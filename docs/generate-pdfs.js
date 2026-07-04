@@ -29,13 +29,13 @@ async function generatePDF(htmlPath, pdfPath, title) {
 
   await generatePDF(
     path.join(docsDir, 'architecture-manual.html'),
-    path.join(docsDir, 'Document-Intelligence-Platform-Architecture-Manual.pdf'),
-    'Document Intelligence Platform — Architecture & Design Manual'
+    path.join(docsDir, 'Enterprise-AI-Platform-Architecture-Manual.pdf'),
+    'Enterprise AI Platform — Architecture Manual'
   );
 
   await generatePDF(
     path.join(docsDir, 'ai-fundamentals-guide.html'),
-    path.join(docsDir, 'AI-LLM-Fundamentals-Guide.pdf'),
+    path.join(docsDir, 'Enterprise-AI-Platform-AI-LLM-Fundamentals-Guide.pdf'),
     'AI & LLM Fundamentals — A Consultant\'s Guide'
   );
 

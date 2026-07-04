@@ -20,7 +20,7 @@ The `QdrantVectorSearchProvider` communicates via REST API (`/collections/{name}
 
 Qdrant is **optional**: when `platform.search.qdrant.host` is not configured, `NoOpVectorSearchProvider` provides empty search results and keyword search continues.
 
-Configuration is managed via `QdrantProperties` (`@ConfigurationProperties(prefix = "platform.search.qdrant")`). The default collection is `document_intelligence_chunks` with 768-dimensional vectors (matching `nomic-embed-text` output).
+Configuration is managed via `QdrantProperties` (`@ConfigurationProperties(prefix = "platform.search.qdrant")`). The default collection is `enterprise_ai_chunks` with 768-dimensional vectors (matching `nomic-embed-text` output).
 
 ## Alternatives Considered
 

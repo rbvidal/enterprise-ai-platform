@@ -119,7 +119,7 @@ New provider implementations should extend the contract test base classes.
 ## CI Strategy
 
 ```yaml
-# .github/workflows/ci.yml (recommended)
+# .github/workflows/ci.yml
 jobs:
   test:
     runs-on: ubuntu-latest

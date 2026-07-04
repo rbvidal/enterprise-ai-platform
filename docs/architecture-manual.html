@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Document Intelligence Platform — Architecture & Design Manual</title>
+<title>Enterprise AI Platform — Architecture Manual</title>
 <style>
   @page {
     size: A4;
     margin: 2.5cm 2cm 2.5cm 2cm;
-    @top-center { content: "Document Intelligence Platform — Architecture & Design Manual"; font-size: 8pt; color: #666; }
+    @top-center { content: "Enterprise AI Platform — Architecture Manual"; font-size: 8pt; color: #666; }
     @bottom-center { content: "Page " counter(page); font-size: 8pt; color: #666; }
   }
   body {
@@ -178,7 +178,7 @@
 <!-- COVER PAGE -->
 <!-- ═══════════════════════════════════════════════════════════════════════ -->
 <div class="cover">
-  <h1>Document Intelligence Platform</h1>
+  <h1>Enterprise AI Platform</h1>
   <div class="subtitle">Architecture &amp; Design Manual</div>
   <div class="divider"></div>
   <p style="font-size:11pt; color:#444; max-width:500px; margin:0 auto;">
@@ -272,7 +272,7 @@
 </p>
 
 <p>
-  The <strong>Document Intelligence Platform</strong> is a Spring Boot 3.3
+  The <strong>Enterprise AI Platform</strong> is a Spring Boot 3.3
   application that transforms how organizations interact with their document
   repositories. It combines <strong>hybrid search</strong> (keyword + semantic
   vector), a <strong>Neo4j knowledge graph</strong>, and
@@ -415,7 +415,7 @@
 <h2 id="s3.2">3.2 Multi-Module Maven Structure</h2>
 
 <p>
-  The platform is organized as a <strong>12-module Maven multi-module project</strong>.
+  The platform is organized as a <strong>9-module Maven multi-module project</strong>.
   Each module has a clear, bounded responsibility with its own <code>api/</code>
   (interfaces), <code>application/</code> (implementations), and
   <code>infrastructure/</code> (persistence) packages. This enforces the
@@ -426,64 +426,49 @@
 <table>
   <tr><th>Module</th><th>Role</th><th>Key Dependencies</th></tr>
   <tr>
-    <td><code>platform-domain</code></td>
-    <td>Shared domain models, value objects</td>
-    <td>None (root dependency)</td>
-  </tr>
-  <tr>
     <td><code>platform-audit</code></td>
     <td>Audit event definitions, repository, publisher API</td>
-    <td>domain</td>
+    <td>None (foundation module)</td>
   </tr>
   <tr>
     <td><code>platform-auth</code></td>
     <td>JWT authentication, user accounts, session tokens</td>
-    <td>domain, audit</td>
+    <td>audit</td>
   </tr>
   <tr>
     <td><code>platform-document</code></td>
     <td>Document CRUD, versioning, ingestion pipeline</td>
-    <td>domain, audit</td>
+    <td>audit</td>
   </tr>
   <tr>
     <td><code>platform-search</code></td>
     <td>Hybrid search, chunking, embeddings, Qdrant integration</td>
-    <td>domain, document, audit</td>
+    <td>document, audit</td>
   </tr>
   <tr>
     <td><code>platform-ai</code></td>
     <td>RAG pipeline, prompting, grounding, Ollama chat</td>
-    <td>domain, search, audit</td>
+    <td>search, audit</td>
   </tr>
   <tr>
     <td><code>platform-workspace</code></td>
     <td>Workspace CRUD, phase orchestration, timeline extraction</td>
-    <td>domain, document</td>
-  </tr>
-  <tr>
-    <td><code>platform-knowledge</code></td>
-    <td>Knowledge entry storage, ingestion from external sources</td>
-    <td>domain</td>
+    <td>document, audit</td>
   </tr>
   <tr>
     <td><code>platform-neo4j</code></td>
     <td>Neo4j graph service: nodes, relationships, traversal</td>
-    <td>knowledge</td>
+    <td>none (leaf module)</td>
   </tr>
   <tr>
-    <td><code>platform-web</code></td>
-    <td>Thymeleaf page controllers, i18n messages, CSS</td>
-    <td>All above modules</td>
+    <td><code>platform-observability</code></td>
+    <td>Micrometer metrics, health indicators, AI telemetry</td>
+    <td>none (leaf module)</td>
   </tr>
   <tr>
     <td><code>platform-api</code></td>
-    <td>REST controllers, DTOs, Spring Boot entry point</td>
+    <td>REST controllers, DTOs, Thymeleaf UI, Spring Boot entry point</td>
     <td>All above modules</td>
-  </tr>
-  <tr>
-    <td><code>semantic-indexing</code></td>
-    <td>Standalone code indexing app (separate Spring Boot app)</td>
-    <td>Independent</td>
   </tr>
 </table>
 
@@ -1196,7 +1181,7 @@ REST API:          /api/auth/** (JWT Bearer token)
   <li><strong>Message files:</strong> <code>messages.properties</code>, <code>messages_de.properties</code>, <code>messages_fr.properties</code> with 100+ translated keys covering navigation, forms, error messages, and AI interaction labels.</li>
   <li><strong>Session-based locale:</strong> <code>SessionLocaleResolver</code> stores the user's language preference. The <code>LocaleChangeInterceptor</code> switches locale via the <code>?lang=</code> query parameter.</li>
   <li><strong>Language switcher:</strong> A dropdown in the navigation bar renders flag icons with links to the current page in each language.</li>
-  <li><strong>Dual-module i18n:</strong> Both <code>platform-api</code> and <code>platform-web</code> maintain their own message bundles, allowing independent deployment of the REST API and web frontend.</li>
+  <li><strong>Single-module i18n:</strong> All message bundles reside in <code>platform-api</code> under both the REST API (<code>com.cognitera.platform.api.web</code>) and Thymeleaf UI (<code>com.cognitera.platform.web</code>) packages within a single deployable.</li>
 </ul>
 
 <!-- ═══════════════════════════════════════════════════════════════════════ -->
@@ -1266,8 +1251,9 @@ DocumentIngestionJob.status = COMPLETED ✓
 
 <p>
   The <code>WorkspaceOrchestrator</code> manages phase transitions through a
-  pluggable handler system — each phase has a registered <code>PhaseHandler</code>
-  implementation, making it easy to add custom phases for specific use cases.
+  pluggable handler system — each phase can be assigned a registered <code>PhaseHandler</code>
+  implementation. The <code>PhaseHandler</code> SPI is defined but concrete implementations
+  are application-specific and registered at runtime.
 </p>
 
 <!-- ═══════════════════════════════════════════════════════════════════════ -->

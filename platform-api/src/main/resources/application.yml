@@ -4,14 +4,14 @@ logging:
 
 spring:
   application:
-    name: document-intelligence-platform
+    name: enterprise-ai-platform
   messages:
     basename: messages
     encoding: UTF-8
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5433/docintel}
-    username: ${DB_USERNAME:docintel}
-    password: ${DB_PASSWORD:docintel}
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/enterprise_ai_platform}
+    username: ${DB_USERNAME:platform}
+    password: ${DB_PASSWORD:platform}
   flyway:
     enabled: false
   jpa:
@@ -40,7 +40,7 @@ server:
 
 platform:
   auth:
-    issuer: ${AUTH_JWT_ISSUER:document-intelligence-platform}
+    issuer: ${AUTH_JWT_ISSUER:enterprise-ai-platform}
     jwt-secret: ${AUTH_JWT_SECRET:change-this-development-secret-change-this-development-secret}
     access-token-ttl: ${AUTH_ACCESS_TOKEN_TTL:15m}
     refresh-token-ttl: ${AUTH_REFRESH_TOKEN_TTL:30d}
@@ -65,7 +65,7 @@ platform:
     qdrant:
       host: ${QDRANT_HOST:localhost}
       rest-port: ${QDRANT_REST_PORT:6333}
-      collection: ${QDRANT_COLLECTION:document_intelligence_chunks}
+      collection: ${QDRANT_COLLECTION:enterprise_ai_chunks}
       vector-dimension: ${QDRANT_VECTOR_DIMENSION:768}
     embedding:
       ollama:

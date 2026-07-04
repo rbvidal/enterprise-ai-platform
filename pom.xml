@@ -12,12 +12,46 @@
     </parent>
 
     <groupId>com.cognitera</groupId>
-    <artifactId>document-intelligence-platform</artifactId>
+    <artifactId>enterprise-ai-platform</artifactId>
     <version>0.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>document-intelligence-platform</name>
-    <description>General-purpose document reasoning and intelligence platform</description>
+    <name>enterprise-ai-platform</name>
+    <description>Modular, local-first platform for building production-grade AI applications with RAG, hybrid retrieval, knowledge graphs, and multi-provider AI orchestration</description>
+
+    <url>https://github.com/cognitera/enterprise-ai-platform</url>
+
+    <licenses>
+        <license>
+            <name>Apache License 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Enterprise AI Platform Contributors</name>
+            <organization>Cognitera</organization>
+            <organizationUrl>https://cognitera.com</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/cognitera/enterprise-ai-platform.git</connection>
+        <developerConnection>scm:git:ssh://github.com:cognitera/enterprise-ai-platform.git</developerConnection>
+        <url>https://github.com/cognitera/enterprise-ai-platform</url>
+    </scm>
+
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/cognitera/enterprise-ai-platform/issues</url>
+    </issueManagement>
+
+    <ciManagement>
+        <system>GitHub Actions</system>
+        <url>https://github.com/cognitera/enterprise-ai-platform/actions</url>
+    </ciManagement>
 
     <modules>
         <module>platform-audit</module>

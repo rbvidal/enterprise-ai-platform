@@ -8,7 +8,7 @@ import java.time.Duration;
 @ConfigurationProperties(prefix = "platform.auth")
 public class AuthProperties {
 
-    private String issuer = "document-intelligence-platform";
+    private String issuer = "enterprise-ai-platform";
     private String jwtSecret = "change-this-development-secret-change-this-development-secret";
     private Duration accessTokenTtl = Duration.ofMinutes(15);
     private Duration refreshTokenTtl = Duration.ofDays(30);

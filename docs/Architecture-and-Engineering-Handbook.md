@@ -435,7 +435,7 @@ Related: ADR-008, ADR-011
 
 ### Prompt Registry
 
-Versioned prompts stored in DefaultPromptRegistry with 6 categories: RETRIEVAL, SUMMARIZATION, EXTRACTION, CLASSIFICATION, EVALUATION, REASONING, WORKFLOW, GRAPH, SEARCH, SYSTEM.
+Versioned prompts stored in DefaultPromptRegistry with 10 categories: RETRIEVAL, SUMMARIZATION, EXTRACTION, CLASSIFICATION, EVALUATION, REASONING, WORKFLOW, GRAPH, SEARCH, SYSTEM.
 
 ### Prompt Lifecycle
 
@@ -610,7 +610,7 @@ docker-compose.yml defines PostgreSQL + pgAdmin + Qdrant + Neo4j (graph profile)
 
 ### Configuration
 
-All configuration via application.yml with env var substitution: ${DB_URL:jdbc:postgresql://localhost:5433/docintel}. Platform prefix for custom config: platform.auth.*, platform.ai.*, platform.search.*, platform.neo4j.*.
+All configuration via application.yml with env var substitution: ${DB_URL:jdbc:postgresql://localhost:5433/enterprise_ai_platform}. Platform prefix for custom config: platform.auth.*, platform.ai.*, platform.search.*, platform.neo4j.*.
 
 ### Startup
 
@@ -760,11 +760,12 @@ The test suite evolved from 128 wiring-verification tests to 157 behavioral test
 - 157 automated tests across 5 layers
 
 ### Partially Implemented
-- DomainConfiguration: SPI exists but 8 services still embed configurations
-- AiMetrics: Component exists but not wired into all services
-- WorkflowEngine: Engine exists but no PhaseHandler implementations
-- GraphRAG: Works but uses simple entity-name matching, not graph embeddings
-- Playwright: Tests written but require running application
+- DomainConfiguration: SPI interface exists but has no default implementation; services use hardcoded domain rules
+- AiMetrics: Component exists at `platform-observability/.../metrics/AiMetrics.java` but is not yet injected into any service
+- WorkflowEngine: Engine exists (DefaultWorkflowEngine, in-memory) but no PhaseHandler implementations registered
+- PhaseHandler: Interface exists in platform-workspace but no concrete implementations
+- GraphRAG: Works but uses simple entity-name matching from queries (word-splitting), not graph embeddings or NER
+- Playwright: 12 browser tests written but require running application (mvn verify -Pui-tests)
 
 ### Future Ideas
 - Dynamic model capability discovery from provider APIs
@@ -827,24 +828,24 @@ The test suite evolved from 128 wiring-verification tests to 157 behavioral test
 
 ## 27. Diagram Registry
 
-The following diagrams should be produced in the next documentation phase:
+The following diagrams are maintained in `docs/diagrams/`. Completed diagrams are available as SVG; remaining diagrams are planned for the next documentation iteration.
 
-| ID | Title | Type | Description |
-|----|-------|------|-------------|
-| 01 | System Context | C4 Level 1 | Platform as central box, external actors, protocols |
-| 02 | Module Overview | C4 Level 2 | 9 modules with dependency arrows |
-| 03 | Document Ingestion Pipeline | Sequence | Upload -> Extraction -> Enrichment -> Chunking -> Indexing |
-| 04 | AI Inference Pipeline | Sequence | Query -> Intent -> Retrieval -> Prompt -> LLM -> Validation -> Response |
-| 05 | Semantic Enrichment Engine | Data Flow | Document -> Entity/Concept/Relationship extraction -> Graph persistence |
-| 06 | GraphRAG Retrieval Flow | Data Flow | Three parallel streams (Keyword, Vector, Graph) converging into Fusion |
-| 07 | Retrieval Orchestration | Decision Tree | Intent -> Strategy selection -> Search execution |
-| 08 | Provider SPI Architecture | Class Diagram | Interfaces, implementations, conditional activation |
-| 09 | Prompt Registry Structure | Entity Diagram | PromptTemplate, Category, Example, Version relationships |
-| 10 | Model Capability Registry | Entity Diagram | ModelCapability, CapabilityRequest, Provider relationships |
-| 11 | Testing Layers | Pyramid | Unit -> Integration -> Architecture -> Contract -> Playwright |
-| 12 | Deployment Architecture | Deployment | Docker containers, ports, volumes, optional services |
+| ID | Title | Type | File | Status |
+|----|-------|------|------|--------|
+| 01 | System Context | C4 Level 1 | `01-system-context.svg` | Complete |
+| 02 | Container Architecture | C4 Level 2 | `02-container-architecture.svg` | Complete |
+| 03 | Module Dependencies | Component | `03-module-dependencies.svg` | Complete |
+| 04 | AI Inference Pipeline | Sequence | `04-ai-inference-pipeline.svg` | Complete |
+| 05 | Document Ingestion Pipeline | Sequence | — | Planned |
+| 06 | Semantic Enrichment Engine | Data Flow | — | Planned |
+| 07 | GraphRAG Retrieval Flow | Data Flow | `07-graphrag-retrieval.svg` | Complete |
+| 08 | Provider SPI Architecture | Class Diagram | `17-provider-spi.svg` | Complete |
+| 09 | Prompt Registry Structure | Entity Diagram | — | Planned |
+| 10 | Model Capability Registry | Entity Diagram | — | Planned |
+| 11 | Testing Layers | Pyramid | — | Planned |
+| 12 | Deployment Architecture | Deployment | — | Planned |
 
-*Do not create these diagrams in this phase. They are placeholders for the next documentation phase.*
+See `docs/diagrams/README.md` for diagram descriptions and conventions.
 
 ---
 
@@ -1427,7 +1428,7 @@ The `QdrantVectorSearchProvider` communicates via REST API (`/collections/{name}
 
 Qdrant is **optional**: when `platform.search.qdrant.host` is not configured, `NoOpVectorSearchProvider` provides empty search results and keyword search continues.
 
-Configuration is managed via `QdrantProperties` (`@ConfigurationProperties(prefix = "platform.search.qdrant")`). The default collection is `document_intelligence_chunks` with 768-dimensional vectors (matching `nomic-embed-text` output).
+Configuration is managed via `QdrantProperties` (`@ConfigurationProperties(prefix = "platform.search.qdrant")`). The default collection is `enterprise_ai_chunks` with 768-dimensional vectors (matching `nomic-embed-text` output).
 
 ## Alternatives Considered
 

@@ -13,7 +13,7 @@ public record QdrantProperties(String host, int restPort, String collection, int
             restPort = 6333;
         }
         if (collection == null || collection.isBlank()) {
-            collection = "document_intelligence_chunks";
+            collection = "enterprise_ai_chunks";
         }
         if (vectorDimension <= 0) {
             vectorDimension = 768;

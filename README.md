@@ -1,16 +1,37 @@
 # Enterprise AI Platform
 
-A reusable modular monolith for building AI-powered enterprise applications — retrieval-augmented generation, semantic enrichment, knowledge graph construction, multi-provider AI orchestration, and production observability.
+A modular, local-first platform for building production-grade AI applications that combine Large Language Models, Retrieval-Augmented Generation, hybrid retrieval, semantic search, knowledge graphs, and enterprise software architecture.
 
-**Java 21 · Spring Boot 3.3 · 9 Modules · 157 Tests**
+**Java 21 · Spring Boot 3.3 · 9 Modules · 176 Tests**
 
 ---
 
 ## What Is This?
 
-This is not a chatbot. It is not a RAG demo. It is a **reference implementation** demonstrating how an experienced engineering team integrates AI into enterprise software: clear module boundaries, swappable provider backends, versioned prompts, automatic quality evaluation, and graceful degradation when infrastructure fails.
+The Enterprise AI Platform is a **reusable foundation** — not a single application. It provides the infrastructure, abstractions, and architectural patterns for building AI-powered enterprise applications: clear module boundaries, swappable provider backends, versioned prompts, automatic quality evaluation, and graceful degradation when infrastructure fails.
 
-The platform can serve as the foundation for document intelligence, contract analysis, enterprise search, compliance, financial review, and research platforms. The included Document Intelligence application is the first reference implementation.
+The repository currently contains one reference application built on the platform:
+
+- **Document Intelligence** — Upload, index, enrich, search, and analyze document collections with AI-grounded answers and full explainability
+
+---
+
+## Platform vs Reference Applications
+
+```
+Enterprise AI Platform          ← Reusable core (this repository)
+        │
+        ├── Document Intelligence   ← First reference application
+        │
+        └── Future applications may include:
+              Contract Intelligence
+              Compliance Intelligence
+              Engineering Knowledge
+              Financial Intelligence
+              Research Assistant
+```
+
+The platform provides **capabilities**. Reference applications demonstrate **use cases**. The platform is the product; the applications are examples of what you can build with it.
 
 ---
 
@@ -18,7 +39,7 @@ The platform can serve as the foundation for document intelligence, contract ana
 
 ```bash
 git clone <repo-url>
-cd document-intelligence-platform
+cd enterprise-ai-platform
 
 # Start infrastructure (PostgreSQL + Qdrant)
 docker compose up -d
@@ -37,37 +58,39 @@ Open `http://localhost:8080`. Upload documents, search, and query AI.
 ## Architecture
 
 ```
-platform-api          Application assembly (REST + Thymeleaf UI)
+platform-api              Application assembly (REST + Thymeleaf UI)
     ↓
-platform-ai           RAG orchestration, enrichment, evaluation, registries
-platform-search       Hybrid search (keyword + vector + graph)
-platform-document     Document lifecycle + ingestion pipeline
-platform-neo4j        Knowledge graph persistence (auto-generated)
-platform-workspace    Workspace wizard + timeline
-platform-observability Micrometer metrics + health indicators
-platform-auth         JWT authentication + user management
+platform-ai               RAG orchestration, enrichment, evaluation, registries
+platform-search           Hybrid search (keyword + vector + graph)
+platform-document         Document lifecycle + ingestion pipeline
+platform-neo4j            Knowledge graph persistence (auto-generated)
+platform-workspace        Workspace wizard + timeline
+platform-observability    Micrometer metrics + health indicators
+platform-auth             JWT authentication + user management
     ↓
-platform-audit        Immutable audit log (leaf module)
+platform-audit            Immutable audit log (leaf module)
 ```
 
-**Dependency direction flows downward.** `platform-api` depends on everything; nobody depends on `platform-api`. Compile-time boundaries enforced by Maven.
+Dependency direction flows downward. `platform-api` depends on everything; nobody depends on `platform-api`. Compile-time boundaries enforced by Maven.
 
 ---
 
-## Key Capabilities
+## Platform Capabilities
 
 | Capability | Description |
 |-----------|-------------|
-| **Hybrid Search** | Keyword (JPA/TF) + Vector (Qdrant) + Graph (Neo4j) with weighted fusion |
-| **GraphRAG** | Knowledge graph traversal augments retrieval when Neo4j is available |
-| **Semantic Enrichment** | Automatic entity, concept, and relationship extraction during ingestion |
-| **Multi-Provider AI** | Ollama (local) and OpenAI-compatible (cloud) behind a common SPI |
-| **Prompt Registry** | Versioned prompts with categories, variables, and audit trails |
-| **Model Registry** | Queryable model capabilities — streaming, vision, JSON, embeddings |
-| **Provider Router** | 4-tier deterministic provider selection |
-| **Evaluation** | Automated grounding, faithfulness, and hallucination scoring |
-| **Explainability** | Full metadata on every inference — provider, model, prompt, strategy, timing |
-| **Workflow Engine** | Configurable multi-step processes for document intelligence |
+| **AI Orchestration** | Multi-provider LLM integration (Ollama local, OpenAI-compatible cloud) behind a common SPI |
+| **Prompt Registry** | Versioned prompts with categories, variable substitution, model compatibility, and audit trails |
+| **Model Registry** | Queryable model capabilities — streaming, vision, JSON, embeddings, reasoning |
+| **Provider Routing** | 4-tier deterministic provider selection based on model prefix, capability, preference, and availability |
+| **Hybrid Retrieval** | Keyword (JPA/TF), vector (Qdrant), and graph (Neo4j) search with weighted linear fusion |
+| **Semantic Enrichment** | Automatic entity, concept, and relationship extraction during document ingestion |
+| **Knowledge Graph** | Auto-generated Neo4j graph with typed nodes, relationships, and full provenance |
+| **GraphRAG** | Knowledge graph traversal augments retrieval with relationship-aware discovery |
+| **Evaluation** | Automated grounding, faithfulness, and hallucination scoring on every answer |
+| **Explainability** | Full inference metadata — provider, model, prompt version, strategy, timing, source counts |
+| **Grounding** | Source reattribution, confidence profiling, and evidence-backed answer assembly |
+| **Workflow Engine** | Configurable multi-step processes with registered phase handlers |
 | **Observability** | Micrometer + Prometheus metrics, health indicators, correlation IDs |
 | **Graceful Degradation** | Every external dependency is optional — the platform starts with only PostgreSQL |
 
@@ -77,16 +100,17 @@ platform-audit        Immutable audit log (leaf module)
 
 | Book | Audience | Purpose |
 |------|----------|---------|
-| [Architecture & Engineering Handbook](docs/Architecture-Handbook.pdf) | Architects, Staff Engineers, Principal Engineers | Design philosophy, architecture, trade-offs, lessons learned |
-| [Architecture Decision Records](docs/Architecture-Decision-Records.pdf) | Architects, Principal Engineers | Permanent record of every major engineering decision |
-| [Developer Guide](docs/Developer-Guide.pdf) | Developers, Contributors | Build, run, extend, test, debug, contribute |
+| [Architecture Handbook](docs/Enterprise-AI-Platform-Architecture-Handbook.pdf) | Architects, Staff Engineers, Principal Engineers | Design philosophy, architecture, trade-offs, lessons learned |
+| [Architecture & Engineering Handbook](docs/Enterprise-AI-Platform-Architecture-and-Engineering-Handbook.pdf) | Senior Engineers, Platform Engineers | Complete technical reference with diagrams |
+| [Architecture Decision Records](docs/Enterprise-AI-Platform-Architecture-Decision-Records.pdf) | Architects, Principal Engineers | Permanent record of every major engineering decision |
+| [Developer Guide](docs/Enterprise-AI-Platform-Developer-Guide.pdf) | Developers, Contributors | Build, run, extend, test, debug, contribute |
 
 ---
 
 ## Testing
 
 ```bash
-mvn verify                    # 157 tests: unit + integration + architecture + resilience
+mvn verify                    # 176 tests: unit + integration + architecture + contract
 mvn verify -Pui-tests         # + Playwright browser tests
 ```
 
@@ -103,12 +127,12 @@ mvn verify -Pui-tests         # + Playwright browser tests
 
 ## License
 
-[Specify license]
+**[Apache License 2.0](LICENSE)**
 
 ---
 
-> **For architects:** Start with the [Architecture Handbook](docs/Architecture-Handbook.pdf). It explains *why* the platform was designed this way.
+> **For architects:** Start with the [Architecture Handbook](docs/Enterprise-AI-Platform-Architecture-Handbook.pdf). It explains *why* the platform was designed this way.
 >
-> **For developers:** Start with the [Developer Guide](docs/Developer-Guide.pdf). It explains *how* to build, run, and extend the platform.
+> **For developers:** Start with the [Developer Guide](docs/Enterprise-AI-Platform-Developer-Guide.pdf). It explains *how* to build, run, and extend the platform.
 >
-> **For decision rationale:** Consult the [ADR volume](docs/Architecture-Decision-Records.pdf). It preserves the architectural history of the project.
+> **For decision rationale:** Consult the [ADR volume](docs/Enterprise-AI-Platform-Architecture-Decision-Records.pdf). It preserves the architectural history of the project.

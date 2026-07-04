@@ -1,26 +1,26 @@
 services:
   postgres:
     image: pgvector/pgvector:pg16
-    container_name: docintel-postgres
+    container_name: enterprise-ai-platform-postgres
     ports:
       - "5433:5432"
     environment:
-      POSTGRES_DB: docintel
-      POSTGRES_USER: docintel
-      POSTGRES_PASSWORD: docintel
+      POSTGRES_DB: enterprise_ai_platform
+      POSTGRES_USER: platform
+      POSTGRES_PASSWORD: platform
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U docintel"]
+      test: ["CMD-SHELL", "pg_isready -U platform"]
       interval: 5s
       timeout: 5s
       retries: 5
     networks:
-      - docintel-network
+      - enterprise-ai-platform-network
 
   pgadmin:
     image: dpage/pgadmin4
-    container_name: docintel-pgadmin
+    container_name: enterprise-ai-platform-pgadmin
     ports:
       - "5050:80"
     environment:
@@ -30,22 +30,22 @@ services:
       postgres:
         condition: service_healthy
     networks:
-      - docintel-network
+      - enterprise-ai-platform-network
 
   qdrant:
     image: qdrant/qdrant:latest
-    container_name: docintel-qdrant
+    container_name: enterprise-ai-platform-qdrant
     ports:
       - "6333:6333"
       - "6334:6334"
     volumes:
       - qdrant_storage:/qdrant/storage
     networks:
-      - docintel-network
+      - enterprise-ai-platform-network
 
   neo4j:
     image: neo4j:5-community
-    container_name: docintel-neo4j
+    container_name: enterprise-ai-platform-neo4j
     ports:
       - "7474:7474"
       - "7687:7687"
@@ -54,7 +54,7 @@ services:
     volumes:
       - neo4j_data:/data
     networks:
-      - docintel-network
+      - enterprise-ai-platform-network
     profiles:
       - graph
 
@@ -64,5 +64,5 @@ volumes:
   neo4j_data:
 
 networks:
-  docintel-network:
+  enterprise-ai-platform-network:
     driver: bridge

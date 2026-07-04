@@ -964,7 +964,7 @@ public class AnthropicChatCompletionProvider implements ChatCompletionProvider {
 <ul>
   <li><strong>No vendor lock-in:</strong> Switch from Ollama to OpenAI by changing one Spring bean.</li>
   <li><strong>Testability:</strong> Unit tests use a mock implementation. No network calls in tests.</li>
-  <li><strong>Graceful degradation:</strong> The <code>NoOpChatCompletionProvider</code> returns a clear "not configured" message instead of crashing.</li>
+  <li><strong>Graceful degradation:</strong> Provider beans are conditionally created via <code>@ConditionalOnProperty</code> — if no AI provider is configured, the platform starts without AI capabilities rather than crashing.</li>
   <li><strong>A/B testing:</strong> Run multiple implementations side by side for comparison.</li>
 </ul>
 
@@ -1293,7 +1293,7 @@ public class AnthropicChatCompletionProvider implements ChatCompletionProvider {
   everything. You need to know the fundamentals deeply, understand the
   tradeoffs in production AI systems, and be able to have an informed opinion
   grounded in experience. This guide gives you the conceptual framework. The
-  Document Intelligence Platform gives you the concrete implementation. Together,
+  Enterprise AI Platform gives you the concrete implementation. Together,
   they demonstrate that you can both <em>think</em> about AI and
   <em>build</em> AI — which is exactly what separates an AI consultant from
   someone who has just read about AI.

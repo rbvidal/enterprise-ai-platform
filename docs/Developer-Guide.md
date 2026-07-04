@@ -4,7 +4,7 @@
 
 ---
 
-> **Audience:** Developers and contributors who need to build, run, extend, test, and debug the platform. This is a practical guide — architectural rationale lives in the [Architecture Handbook](Architecture-Handbook.pdf), and design decisions are documented in the [ADR volume](Architecture-Decision-Records.pdf).
+> **Audience:** Developers and contributors who need to build, run, extend, test, and debug the platform. This is a practical guide — architectural rationale lives in the [Architecture Handbook](Enterprise-AI-Platform-Architecture-Handbook.pdf), and design decisions are documented in the [ADR volume](Enterprise-AI-Platform-Architecture-Decision-Records.pdf).
 
 ---
 
@@ -28,7 +28,7 @@
 ## 1. Repository Structure
 
 ```
-document-intelligence-platform/
+enterprise-ai-platform/
 ├── platform-audit/          Immutable audit log (leaf module)
 ├── platform-auth/           JWT authentication + user management
 ├── platform-document/       Document lifecycle + ingestion pipeline
@@ -62,7 +62,7 @@ document-intelligence-platform/
 **Quick start:**
 ```bash
 git clone <repo-url>
-cd document-intelligence-platform
+cd enterprise-ai-platform
 docker compose up -d                           # PostgreSQL + Qdrant
 docker compose --profile graph up -d           # + Neo4j (optional)
 mvn spring-boot:run -pl platform-api           # Start on :8080
@@ -145,7 +145,7 @@ platform:
   search:
     qdrant:
       host: ${QDRANT_HOST:localhost}
-      collection: ${QDRANT_COLLECTION:document_intelligence_chunks}
+      collection: ${QDRANT_COLLECTION:enterprise_ai_chunks}
 ```
 
 **Key properties:**
@@ -406,4 +406,4 @@ This is a reference implementation. It has not been benchmarked. Here are the ar
 
 ---
 
-> **Further reading:** The [Architecture Handbook](Architecture-Handbook.pdf) explains the design philosophy and trade-offs. The [ADR volume](Architecture-Decision-Records.pdf) documents every major decision.
+> **Further reading:** The [Architecture Handbook](Enterprise-AI-Platform-Architecture-Handbook.pdf) explains the design philosophy and trade-offs. The [ADR volume](Enterprise-AI-Platform-Architecture-Decision-Records.pdf) documents every major decision.
